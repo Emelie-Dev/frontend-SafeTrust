@@ -16,7 +16,13 @@ export function resolveRedirectPath(
   if (!target) return fallback;
 
   if (!target.startsWith("/")) return fallback;
-  if (target.startsWith("//") || target.startsWith("/\\")) return fallback;
+
+  const baseOrigin = "https://safetrust.invalid";
+  try {
+    if (new URL(target, baseOrigin).origin !== baseOrigin) return fallback;
+  } catch {
+    return fallback;
+  }
 
   return target;
 }
