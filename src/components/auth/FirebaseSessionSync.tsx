@@ -28,6 +28,7 @@ export function FirebaseSessionSync() {
         }
 
         const token = await user.getIdToken();
+        if (auth.currentUser !== user) return;
         setSessionCookie(token);
         setToken(token);
       }),
