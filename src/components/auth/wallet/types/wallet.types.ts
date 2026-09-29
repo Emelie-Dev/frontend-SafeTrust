@@ -1,9 +1,4 @@
-export type WalletType =
-  | "freighter"
-  | "albedo"
-  | "lobstr"
-  | "metamask"
-  | "walletconnect";
+export type WalletType = "freighter" | "albedo" | "lobstr";
 
 export type ConnectionStatus =
   | "disconnected"
@@ -11,7 +6,7 @@ export type ConnectionStatus =
   | "connected"
   | "error";
 
-export type ChainType = "stellar" | "ethereum" | "bsc";
+export type ChainType = "stellar";
 
 export interface WalletInfo {
   address: string;
@@ -24,7 +19,7 @@ export interface WalletInfo {
 export interface WalletError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
 }
 
 export interface Balance {
@@ -50,12 +45,6 @@ export interface StellarWalletInfo extends WalletInfo {
   publicKey: string;
 }
 
-export interface EthereumWalletInfo extends WalletInfo {
-  chain: "ethereum" | "bsc";
-  balance?: string;
-  chainId?: number;
-}
-
 export interface FreighterWallet {
   id: "freighter";
   name: string;
@@ -78,24 +67,6 @@ export interface LobstrWallet {
   isAvailable: boolean;
   publicKey?: string;
   isConnected: boolean;
-}
-
-export interface MetaMaskWallet {
-  id: "metamask";
-  name: string;
-  isAvailable: boolean;
-  address?: string;
-  isConnected: boolean;
-  chainId?: number;
-}
-
-export interface WalletConnectProvider {
-  id: "walletconnect";
-  name: string;
-  isAvailable: boolean;
-  address?: string;
-  isConnected: boolean;
-  chainId?: number;
 }
 
 export interface WalletState {
@@ -127,7 +98,7 @@ export interface StellarWalletState {
   connect: () => Promise<void>;
   disconnect: () => void;
   refreshBalances: () => Promise<void>;
-  sendPayment?: (opts: PaymentOptions) => Promise<any>;
+  sendPayment?: (opts: PaymentOptions) => Promise<unknown>;
 }
 
 export interface MultiWalletState {
@@ -145,8 +116,6 @@ export interface WalletDetectionResult {
   freighter: boolean;
   albedo: boolean;
   lobstr: boolean;
-  metamask: boolean;
-  walletconnect: boolean;
   /** Stellar public key retrieved from Freighter after the user grants permission. Null if Freighter is not installed or permission has not been granted yet. */
   freighterAddress: string | null;
 }

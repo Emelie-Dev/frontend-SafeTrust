@@ -47,10 +47,9 @@ const CustomDateRangePicker = React.forwardRef<
       isLoading = false,
       error,
     },
-    ref
+    ref,
   ) => {
     const [isOpen, setIsOpen] = React.useState(false);
-    const [hoveredDate, setHoveredDate] = React.useState<Date | undefined>();
 
     React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
@@ -77,7 +76,7 @@ const CustomDateRangePicker = React.forwardRef<
       const nights = differenceInDays(dateRange.to, dateRange.from);
       return `${format(dateRange.from, "MMM dd")} - ${format(
         dateRange.to,
-        "MMM dd"
+        "MMM dd",
       )} (${nights} night${nights !== 1 ? "s" : ""})`;
     };
 
@@ -162,7 +161,7 @@ const CustomDateRangePicker = React.forwardRef<
                 error &&
                   "border-red-500 focus:ring-red-500 focus:border-red-500",
                 isLoading && "opacity-50 cursor-not-allowed",
-                className
+                className,
               )}
               disabled={disabled || isLoading}
               aria-label={date ? formatDateRange(date) : placeholder}
@@ -230,7 +229,7 @@ const CustomDateRangePicker = React.forwardRef<
                   caption_label: "text-sm font-medium",
                   nav: "space-x-1 flex items-center",
                   nav_button: cn(
-                    "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 rounded-full hover:bg-gray-100"
+                    "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 rounded-full hover:bg-gray-100",
                   ),
                   nav_button_previous: "absolute left-1",
                   nav_button_next: "absolute right-1",
@@ -241,10 +240,10 @@ const CustomDateRangePicker = React.forwardRef<
                   row: "flex w-full mt-2",
                   cell: cn(
                     "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected].day-range-end)]:rounded-r-md",
-                    "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
+                    "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
                   ),
                   day: cn(
-                    "h-8 w-8 p-0 font-normal aria-selected:opacity-100 rounded-full hover:bg-blue-50 transition-colors"
+                    "h-8 w-8 p-0 font-normal aria-selected:opacity-100 rounded-full hover:bg-blue-50 transition-colors",
                   ),
                   day_range_start:
                     "day-range-start bg-blue-600 text-white hover:bg-blue-700",
@@ -283,10 +282,11 @@ const CustomDateRangePicker = React.forwardRef<
         </Popover>
       </div>
     );
-  }
+  },
 );
 
 CustomDateRangePicker.displayName = "CustomDateRangePicker";
 
 export { CustomDateRangePicker };
 export type { CustomDateRangePickerProps };
+export default CustomDateRangePicker;
