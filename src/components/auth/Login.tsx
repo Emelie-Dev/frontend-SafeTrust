@@ -18,6 +18,7 @@ import { auth } from "@/lib/firebase";
 import { WalletSelectionModal } from "./wallet/components/WalletSelectionModal";
 import type { ISupportedWallet } from "@creit.tech/stellar-wallets-kit";
 import { kit } from "./wallet/constants/wallet-kit.constant";
+import { isValidStellarAddress } from "./wallet/utils/walletValidation";
 import { toast } from "sonner";
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -41,9 +42,13 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
 
   const handleStellarWalletSelected = async (wallet: ISupportedWallet) => {
+    setWalletError(null);
     try {
       kit.setWallet(wallet.id);
       const { address } = await kit.getAddress();
+      if (!isValidStellarAddress(address)) {
+        throw new Error("Wallet returned an invalid Stellar address");
+      }
       connectWalletStore(address, wallet.name);
       setWalletModalOpen(false);
       router.push("/dashboard");

@@ -68,6 +68,17 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/profile", label: "Profile", icon: User },
 ];
 
-export const isActive = (pathname: string, item: NavItem) =>
-  pathname === item.href ||
-  (item.matches ?? []).some((p) => pathname.startsWith(p));
+export const isActive = (
+  pathname: string,
+  item: NavItem,
+  items: NavItem[] = NAV_ITEMS,
+) => {
+  if (pathname === item.href) {
+    return true;
+  }
+  const hasExactMatch = items.some((i) => i.href === pathname);
+  if (hasExactMatch) {
+    return false;
+  }
+  return (item.matches ?? []).some((p) => pathname.startsWith(p));
+};
