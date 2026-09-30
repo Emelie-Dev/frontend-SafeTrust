@@ -29,8 +29,20 @@ export default function ApartmentCard({
 
   return (
     <div
+      role="article"
+      tabIndex={0}
+      aria-label={apartment.name}
       onClick={onClick}
-      className="group w-full overflow-hidden rounded-[16px] border dark:border-slate-700 bg-white dark:bg-slate-800 text-left transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]"
+      onKeyDown={(e) => {
+        if (
+          (e.key === "Enter" || e.key === " ") &&
+          e.target === e.currentTarget
+        ) {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+      className="group w-full overflow-hidden rounded-[16px] border dark:border-slate-700 bg-white dark:bg-slate-800 text-left transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
     >
       <div className="relative">
         <Image
@@ -67,9 +79,19 @@ export default function ApartmentCard({
         </div>
 
         <div className="space-y-1">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-            {apartment.name}
-          </h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+              {apartment.name}
+            </h3>
+            {apartment.distance !== undefined && (
+              <span
+                data-testid="distance-label"
+                className="shrink-0 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
+              >
+                {apartment.distance.toFixed(1)} km
+              </span>
+            )}
+          </div>
           <p className="line-clamp-1 text-xs text-gray-500">
             {apartment.address}
           </p>
