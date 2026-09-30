@@ -51,7 +51,7 @@ jobs:
         run: |
           npx --yes @lhci/cli@0.14.x autorun \
             --collect.startServerCommand="npm start" \
-            --collect.startServerReadyPattern="Ready on" \
+            --collect.startServerReadyPattern="Ready in" \
             --collect.startServerReadyTimeout=30000 \
             --collect.url="http://localhost:3000/" \
             --collect.url="http://localhost:3000/rent" \
@@ -63,10 +63,10 @@ jobs:
             --collect.settings.screenEmulation.height=823 \
             --collect.settings.screenEmulation.deviceScaleFactor=1.75 \
             --collect.numberOfRuns=2 \
-            --assert.assertions."categories:performance"="['error', {minScore: 0.85}]" \
-            --assert.assertions."largest-contentful-paint"="['error', {maxNumericValue: 2500}]" \
-            --assert.assertions."cumulative-layout-shift"="['error', {maxNumericValue: 0.1}]" \
-            --assert.assertions."total-blocking-time"="['error', {maxNumericValue: 300}]"
+            '--assert.assertions.categories:performance=["error",{"minScore":0.85}]' \
+            '--assert.assertions.largest-contentful-paint=["error",{"maxNumericValue":2500}]' \
+            '--assert.assertions.cumulative-layout-shift=["error",{"maxNumericValue":0.1}]' \
+            '--assert.assertions.total-blocking-time=["error",{"maxNumericValue":300}]'
 
       - name: Upload Lighthouse reports
         if: always()
