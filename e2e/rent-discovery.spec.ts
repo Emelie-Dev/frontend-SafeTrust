@@ -11,6 +11,7 @@ test.describe("Rent discovery journey", () => {
     const herediaCard = page.locator(
       '[data-testid="destination-card-heredia"]',
     );
+    await expect(herediaCard).toBeVisible();
     await herediaCard.click();
 
     await expect(page).toHaveURL(/location=Heredia/);
@@ -23,15 +24,14 @@ test.describe("Rent discovery journey", () => {
     );
     if (await studentsCheckbox.isVisible()) {
       await studentsCheckbox.click();
+      await expect(studentsCheckbox).toBeChecked();
     } else {
       const sortFilterBtn = page.locator('button:has-text("Sort & Filter")');
-      if (await sortFilterBtn.isVisible()) {
-        await sortFilterBtn.click();
-        const studentBtn = page.locator('button:has-text("Students")').first();
-        if (await studentBtn.isVisible()) {
-          await studentBtn.click();
-        }
-      }
+      await expect(sortFilterBtn).toBeVisible();
+      await sortFilterBtn.click();
+      const studentBtn = page.locator('button:has-text("Students")').first();
+      await expect(studentBtn).toBeVisible();
+      await studentBtn.click();
     }
 
     // Reload keeps state
@@ -42,7 +42,9 @@ test.describe("Rent discovery journey", () => {
 
     // Clear all
     const clearAllBtn = page.locator('button:has-text("Clear all")');
+    await expect(clearAllBtn).toBeVisible();
     await clearAllBtn.click();
+    await expect(page).toHaveURL(/\/rent$/);
     await expectHealthyPage(page);
   });
 });

@@ -9,6 +9,12 @@ test.describe("Wallet auth journey", () => {
           if (method === "eth_requestAccounts" || method === "eth_accounts") {
             return ["0x1234567890123456789012345678901234567890"];
           }
+          if (method === "eth_chainId") {
+            return "0x1";
+          }
+          if (method === "eth_getBalance") {
+            return "0x0";
+          }
           if (method === "personal_sign") {
             return "0xmocksignature";
           }
@@ -25,9 +31,8 @@ test.describe("Wallet auth journey", () => {
 
     // Select MetaMask from modal
     const metaMaskOption = page.locator("text=MetaMask").first();
-    if (await metaMaskOption.isVisible()) {
-      await metaMaskOption.click();
-    }
+    await expect(metaMaskOption).toBeVisible();
+    await metaMaskOption.click();
 
     await expect(page).toHaveURL(/\/dashboard/);
     await expectHealthyPage(page);
@@ -53,9 +58,8 @@ test.describe("Wallet auth journey", () => {
     await walletBtn.click();
 
     const metaMaskOption = page.locator("text=MetaMask").first();
-    if (await metaMaskOption.isVisible()) {
-      await metaMaskOption.click();
-    }
+    await expect(metaMaskOption).toBeVisible();
+    await metaMaskOption.click();
 
     await expect(page).toHaveURL(/\/login/);
     await expectHealthyPage(page);

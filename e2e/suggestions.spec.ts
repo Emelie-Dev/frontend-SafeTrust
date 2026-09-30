@@ -16,10 +16,9 @@ test.describe("Suggestions journey", () => {
 
     // Toggle favorite and check aria-pressed
     const favoriteBtn = row3.locator('button[aria-label="Toggle favorite"]');
-    const initialPressed = await favoriteBtn.getAttribute("aria-pressed");
+    await expect(favoriteBtn).toHaveAttribute("aria-pressed", "false");
     await favoriteBtn.click();
-    const nextPressed = await favoriteBtn.getAttribute("aria-pressed");
-    expect(nextPressed).not.toBe(initialPressed);
+    await expect(favoriteBtn).toHaveAttribute("aria-pressed", "true");
 
     await expectHealthyPage(page);
   });

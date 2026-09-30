@@ -70,8 +70,6 @@ function RentListingContent() {
     if (urlCategory) {
       setSelectedCategories([urlCategory]);
     }
-  }, [urlCategory]);
-
   useEffect(() => {
     if (geo.status === "granted" && geo.position) {
       setSortOption("nearest");
