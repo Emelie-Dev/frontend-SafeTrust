@@ -16,15 +16,15 @@ export interface HotelListing extends HotelAmenitySummary {
   price: number;
   promoted: boolean;
   images: string[];
-  category: 'Family' | 'Students' | 'Travelers';
+  category: "Family" | "Students" | "Travelers";
   location:
-    | 'San José'
-    | 'Heredia'
-    | 'Alajuela'
-    | 'Cartago'
-    | 'Puntarenas'
-    | 'Guanacaste'
-    | 'Limón';
+    | "San José"
+    | "Heredia"
+    | "Alajuela"
+    | "Cartago"
+    | "Puntarenas"
+    | "Guanacaste"
+    | "Limón";
   owner: HotelOwner;
   description: string;
   favorite?: boolean;

@@ -69,7 +69,7 @@ export const useEscrowsMutations = () => {
 
       if (!unsignedTransaction) {
         throw new Error(
-          "Unsigned transaction is missing from deployEscrow response."
+          "Unsigned transaction is missing from deployEscrow response.",
         );
       }
 
@@ -117,7 +117,7 @@ export const useEscrowsMutations = () => {
 
       if (!unsignedTransaction) {
         throw new Error(
-          "Unsigned transaction is missing from updateEscrow response."
+          "Unsigned transaction is missing from updateEscrow response.",
         );
       }
 
@@ -164,7 +164,7 @@ export const useEscrowsMutations = () => {
 
       if (!unsignedTransaction) {
         throw new Error(
-          "Unsigned transaction is missing from fundEscrow response."
+          "Unsigned transaction is missing from fundEscrow response.",
         );
       }
 
@@ -212,7 +212,7 @@ export const useEscrowsMutations = () => {
 
       if (!unsignedTransaction) {
         throw new Error(
-          "Unsigned transaction is missing from approveMilestone response."
+          "Unsigned transaction is missing from approveMilestone response.",
         );
       }
 
@@ -256,12 +256,12 @@ export const useEscrowsMutations = () => {
     }) => {
       const { unsignedTransaction } = await changeMilestoneStatus(
         payload,
-        type
+        type,
       );
 
       if (!unsignedTransaction) {
         throw new Error(
-          "Unsigned transaction is missing from changeMilestoneStatus response."
+          "Unsigned transaction is missing from changeMilestoneStatus response.",
         );
       }
 
@@ -309,7 +309,7 @@ export const useEscrowsMutations = () => {
 
       if (!unsignedTransaction) {
         throw new Error(
-          "Unsigned transaction is missing from startDispute response."
+          "Unsigned transaction is missing from startDispute response.",
         );
       }
 
@@ -357,7 +357,7 @@ export const useEscrowsMutations = () => {
 
       if (!unsignedTransaction) {
         throw new Error(
-          "Unsigned transaction is missing from releaseFunds response."
+          "Unsigned transaction is missing from releaseFunds response.",
         );
       }
 
@@ -405,7 +405,7 @@ export const useEscrowsMutations = () => {
 
       if (!unsignedTransaction) {
         throw new Error(
-          "Unsigned transaction is missing from resolveDispute response."
+          "Unsigned transaction is missing from resolveDispute response.",
         );
       }
 
