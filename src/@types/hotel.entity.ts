@@ -1,5 +1,5 @@
 export type Hotel = {
-  id: number;
+  id: string;
   name: string;
   image: string;
   location: string;

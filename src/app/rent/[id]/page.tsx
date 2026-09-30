@@ -1,38 +1,16 @@
-"use client";
-
-import {
-  ApartmentDetail,
-  HotelHeader,
-  SuggestionsList,
-} from "@/components/listings";
+import { notFound } from "next/navigation";
 import { getHotelById, getSuggestedHotels } from "@/lib/mockData/hotels";
-import { useRouter } from "next/navigation";
-import { use } from "react";
+import RentalDetail from "./RentalDetail";
 
-export default function HotelDetailPage({
+export default async function HotelDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const router = useRouter();
-  const resolvedParams = use(params);
-  const apartment = getHotelById(resolvedParams.id);
-  const suggestions = getSuggestedHotels(apartment.id);
+  const { id } = await params;
+  const apartment = getHotelById(id);
+  if (!apartment) notFound();
+  const suggestions = getSuggestedHotels(id);
 
-  return (
-    <div className="min-h-screen bg-white">
-      <HotelHeader />
-
-      <div className="mx-auto flex max-w-[1180px] flex-col lg:flex-row">
-        <SuggestionsList
-          apartments={suggestions}
-          onSelect={(id) => router.push(`/rent/${id}`)}
-        />
-        <ApartmentDetail
-          apartment={apartment}
-          onBook={() => router.push(`/rent/${apartment.id}/escrow/create`)}
-        />
-      </div>
-    </div>
-  );
+  return <RentalDetail apartment={apartment} suggestions={suggestions} />;
 }

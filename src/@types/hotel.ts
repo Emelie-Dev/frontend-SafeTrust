@@ -25,7 +25,9 @@ export interface HotelListing extends HotelAmenitySummary {
     | 'Puntarenas'
     | 'Guanacaste'
     | 'Limón';
+  coordinates: { lat: number; lng: number };
   owner: HotelOwner;
   description: string;
+  rating: number;
   favorite?: boolean;
 }

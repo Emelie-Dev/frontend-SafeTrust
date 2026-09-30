@@ -9,7 +9,7 @@ import HotelCard from "./HotelCard";
 export default function HotelGrid() {
   const [hotels, setHotels] = useState<Hotel[]>(hotelsMockData);
 
-  const toggleFavorite = (id: number) => {
+  const toggleFavorite = (id: string) => {
     setHotels(
       hotels.map((hotel) =>
         hotel.id === id ? { ...hotel, isFavorite: !hotel.isFavorite } : hotel,

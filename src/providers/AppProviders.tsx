@@ -5,11 +5,13 @@ import { ThemeProvider } from "next-themes";
 import { ApolloClientProvider } from "@/providers/ApolloProviderWrapper";
 import { WalletProvider } from "@/components/tw-blocks/wallet-kit/WalletProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { DemoBanner } from "@/components/layouts/DemoBanner";
 import { QueryProvider } from "./QueryProvider";
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <DemoBanner />
       <ApolloClientProvider>
         <QueryProvider>
           <WalletProvider>

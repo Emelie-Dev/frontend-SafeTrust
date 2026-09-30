@@ -8,56 +8,22 @@ import { Heart, MapPin, Bed, PawPrint, Bath, MessageCircle } from "lucide-react"
 import { cn } from "@/lib/utils";
 import HotelHeader from "@/components/listings/HotelHeader";
 import { getConversationIdForApartment } from "@/lib/mockData/messages";
+import { STUB_HOTELS } from "@/lib/mockData/hotels";
 
-// TODO: replace with Apollo query → public.apartments (Hasura)
-// Reference: dApp/apps/frontend/src/app/dashboard/guest/page.tsx
-const STUB_APARTMENTS = [
-  {
-    id: "1",
-    name: "Moderno Apartamento en San José Centro",
-    address: "Avenida Central, Centro, San José",
-    price: 1200,
-    deposit: 2400,
-    beds: 2,
-    baths: 1,
-    petFriendly: true,
-    isPromoted: true,
-    description:
-      "Apartamento renovado con acabados de lujo, 2 habitaciones, 2 baños",
-    images: [
-      "/img/room1.png",
-      "/img/room2.png",
-      "/img/room3.png",
-      "/img/room4.png",
-    ],
-  },
-  {
-    id: "2",
-    name: "Suite Ejecutiva Sabana Norte",
-    address: "Calle 42, Sabana Norte, San José",
-    price: 950,
-    deposit: 1900,
-    beds: 2,
-    baths: 1,
-    petFriendly: true,
-    isPromoted: false,
-    description:
-      "Suite ejecutiva completamente amueblada con vista panorámica de la ciudad.",
-    images: [
-      "/img/room2.png",
-      "/img/room1.png",
-      "/img/room3.png",
-      "/img/room4.png",
-    ],
-  },
-];
+const suggestions = STUB_HOTELS.map((hotel) => ({
+  ...hotel,
+  beds: hotel.bedrooms,
+  baths: hotel.bathrooms,
+  isPromoted: hotel.promoted,
+  deposit: hotel.price * 2,
+}));
 
 export default function GuestSuggestionsPage() {
   const router = useRouter();
-  const [selectedId, setSelectedId] = useState(STUB_APARTMENTS[0].id);
+  const [selectedId, setSelectedId] = useState(suggestions[0].id);
   const [favorites, setFavorites] = useState<string[]>([]);
 
-  const selected = STUB_APARTMENTS.find((a) => a.id === selectedId)!;
+  const selected = suggestions.find((apartment) => apartment.id === selectedId)!;
   const selectedConversationId = getConversationIdForApartment(selected.name);
 
   const toggleFavorite = (id: string) => {
@@ -82,7 +48,7 @@ export default function GuestSuggestionsPage() {
                 Suggestions
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {STUB_APARTMENTS.length} units available
+                {suggestions.length} units available
               </p>
               <Link
                 href="/rent"
@@ -94,7 +60,7 @@ export default function GuestSuggestionsPage() {
             </div>
 
             <div className="space-y-3">
-              {STUB_APARTMENTS.map((apt) => (
+              {suggestions.map((apt) => (
                 <div
                   key={apt.id}
                   role="button"
@@ -223,11 +189,11 @@ export default function GuestSuggestionsPage() {
                     ${selected.price.toLocaleString()}.00
                     <span className="text-sm font-normal
                                      text-gray-500 dark:text-gray-400 ml-1">
-                      Per month
+                      Per night
                     </span>
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Deposit: ${selected.deposit.toLocaleString()}
+                    Refundable deposit: ${selected.deposit.toLocaleString()}
                   </p>
                 </div>
               </div>
