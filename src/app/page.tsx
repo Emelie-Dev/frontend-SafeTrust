@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import DestinationCarousel from "@/components/DestinationCarousel";
-import Header from "@/components/Header";
+import Header from "@/components/layouts/Header";
 
 export default function Page() {
   return (
@@ -9,7 +9,7 @@ export default function Page() {
       <Header />
       <main className="flex min-h-dvh flex-col">
         <section className="px-4 py-16 text-center sm:py-24">
-          <div className="mx-auto max-w-3xl space-6">
+          <div className="mx-auto max-w-3xl space-y-6">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
               Book stays with your deposit protected by escrow on Stellar
             </h1>

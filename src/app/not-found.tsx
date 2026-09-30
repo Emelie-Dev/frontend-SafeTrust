@@ -11,7 +11,7 @@ export default function NotFound() {
         description="The link may be broken or the listing may no longer be available."
         action={
           <Button asChild>
-            <Link href="/properties">Browse places</Link>
+            <Link href="/rent">Browse places</Link>
           </Button>
         }
       />
