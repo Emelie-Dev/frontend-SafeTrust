@@ -6,11 +6,8 @@ import type {
   EscrowData,
   NotificationData,
 } from "@/components/dashboard/RoleEscrowDashboard";
-import {
-  fetchMockEscrows,
-  generateMockNotifications,
-} from "@/lib/mockData";
-import { getUserRole } from "@/utils/role-utils";
+import { fetchMockEscrows, generateMockNotifications } from "@/lib/mockData";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 // Dynamic import: RoleEscrowDashboard (chart libraries, escrow component tree,
 // mock data generators) loads in a separate chunk only when this route is
@@ -33,22 +30,27 @@ const RoleEscrowDashboard = dynamic(
         <div className="h-64 rounded-xl bg-muted animate-pulse" />
       </div>
     ),
-  }
+  },
 );
 
 export function RoleEscrowDashboardPage() {
-  const [userRole, setUserRole] = useState<"guest" | "hotel" | "admin">("guest");
+  const { user, loading: authLoading } = useCurrentUser();
   const [escrows, setEscrows] = useState<EscrowData[]>([]);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Map Hasura role ("host") to the dashboard component's expected value ("hotel").
+  // The dashboard was built before BE-02 standardised role names; this adapter
+  // keeps the component's internal API stable without touching its props type.
+  const rawRole = user?.activeRole ?? "guest";
+  const userRole: "guest" | "hotel" | "admin" =
+    rawRole === "host" ? "hotel" : rawRole === "admin" ? "admin" : "guest";
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const role = getUserRole();
-      setUserRole(role ?? "guest");
       const escrowData = await fetchMockEscrows();
       setEscrows(escrowData);
       setNotifications(generateMockNotifications(escrowData));
@@ -60,15 +62,17 @@ export function RoleEscrowDashboardPage() {
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (!authLoading) {
+      loadData();
+    }
+  }, [authLoading, loadData]);
 
   return (
     <RoleEscrowDashboard
       userRole={userRole}
       escrows={escrows}
       notifications={notifications}
-      isLoading={isLoading}
+      isLoading={isLoading || authLoading}
       error={error}
       onRefresh={loadData}
     />
