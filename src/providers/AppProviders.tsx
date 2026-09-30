@@ -18,6 +18,7 @@ import { QueryProvider } from "./QueryProvider";
  * The wallet kit is now loaded on-demand:
  *  - Auth pages (/login, /register) render WalletProvider themselves.
  *  - Escrow pages (/bookings/**) get it through EscrowProviders.
+ *  - Dashboard pages (/dashboard/**) get it from the dashboard layout.
  *
  * See: https://github.com/safetrustcr/frontend-SafeTrust/issues/538
  */
