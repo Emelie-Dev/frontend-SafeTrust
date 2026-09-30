@@ -21,7 +21,7 @@ interface RoomDetailsCardProps {
 }
 
 const RoomDetailsCard = ({
-  hotelName = "Shikara Hotel",
+  hotelName = "Room",
   price = 40.18,
   currency = "$",
   rating = 4.8,

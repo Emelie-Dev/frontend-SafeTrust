@@ -195,11 +195,12 @@ export function useInitializeEscrow() {
       toast.success("Escrow initialized successfully");
 
       setSelectedEscrow({ ...finalPayload, contractId: response.contractId });
+      // Reset only after success: a failed or rejected deploy keeps the input.
+      form.reset();
     } catch (error) {
       toast.error(handleError(error as ErrorResponse).message);
     } finally {
       setIsSubmitting(false);
-      form.reset();
     }
   });
 

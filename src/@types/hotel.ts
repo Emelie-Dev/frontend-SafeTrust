@@ -7,6 +7,8 @@ export interface HotelAmenitySummary {
 export interface HotelOwner {
   name: string;
   avatar: string;
+  /** Host payout wallet (Stellar public key). Escrow bookings need it. */
+  walletAddress?: string;
 }
 
 export interface HotelListing extends HotelAmenitySummary {

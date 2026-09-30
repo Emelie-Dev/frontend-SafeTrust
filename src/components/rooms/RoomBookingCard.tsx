@@ -13,20 +13,23 @@ import {
 import { CustomDateRangePicker } from "./booking/CustomDateRangePicker";
 import { PriceCalculator } from "./booking/PriceCalculator";
 import { AvailabilityChecker } from "./booking/AvailabilityChecker";
-import { BookingButton } from "./booking/BookingButton";
+import { BookingButton, type BookingListing } from "./booking/BookingButton";
+import type { BookingDetails } from "@/features/escrow/booking-escrow.machine";
 import { Users, Calendar } from "lucide-react";
 
 interface RoomBookingCardProps {
   roomId?: string;
+  listing: BookingListing;
   basePrice: number;
   onBookingStart?: () => void;
-  onBookingComplete?: (bookingId: string) => void;
+  onBookingComplete?: (bookingId: string, booking: BookingDetails) => void;
   onBookingError?: (error: string) => void;
   className?: string;
 }
 
 const RoomBookingCard: React.FC<RoomBookingCardProps> = ({
   roomId,
+  listing,
   basePrice,
   onBookingStart,
   onBookingComplete,
@@ -36,22 +39,6 @@ const RoomBookingCard: React.FC<RoomBookingCardProps> = ({
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
   const [guestCount, setGuestCount] = React.useState(1);
   const [isAvailable, setIsAvailable] = React.useState(false);
-  const [totalPrice, setTotalPrice] = React.useState(0);
-
-  React.useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      const nights = Math.ceil(
-        (dateRange.to.getTime() - dateRange.from.getTime()) /
-          (1000 * 60 * 60 * 24),
-      );
-      const subtotal = basePrice * nights * guestCount;
-      const tax = subtotal * 0.1;
-      const platformFee = subtotal * 0.05;
-      setTotalPrice(subtotal + tax + platformFee);
-    } else {
-      setTotalPrice(0);
-    }
-  }, [dateRange, guestCount, basePrice]);
 
   const handleAvailabilityChange = (available: boolean) => {
     setIsAvailable(available);
@@ -61,8 +48,11 @@ const RoomBookingCard: React.FC<RoomBookingCardProps> = ({
     onBookingStart?.();
   };
 
-  const handleBookingComplete = (bookingId: string) => {
-    onBookingComplete?.(bookingId);
+  const handleBookingComplete = (
+    bookingId: string,
+    booking: BookingDetails,
+  ) => {
+    onBookingComplete?.(bookingId, booking);
   };
 
   const handleBookingError = (error: string) => {
@@ -134,9 +124,11 @@ const RoomBookingCard: React.FC<RoomBookingCardProps> = ({
         />
 
         <BookingButton
+          listing={listing}
           dateRange={dateRange}
+          guestCount={guestCount}
+          nightlyRate={basePrice}
           isAvailable={isAvailable}
-          totalPrice={totalPrice}
           onBookingStart={handleBookingStart}
           onBookingComplete={handleBookingComplete}
           onBookingError={handleBookingError}

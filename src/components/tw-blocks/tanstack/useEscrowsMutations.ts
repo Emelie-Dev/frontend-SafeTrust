@@ -27,6 +27,21 @@ import {
 import { signTransaction } from "../wallet-kit/wallet-kit";
 
 /**
+ * Optional hooks into a sign-and-send mutation (SafeTrust local modification).
+ *
+ * They let callers tell "nothing was sent" apart from "the signed transaction
+ * may have landed", which is what makes booking escrow retries safe.
+ */
+export interface EscrowTxLifecycle {
+  /** The unsigned transaction was built; the wallet prompt opens next. */
+  onAwaitingSignature?: () => void;
+  /** Runs after signing, before sending. Throw here to abort (nothing is sent). */
+  beforeSubmit?: () => void;
+  /** The signed transaction is about to be sent. Persist this before awaiting. */
+  onSubmitted?: (signedTxXdr: string) => void;
+}
+
+/**
  * Use the mutations to interact with the escrows
  *
  * - Deploy Escrow
@@ -58,12 +73,14 @@ export const useEscrowsMutations = () => {
       payload,
       type,
       address,
+      lifecycle,
     }: {
       payload:
         | InitializeSingleReleaseEscrowPayload
         | InitializeMultiReleaseEscrowPayload;
       type: EscrowType;
       address: string;
+      lifecycle?: EscrowTxLifecycle;
     }) => {
       const { unsignedTransaction } = await deployEscrow(payload, type);
 
@@ -73,6 +90,8 @@ export const useEscrowsMutations = () => {
         );
       }
 
+      lifecycle?.onAwaitingSignature?.();
+
       const signedTxXdr = await signTransaction({
         unsignedTransaction,
         address,
@@ -81,6 +100,9 @@ export const useEscrowsMutations = () => {
       if (!signedTxXdr) {
         throw new Error("Signed transaction is missing.");
       }
+
+      lifecycle?.beforeSubmit?.();
+      lifecycle?.onSubmitted?.(signedTxXdr);
 
       const response = await sendTransaction(signedTxXdr);
 
@@ -154,10 +176,12 @@ export const useEscrowsMutations = () => {
       payload,
       type,
       address,
+      lifecycle,
     }: {
       payload: FundEscrowPayload;
       type: EscrowType;
       address: string;
+      lifecycle?: EscrowTxLifecycle;
     }) => {
       // Step 1: Get unsigned transaction
       const { unsignedTransaction } = await fundEscrow(payload, type);
@@ -168,6 +192,8 @@ export const useEscrowsMutations = () => {
         );
       }
 
+      lifecycle?.onAwaitingSignature?.();
+
       // Step 2: Sign transaction
       const signedTxXdr = await signTransaction({
         unsignedTransaction,
@@ -177,6 +203,9 @@ export const useEscrowsMutations = () => {
       if (!signedTxXdr) {
         throw new Error("Signed transaction is missing.");
       }
+
+      lifecycle?.beforeSubmit?.();
+      lifecycle?.onSubmitted?.(signedTxXdr);
 
       // Step 3: Send transaction
       const response = await sendTransaction(signedTxXdr);

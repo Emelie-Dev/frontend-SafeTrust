@@ -27,6 +27,7 @@
     "@graphql-codegen/typescript-react-apollo",
     "@radix-ui/react-tabs",
     "@reown/walletkit",
+    "@stellar/freighter-api",
     "@trustless-work/blocks",
     "@walletconnect/core",
     "@walletconnect/utils",
