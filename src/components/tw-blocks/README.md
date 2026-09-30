@@ -34,6 +34,14 @@ form variant that is not rendered by the product.
   sent" apart from "the signed transaction may have landed", and to abort a
   cancelled signature before anything is sent. Callers that omit it behave
   exactly as upstream.
+- `wallet-kit/wallet-kit.ts` re-exports the app's single `StellarWalletsKit`
+  (`components/auth/wallet/constants/wallet-kit.constant.ts`) instead of
+  creating a second kit pinned to Freighter, so escrow transactions are signed
+  by the wallet the guest connected.
+- `providers/TrustlessWork.tsx` takes a required `baseURL` prop.
+  `src/providers/EscrowProviders.tsx` passes `TRUSTLESS_WORK_API_URL`, derived
+  from the Stellar network rather than `NODE_ENV`, so the API always builds
+  transactions for the network the wallet kit signs on.
 
 # Trustless Work Blocks
 

@@ -337,7 +337,9 @@ export function BookingEscrowCheckout({
     );
   }
 
-  if (blockedReason && !intent) {
+  // Block whenever the date-picker selection is what would be booked. Only a
+  // restored draft shown in place of an empty picker skips the picker's reason.
+  if (blockedReason && activeBooking === booking) {
     return shell(
       <Button className="h-12 w-full rounded-3xl" disabled>
         {blockedReason}

@@ -277,3 +277,39 @@ it("Test 5 (UI): displayed total === deployed amount === funded amount", async (
   );
   expect(seen.deploy!.title).toBe("La sabana sur: 3 nights");
 });
+
+describe("blocked selection with a restored idle draft", () => {
+  function persistIdleDraft() {
+    saveIntent({
+      ...createIntent("b-idle", makeBooking()),
+      signer: GUEST,
+      state: { step: "idle" },
+    });
+    sessionStorage.setItem(activeBookingKey("1"), "b-idle");
+  }
+
+  it("still blocks when the guest picks new unavailable dates", async () => {
+    persistIdleDraft();
+    renderCheckout({
+      booking: makeBooking({ checkIn: "2030-02-01", checkOut: "2030-02-03" }),
+      blockedReason: "Not Available",
+    });
+
+    expect(
+      await screen.findByRole("button", { name: "Not Available" }),
+    ).toBeDisabled();
+    expect(
+      screen.queryByRole("button", { name: /Book Now|Continue booking/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("lets the guest continue the restored draft when no dates are picked", async () => {
+    persistIdleDraft();
+    renderCheckout({ booking: null, blockedReason: "Select Dates" });
+
+    const resume = await screen.findByRole("button", {
+      name: /Continue booking/,
+    });
+    await waitFor(() => expect(resume).toBeEnabled());
+  });
+});

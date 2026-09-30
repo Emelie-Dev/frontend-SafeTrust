@@ -12,6 +12,7 @@
 [![Stellar](https://img.shields.io/badge/Stellar-Blockchain-7B2BF9?logo=stellar)](https://stellar.org)
 [![🔥 Firebase](https://img.shields.io/badge/🔥_Firebase-Auth-FFCA28)](https://firebase.google.com/)
 [![🔐 TrustlessWork](https://img.shields.io/badge/🔐_TrustlessWork-EaaS-00C2A8)](https://docs.trustlesswork.com/trustless-work)
+
 </div>
 
 ---
@@ -28,10 +29,10 @@ SafeTrust is a decentralized P2P escrow platform for rental transactions. Funds 
 
 ### Prerequisites
 
-| Tool | Version |
-|---|---|
-| Node.js | 20.18 - 22.x |
-| npm | 10.9.2 |
+| Tool             | Version                                        |
+| ---------------- | ---------------------------------------------- |
+| Node.js          | 20.18 - 22.x                                   |
+| npm              | 10.9.2                                         |
 | A Stellar wallet | [Freighter](https://freighter.app) recommended |
 
 ### 1. Clone and install
@@ -101,10 +102,12 @@ Required for escrow deploy, fund, and release flows.
 ```dotenv
 NEXT_PUBLIC_API_URL=https://api.trustlesswork.com
 NEXT_PUBLIC_API_KEY=
-NEXT_PUBLIC_TRUSTLESS_API_URL=https://api.trustlesswork.com
-NEXT_PUBLIC_TRUSTLESS_API_URL_DEV=https://dev.api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 ```
+
+The escrow API base URL is not an env var: `EscrowProviders` derives it from
+the Stellar network the wallet kit signs on (`STELLAR_NETWORK` in
+`src/features/escrow/config.ts`; testnet → `https://dev.api.trustlesswork.com`).
 
 **Get your API key:**
 

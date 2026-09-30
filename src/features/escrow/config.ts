@@ -7,6 +7,7 @@
  * `NEXT_PUBLIC_*` values must be read with literal `process.env.X` access so
  * Next.js can inline them at build time.
  */
+import type { baseURL } from "@trustless-work/escrow";
 import { trustlines } from "@/components/tw-blocks/wallet-kit/trustlines";
 
 const parseNumber = (raw: string | undefined, fallback: number): number => {
@@ -39,8 +40,18 @@ export const getPlatformWalletAddress = (): string =>
 export const getDisputeResolverAddress = (): string =>
   process.env.NEXT_PUBLIC_DISPUTE_RESOLVER_ADDRESS?.trim() ?? "";
 
-/** The wallet kit is pinned to testnet (see tw-blocks/wallet-kit/wallet-kit.ts). */
+/** The wallet kit is pinned to testnet (see auth/wallet/constants/wallet-kit.constant.ts). */
 export const STELLAR_NETWORK: "testnet" | "mainnet" = "testnet";
+
+/**
+ * Trustless Work API for STELLAR_NETWORK (the SDK's `baseURL` values).
+ * Derived from the network, never from NODE_ENV: the API must build
+ * transactions for the same network the wallet kit signs on.
+ */
+export const TRUSTLESS_WORK_API_URL: baseURL =
+  STELLAR_NETWORK === "testnet"
+    ? "https://dev.api.trustlesswork.com"
+    : "https://api.trustlesswork.com";
 
 /**
  * USDC trustline for the active network. Uses the classic issuer address,
