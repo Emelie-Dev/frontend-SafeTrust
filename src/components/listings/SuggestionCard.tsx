@@ -71,7 +71,7 @@ export default function SuggestionCard({
           aria-label={`View ${name}`}
           className="flex min-w-0 flex-1 items-start gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10a156]/30"
         >
-          <div className="relative h-[60px] w-[60px] shrink-0 overflow-hidden rounded-[10px] bg-muted">
+          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
             <Image
               src={image ?? "/img/hotel/hotel1.jpg"}
               alt={name}

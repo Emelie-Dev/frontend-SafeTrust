@@ -1,15 +1,17 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { ChevronDown, Grid2X2, Heart, Lightbulb } from 'lucide-react';
 import {
-  FaBell,
-  FaRegUserCircle,
-  FaSearch,
-} from 'react-icons/fa';
+  ChevronDown,
+  Grid2X2,
+  Heart,
+  LayoutDashboard,
+  Lightbulb,
+} from "lucide-react";
+import { FaBell, FaRegUserCircle, FaSearch } from "react-icons/fa";
 
 interface HotelHeaderProps {
   showHostSwitch?: boolean;
@@ -18,21 +20,27 @@ interface HotelHeaderProps {
 const RENT_ITEMS = [
   {
     icon: Grid2X2,
-    label: 'Browse all units',
-    description: 'Filter by price, location, rooms',
-    href: '/rent',
+    label: "Browse all units",
+    description: "Filter by price, location, rooms",
+    href: "/rent",
   },
   {
     icon: Lightbulb,
-    label: 'Suggestions',
-    description: 'Curated picks with detail view',
-    href: '/guest/suggestions',
+    label: "Suggestions",
+    description: "Curated picks with detail view",
+    href: "/guest/suggestions",
+  },
+  {
+    icon: LayoutDashboard,
+    label: "Switch to Host view",
+    description: "Manage your hosting dashboard",
+    href: "/dashboard",
   },
   {
     icon: Heart,
-    label: 'My Wishlist',
-    description: 'Your saved apartments',
-    href: '/dashboard/favorites',
+    label: "My Wishlist",
+    description: "Your saved apartments",
+    href: "/dashboard/favorites",
   },
 ] as const;
 
@@ -46,17 +54,17 @@ export function RentDropdown() {
       if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && open) {
+      if (event.key === "Escape" && open) {
         setOpen(false);
         triggerRef.current?.focus();
       }
     };
 
-    document.addEventListener('mousedown', closeOnOutsideClick);
-    document.addEventListener('keydown', closeOnEscape);
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.removeEventListener('mousedown', closeOnOutsideClick);
-      document.removeEventListener('keydown', closeOnEscape);
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
     };
   }, [open]);
 
@@ -74,7 +82,7 @@ export function RentDropdown() {
         Rent
         <ChevronDown
           aria-hidden="true"
-          className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -97,8 +105,12 @@ export function RentDropdown() {
                 <Icon aria-hidden="true" className="h-4 w-4 text-orange-500" />
               </span>
               <span>
-                <span className="block text-sm font-medium text-gray-900 dark:text-white">{label}</span>
-                <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{description}</span>
+                <span className="block text-sm font-medium text-gray-900 dark:text-white">
+                  {label}
+                </span>
+                <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
+                  {description}
+                </span>
               </span>
             </Link>
           ))}
@@ -108,27 +120,43 @@ export function RentDropdown() {
   );
 }
 
-export default function HotelHeader({ showHostSwitch = false }: HotelHeaderProps) {
+export default function HotelHeader({
+  showHostSwitch = false,
+}: HotelHeaderProps) {
   return (
-    <header className="border-b border-[#e8e1da] bg-white dark:border-slate-700 dark:bg-slate-900">
-      <div className="mx-auto flex max-w-[1180px] items-center gap-4 px-5 py-5 lg:px-7">
+    <header className="sticky top-0 z-30 border-b border-border bg-background">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:flex-nowrap sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
           <Image src="/img/logo.png" alt="SafeTrust" width={36} height={36} />
-          <span className="text-[24px] font-semibold tracking-[-0.03em] text-gray-900 dark:text-white">
+          <span className="text-2xl font-semibold text-foreground">
             SafeTrust
           </span>
         </Link>
 
-        <div className="mx-auto hidden w-full max-w-[430px] items-center rounded-full border border-gray-200 bg-gray-100 px-2 py-1.5 md:flex dark:border-slate-700 dark:bg-slate-800">
+        <form
+          action="/rent"
+          method="get"
+          className="order-3 mx-0 flex w-full items-center rounded-full border border-border bg-muted/60 px-2 py-1.5 sm:order-none sm:mx-auto sm:max-w-md"
+        >
           <RentDropdown />
-          <div className="mx-3 h-6 w-px bg-gray-300 dark:bg-slate-600" />
-          <span className="text-sm text-gray-500 dark:text-gray-300">
-            City, province or neighborhood
-          </span>
-          <FaSearch className="ml-auto h-4 w-4 text-gray-600 dark:text-gray-300" />
-        </div>
+          <div className="mx-3 h-6 w-px shrink-0 bg-border" />
+          <input
+            name="q"
+            type="search"
+            aria-label="Search rentals"
+            placeholder="City, province or neighborhood"
+            className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            type="submit"
+            aria-label="Search rentals"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-background"
+          >
+            <FaSearch aria-hidden="true" className="h-4 w-4" />
+          </button>
+        </form>
 
-        <div className="ml-auto flex items-center gap-5">
+        <div className="ml-auto flex items-center gap-3 sm:gap-5">
           {showHostSwitch && (
             <Link
               href="/dashboard/escrow-dashboard"

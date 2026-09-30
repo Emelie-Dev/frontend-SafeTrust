@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import type { HotelListing } from '@/@types/hotel';
-import Image from 'next/image';
-import { FaMapMarkerAlt } from 'react-icons/fa';
-import AmenityIcons from './AmenityIcons';
-import { formatListingPrice } from './formatListingPrice';
-import ImageGallery from './ImageGallery';
+import type { HotelListing } from "@/@types/hotel";
+import Image from "next/image";
+import { FaMapMarkerAlt } from "react-icons/fa";
+import AmenityIcons from "./AmenityIcons";
+import { formatListingPrice } from "./formatListingPrice";
+import ImageGallery from "./ImageGallery";
 
 interface ApartmentDetailProps {
   apartment: HotelListing;
@@ -26,7 +26,7 @@ export default function ApartmentDetail({
 
       <div className="mt-8 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex-1">
-          <h1 className="text-[34px] font-semibold tracking-[-0.04em] text-[#181818]">
+          <h1 className="text-3xl font-semibold text-[#181818] sm:text-4xl">
             {apartment.name}
           </h1>
 
@@ -46,7 +46,7 @@ export default function ApartmentDetail({
           </div>
         </div>
 
-        <div className="w-full rounded-[12px] lg:max-w-[210px]">
+        <div className="w-full rounded-xl lg:max-w-52">
           <button
             type="button"
             onClick={onBook}
@@ -55,7 +55,7 @@ export default function ApartmentDetail({
             BOOK
           </button>
           <div className="mt-4 flex items-end gap-2">
-            <span className="text-[34px] font-semibold leading-none text-[#10a156]">
+            <span className="text-3xl font-semibold leading-none text-[#10a156] sm:text-4xl">
               {formatListingPrice(apartment.price)}
             </span>
             <span className="pb-1 text-sm text-[#808080]">Per month</span>
@@ -70,14 +70,14 @@ export default function ApartmentDetail({
               alt={apartment.owner.name}
               width={34}
               height={34}
-              className="h-[34px] w-[34px] rounded-full object-cover"
+              className="h-9 w-9 rounded-full object-cover"
             />
           </div>
         </div>
       </div>
 
-      <div className="mt-10 max-w-[760px]">
-        <h2 className="text-[22px] font-semibold text-[#1b1b1b]">
+      <div className="mt-10 max-w-3xl">
+        <h2 className="text-xl font-semibold text-[#1b1b1b]">
           Apartment details
         </h2>
         <p className="mt-4 text-sm leading-6 text-[#6d6d6d]">

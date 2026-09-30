@@ -41,7 +41,7 @@ export default function ApartmentCard({
           className="h-[170px] w-full object-cover"
         />
         {apartment.promoted ? (
-          <span className="absolute bottom-0 left-0 inline-flex items-center gap-1 rounded-tr-[10px] bg-orange-500 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.02em] text-white">
+          <span className="absolute bottom-0 left-0 inline-flex items-center gap-1 rounded-tr-lg bg-orange-500 px-4 py-2 text-xs font-semibold uppercase tracking-[0.02em] text-white">
             <FaFireAlt className="h-3.5 w-3.5" />
             Promoted
           </span>
@@ -51,7 +51,7 @@ export default function ApartmentCard({
       <div className="flex flex-1 flex-col px-4 py-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-end gap-2">
-            <span className="text-[30px] font-semibold leading-none text-green-600">
+            <span className="text-3xl font-semibold leading-none text-green-600">
               {formatListingPrice(apartment.price)}
             </span>
             <span className="pb-1 text-xs text-gray-500">Per month</span>
@@ -59,9 +59,7 @@ export default function ApartmentCard({
           <AiOutlineHeart
             className={cn(
               "h-5 w-5",
-              apartment.favorite
-                ? 'fill-red-500 text-red-500'
-                : 'text-red-500'
+              apartment.favorite ? "fill-red-500 text-red-500" : "text-red-500",
             )}
           />
         </div>

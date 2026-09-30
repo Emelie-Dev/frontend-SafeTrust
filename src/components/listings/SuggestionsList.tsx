@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import type { HotelListing } from '@/@types/hotel';
-import { useEffect, useState } from 'react';
-import SuggestionCard from './SuggestionCard';
+import type { HotelListing } from "@/@types/hotel";
+import { useEffect, useState } from "react";
+import SuggestionCard from "./SuggestionCard";
 
 interface SuggestionsListProps {
   apartments: HotelListing[];
@@ -21,8 +21,8 @@ export default function SuggestionsList({
         apartments.map((apartment) => [
           apartment.id,
           currentLikes[apartment.id] ?? apartment.favorite ?? false,
-        ])
-      )
+        ]),
+      ),
     );
   }, [apartments]);
 
@@ -34,11 +34,9 @@ export default function SuggestionsList({
   };
 
   return (
-    <aside className="w-full border-b border-[#e8e1da] px-6 py-8 lg:w-[320px] lg:border-b-0 lg:border-r">
+    <aside className="w-full border-b border-[#e8e1da] px-6 py-8 lg:w-80 lg:border-b-0 lg:border-r">
       <div className="mb-6">
-        <h2 className="text-[28px] font-semibold tracking-[-0.03em] text-[#181818]">
-          Suggestions
-        </h2>
+        <h2 className="text-3xl font-semibold text-[#181818]">Suggestions</h2>
         <p className="mt-4 text-sm text-[#202020]">
           More than 200 units available
         </p>
@@ -56,7 +54,7 @@ export default function SuggestionsList({
             bathrooms={apartment.bathrooms}
             petFriendly={apartment.petFriendly}
             image={apartment.images[0]}
-            loading={index === 0 ? 'eager' : 'lazy'}
+            loading={index === 0 ? "eager" : "lazy"}
             isLiked={likedById[apartment.id] ?? apartment.favorite ?? false}
             onLike={handleLike}
             onClick={onSelect}
