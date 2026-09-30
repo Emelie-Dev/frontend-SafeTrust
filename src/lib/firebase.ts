@@ -20,4 +20,13 @@ if (missing.length > 0) {
 }
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+
+/**
+ * Synchronous auth instance used by components on auth/dashboard routes
+ * (Register, ForgotPasswordForm, LogoutButton, Header, EditProfileForm).
+ *
+ * Do NOT import this from public-browse routes (/, /rent, /room) — use
+ * `getAuthInstance()` from `@/lib/firebase-app` instead so that
+ * firebase/auth is excluded from those page bundles.
+ */
 export const auth = getAuth(app);
