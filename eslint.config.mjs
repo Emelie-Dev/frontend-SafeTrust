@@ -38,6 +38,18 @@ const eslintConfig = [
           caughtErrorsIgnorePattern: '^_',
         },
       ],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['@/lib/mockData*', '@/lib/demo*'],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/hooks/**/*.{ts,tsx}', '**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': 'off',
     },
   },
 ];
