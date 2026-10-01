@@ -62,8 +62,10 @@ function RentListingContent() {
   useEffect(() => {
     if (geo.position) {
       setSortOption(isOutsideCostaRica ? "relevance" : "nearest");
-    } else if (geo.status === "idle") {
-      setSortOption("relevance");
+    } else {
+      setSortOption((current) =>
+        current === "nearest" ? "relevance" : current,
+      );
     }
   }, [geo.position, geo.status, isOutsideCostaRica]);
 
