@@ -16,13 +16,9 @@ test.describe("Google auth journey via emulator", () => {
     ]);
 
     await popup.waitForLoadState("domcontentloaded");
-    const submitBtn = popup
-      .locator(
-        'button[type="submit"], button#submit, button:has-text("Sign in"), button:has-text("Add")',
-      )
-      .first();
-    await expect(submitBtn).toBeVisible();
-    await submitBtn.click();
+    await popup.getByRole("button", { name: "Add new account" }).click();
+    await popup.locator("#email-input").fill("google-e2e@example.com");
+    await popup.locator("#sign-in").click();
 
     await expect(page).toHaveURL(/\/dashboard/);
     await expectHealthyPage(page);

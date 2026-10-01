@@ -4,14 +4,35 @@ import AxeBuilder from "@axe-core/playwright";
 
 export const test = base.extend({
   page: async ({ page }, use) => {
-    const errors: string[] = [];
-    page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
-    page.on("pageerror", (e) => errors.push(e.message));
+    const consoleErrors: string[] = [];
+    const pageErrors: string[] = [];
+
+    page.on("console", (m) => {
+      if (m.type() === "error") {
+        consoleErrors.push(m.text());
+      }
+    });
+    page.on("pageerror", (e) => pageErrors.push(e.message));
+
     await use(page);
-    expect(
-      errors.filter((e) => !/favicon|ResizeObserver|404 \(Not Found\)/.test(e)),
-      "console errors",
-    ).toEqual([]);
+
+    expect(pageErrors, "uncaught page errors").toEqual([]);
+
+    const unexpectedConsoleErrors = consoleErrors.filter((msg) => {
+      if (/favicon|ResizeObserver/.test(msg)) {
+        return false;
+      }
+      const currentUrl = page.url();
+      if (
+        /(?:does-not-exist|rent\/999)/.test(currentUrl) &&
+        /404 \(Not Found\)/.test(msg)
+      ) {
+        return false;
+      }
+      return true;
+    });
+
+    expect(unexpectedConsoleErrors, "console errors").toEqual([]);
   },
 });
 
