@@ -13,4 +13,13 @@ export const serverSchema = z.object({
     .transform((v) => v === "true" && process.env.NODE_ENV !== "production"), // can never be on in prod
 });
 
-export const serverEnv = serverSchema.parse(process.env);
+export type ServerEnv = z.infer<typeof serverSchema>;
+
+export const serverEnv = new Proxy({} as ServerEnv, {
+  get(_target, prop: string | symbol) {
+    if (typeof prop === "string" && prop in serverSchema.shape) {
+      return serverSchema.parse(process.env)[prop as keyof ServerEnv];
+    }
+    return undefined;
+  },
+});
