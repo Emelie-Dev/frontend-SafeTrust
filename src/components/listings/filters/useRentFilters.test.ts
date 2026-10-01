@@ -41,17 +41,16 @@ describe("useRentFilters", () => {
     );
   });
 
-  it("clears pending filters when reset is requested", () => {
+  it("keeps clear-all state for updates before navigation commits", () => {
+    mockSearchParams = "location=San%20Jos%C3%A9&categories=Family";
     const { result } = renderHook(() => useRentFilters());
 
     act(() => {
-      result.current.setFilters({ location: "Heredia" });
       result.current.reset();
       result.current.setFilters({ bedrooms: "2" });
     });
 
     expect(mockRouterReplace.mock.calls).toEqual([
-      ["/rent?location=Heredia", { scroll: false }],
       ["/rent", { scroll: false }],
       ["/rent?bedrooms=2", { scroll: false }],
     ]);

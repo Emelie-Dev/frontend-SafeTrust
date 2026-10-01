@@ -144,9 +144,9 @@ export function useRentFilters() {
   );
 
   const reset = useCallback(() => {
-    pendingFilters.current = null;
+    pendingFilters.current = { params: paramsString, filters: DEFAULT_FILTERS };
     router.replace(pathname, { scroll: false });
-  }, [pathname, router]);
+  }, [paramsString, pathname, router]);
 
   const activeCount =
     filters.categories.length +
