@@ -9,6 +9,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { formatAmount } from "@/lib/format";
 import { DashboardHeader } from "./DashboardHeader";
 import { EscrowsByStatus } from "./EscrowsByStatus";
 import { RecentActivity } from "./RecentActivity";
@@ -412,10 +413,7 @@ export function RoleEscrowDashboard({
                   Total Value
                 </p>
                 <p className="text-2xl font-bold mt-1 dark:text-white">
-                  $
-                  {escrows
-                    .reduce((sum, e) => sum + e.amount, 0)
-                    .toLocaleString()}
+                  {formatAmount(escrows.reduce((sum, e) => sum + e.amount, 0))}
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30">
