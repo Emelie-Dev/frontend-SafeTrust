@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useReducer } from "react";
 import {
   DEMO_MODE,
   generateMockEscrows,
@@ -10,18 +10,15 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export function useEscrowDashboardData() {
   const { user, loading: userLoading } = useCurrentUser();
-  const [refreshKey, setRefreshKey] = useState(0);
-  const data = useMemo(() => {
-    if (!DEMO_MODE || !user) return [];
-    return generateMockEscrows(12, user.uid);
-  }, [user, refreshKey]);
-  const notifications = useMemo(() => generateMockNotifications(data), [data]);
+  const [, refresh] = useReducer((revision: number) => revision + 1, 0);
+  const data = user && DEMO_MODE ? generateMockEscrows(12, user.uid) : [];
+  const notifications = generateMockNotifications(data);
 
   return {
     data,
     notifications,
     source: user && DEMO_MODE ? ("demo" as const) : ("none" as const),
     loading: userLoading,
-    refresh: () => setRefreshKey((key) => key + 1),
+    refresh,
   };
 }
