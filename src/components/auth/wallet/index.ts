@@ -39,4 +39,4 @@ export {
 } from './utils/walletValidation';
 
 // Constants
-export { kit, WALLET_IDS, signTransaction } from './constants/wallet-kit.constant';
+export { getKit, kit, WALLET_IDS, signTransaction } from './constants/wallet-kit.constant';
