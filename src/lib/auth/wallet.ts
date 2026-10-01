@@ -81,10 +81,24 @@ export async function signInWithFreighter(walletId = FREIGHTER_ID) {
     throw new WalletAuthError("REJECTED", "Wallet connection was cancelled.");
   }
 
-  const challenge = await postJson<{
-    transaction: string;
-    network_passphrase: string;
-  }>("/api/auth/wallet/challenge", { account: address });
+  const challenge = await postJson<unknown>("/api/auth/wallet/challenge", {
+    account: address,
+  });
+  if (
+    typeof challenge !== "object" ||
+    challenge === null ||
+    !("transaction" in challenge) ||
+    typeof challenge.transaction !== "string" ||
+    challenge.transaction.trim() === "" ||
+    !("network_passphrase" in challenge) ||
+    typeof challenge.network_passphrase !== "string" ||
+    challenge.network_passphrase.trim() === ""
+  ) {
+    throw new WalletAuthError(
+      "CHALLENGE_FAILED",
+      "We couldn't verify your wallet. Please try again.",
+    );
+  }
 
   let signedTxXdr: string;
   try {
@@ -103,11 +117,17 @@ export async function signInWithFreighter(walletId = FREIGHTER_ID) {
     throw new WalletAuthError("REJECTED", "Wallet signature was cancelled.");
   }
 
-  const { customToken } = await postJson<{ customToken: string }>(
-    "/api/auth/wallet/verify",
-    { transaction: signedTxXdr },
-  );
-  if (!customToken) {
+  const verification = await postJson<unknown>("/api/auth/wallet/verify", {
+    transaction: signedTxXdr,
+  });
+  const customToken =
+    typeof verification === "object" &&
+    verification !== null &&
+    "customToken" in verification &&
+    typeof verification.customToken === "string"
+      ? verification.customToken
+      : "";
+  if (customToken.trim() === "") {
     throw new WalletAuthError(
       "CHALLENGE_FAILED",
       "We couldn't verify your wallet. Please try again.",

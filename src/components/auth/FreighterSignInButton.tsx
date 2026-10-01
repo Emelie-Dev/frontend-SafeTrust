@@ -85,18 +85,26 @@ export default function FreighterSignInButton({
   };
 
   const handleOtherWallets = async () => {
+    let authenticationInProgress = false;
     setIsBusy(true);
     try {
       await getWalletKit().openModal({
         modalTitle: "Choose a Stellar wallet",
         onWalletSelected: async (wallet: ISupportedWallet) => {
-          await authenticate(wallet.id);
+          authenticationInProgress = true;
+          setIsBusy(true);
+          try {
+            await authenticate(wallet.id);
+          } finally {
+            authenticationInProgress = false;
+            setIsBusy(false);
+          }
         },
       });
     } catch {
       // Closing the wallet picker is a user cancellation.
     } finally {
-      setIsBusy(false);
+      if (!authenticationInProgress) setIsBusy(false);
     }
   };
 

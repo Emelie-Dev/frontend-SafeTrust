@@ -139,6 +139,48 @@ describe("signInWithFreighter", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    {
+      transaction: "",
+      network_passphrase: challengeResponse.network_passphrase,
+    },
+    { transaction: challengeResponse.transaction, network_passphrase: " " },
+    null,
+  ])("rejects an invalid challenge response before signing", async (body) => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => body,
+    });
+
+    await expect(signInWithFreighter()).rejects.toMatchObject({
+      code: "CHALLENGE_FAILED",
+    });
+    expect(signTransaction).not.toHaveBeenCalled();
+  });
+
+  it.each([null, {}, { customToken: " " }])(
+    "rejects an invalid verification response before creating a session",
+    async (body) => {
+      fetchMock
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => challengeResponse,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => body,
+        });
+
+      await expect(signInWithFreighter()).rejects.toMatchObject({
+        code: "CHALLENGE_FAILED",
+      });
+      expect(mockSignInWithCustomToken).not.toHaveBeenCalled();
+    },
+  );
+
   it("does not create a session when verification returns 401", async () => {
     fetchMock
       .mockResolvedValueOnce({

@@ -1,33 +1,48 @@
 import { NextResponse } from "next/server";
+import {
+  hasTrustedWalletAuthOrigin,
+  issueWalletChallenge,
+  WalletAuthServiceError,
+} from "@/lib/auth/wallet-server";
+
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const backend = process.env.BACKEND_URL;
-  if (!backend) {
+  if (!hasTrustedWalletAuthOrigin(request)) {
     return NextResponse.json(
-      { error: "WALLET_AUTH_UNAVAILABLE" },
-      { status: 503 },
+      { error: "Invalid request origin." },
+      { status: 403 },
     );
   }
 
   try {
-    const response = await fetch(`${backend}/api/auth/wallet/challenge`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: await request.text(),
-      cache: "no-store",
+    const body: unknown = await request.json();
+    if (
+      typeof body !== "object" ||
+      body === null ||
+      !("account" in body) ||
+      typeof body.account !== "string"
+    ) {
+      return NextResponse.json(
+        { error: "Invalid Stellar account." },
+        { status: 400 },
+      );
+    }
+
+    const result = await issueWalletChallenge(body.account);
+    return NextResponse.json(result, {
+      headers: { "cache-control": "no-store" },
     });
-    return new NextResponse(response.body, {
-      status: response.status,
-      headers: {
-        "content-type":
-          response.headers.get("content-type") ?? "application/json",
-        "cache-control": "no-store",
-      },
-    });
-  } catch {
+  } catch (error) {
+    if (error instanceof WalletAuthServiceError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status, headers: { "cache-control": "no-store" } },
+      );
+    }
     return NextResponse.json(
-      { error: "WALLET_AUTH_UNAVAILABLE" },
-      { status: 503 },
+      { error: "Wallet authentication is temporarily unavailable." },
+      { status: 503, headers: { "cache-control": "no-store" } },
     );
   }
 }
