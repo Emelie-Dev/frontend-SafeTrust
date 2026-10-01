@@ -32,7 +32,13 @@ export default function LoginPage() {
 
   const getSafeRedirect = useCallback(() => {
     const redirect = searchParams.get("redirect");
-    if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+    if (
+      redirect &&
+      redirect.startsWith("/") &&
+      !redirect.startsWith("//") &&
+      !redirect.startsWith("/\\") &&
+      !redirect.includes("://")
+    ) {
       return redirect;
     }
     return "/dashboard/escrow-dashboard";
@@ -41,8 +47,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const token = useGlobalAuthenticationStore((state) => state.token);
+
+  const isAnyAuthLoading = isLoading || isGoogleLoading;
 
   useEffect(() => {
     if (token && pathname === "/login") {
@@ -63,8 +72,7 @@ export default function LoginPage() {
       );
       const idToken = await credential.user.getIdToken();
 
-      // setToken handles cookie sync internally via data.ts
-      useGlobalAuthenticationStore.getState().setToken(idToken);
+      setSessionCookie(idToken);
 
       toast.success("Login successful!", {
         description: "Redirecting to your dashboard...",
@@ -148,7 +156,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full bg-[#2857B8] hover:bg-[#2857B8]/90"
-              disabled={isLoading}
+              disabled={isAnyAuthLoading}
             >
               {isLoading ? "Signing in..." : "Login"}
             </Button>
