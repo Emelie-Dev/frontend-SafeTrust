@@ -13,6 +13,7 @@ import { getConversationIdForApartment } from "@/lib/mockData/messages";
 
 interface ApartmentCardProps {
   apartment: HotelListing;
+  distanceKm?: number;
   loading?: "eager" | "lazy";
   onClick?: () => void;
 }
@@ -20,6 +21,7 @@ interface ApartmentCardProps {
 /** Render a rental card with booking and host-contact actions. */
 export default function ApartmentCard({
   apartment,
+  distanceKm,
   loading = "lazy",
   onClick,
 }: ApartmentCardProps) {
@@ -74,6 +76,11 @@ export default function ApartmentCard({
           <p className="line-clamp-1 text-xs text-muted-foreground">
             {apartment.address}
           </p>
+          {distanceKm !== undefined ? (
+            <p className="text-xs font-medium text-gray-500">
+              ~{Math.round(distanceKm)} km away
+            </p>
+          ) : null}
         </div>
 
         {/* Fixed-height amenities zone keeps Book button aligned across all cards */}

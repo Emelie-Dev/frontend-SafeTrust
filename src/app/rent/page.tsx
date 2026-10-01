@@ -4,16 +4,19 @@ import type { HotelListing } from "@/@types/hotel";
 import ActiveFilterChips from "@/components/listings/ActiveFilterChips";
 import ApartmentGrid from "@/components/listings/ApartmentGrid";
 import HotelHeader from "@/components/listings/HotelHeader";
+import { NearMeButton } from "@/components/listings/NearMeButton";
 import RentFiltersPanel from "@/components/listings/RentFiltersPanel";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { distanceKm, sortByDistance } from "@/lib/geo";
 import { STUB_HOTELS } from "@/lib/mockData/hotels";
 import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "@/lib/rent-filters";
 import { Drawer } from "vaul";
 import { LayoutDashboard, Lightbulb, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
-type SortOption = "relevance" | "price-low" | "price-high";
+type SortOption = "relevance" | "price-low" | "price-high" | "nearest";
 
 /** Normalize rental text for case- and accent-insensitive search. */
 function normalizeSearchText(value: string) {
@@ -32,11 +35,13 @@ export default function HotelListingPage() {
   );
 }
 
-/** Own search, sorting, filtering, and responsive listing state. */
+/** Own search, geolocation, sorting, and responsive listing state. */
 function RentListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.trim() ?? "";
+  const normalizedQuery = normalizeSearchText(query);
+  const geo = useGeolocation();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedBedrooms, setSelectedBedrooms] = useState("all");
@@ -44,8 +49,38 @@ function RentListingContent() {
   const [minPrice, setMinPrice] = useState(DEFAULT_MIN_PRICE);
   const [maxPrice, setMaxPrice] = useState(DEFAULT_MAX_PRICE);
 
+  const isOutsideCostaRica = useMemo(() => {
+    if (!geo.position) return false;
+    const nearestListingKm = Math.min(
+      ...STUB_HOTELS.map((hotel) =>
+        distanceKm(geo.position!, hotel.coordinates),
+      ),
+    );
+    return nearestListingKm > 300;
+  }, [geo.position]);
+
+  useEffect(() => {
+    if (geo.position) {
+      setSortOption(isOutsideCostaRica ? "relevance" : "nearest");
+    } else if (geo.status === "idle") {
+      setSortOption("relevance");
+    }
+  }, [geo.position, geo.status, isOutsideCostaRica]);
+
+  const distances = useMemo(
+    () =>
+      geo.position
+        ? Object.fromEntries(
+            STUB_HOTELS.map((hotel) => [
+              hotel.id,
+              distanceKm(geo.position!, hotel.coordinates),
+            ]),
+          )
+        : undefined,
+    [geo.position],
+  );
+
   const filteredApartments = useMemo(() => {
-    const normalizedQuery = normalizeSearchText(query);
     const apartments = STUB_HOTELS.filter((apartment) => {
       const matchesCategory =
         selectedCategories.length === 0 ||
@@ -75,6 +110,13 @@ function RentListingContent() {
       );
     });
 
+    if (sortOption === "nearest" && geo.position && !isOutsideCostaRica) {
+      return sortByDistance(
+        apartments,
+        geo.position,
+        (apartment) => apartment.coordinates,
+      );
+    }
     if (sortOption === "price-low") {
       return [...apartments].sort((left, right) => left.price - right.price);
     }
@@ -85,9 +127,11 @@ function RentListingContent() {
       (left, right) => Number(right.promoted) - Number(left.promoted),
     );
   }, [
+    geo.position,
+    isOutsideCostaRica,
     maxPrice,
     minPrice,
-    query,
+    normalizedQuery,
     selectedBedrooms,
     selectedCategories,
     selectedLocations,
@@ -135,6 +179,8 @@ function RentListingContent() {
   const handleApartmentClick = (apartment: HotelListing) => {
     router.push(`/rent/${apartment.id}`);
   };
+
+  const hasLocalPosition = geo.position !== null && !isOutsideCostaRica;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -215,6 +261,7 @@ function RentListingContent() {
               <option value="relevance">Recommended</option>
               <option value="price-low">Price: low to high</option>
               <option value="price-high">Price: high to low</option>
+              {hasLocalPosition && <option value="nearest">Nearest</option>}
             </select>
           </label>
         </div>
@@ -248,15 +295,35 @@ function RentListingContent() {
             <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
                 <h1 className="text-2xl leading-tight text-foreground sm:text-3xl">
-                  Available for rent in{" "}
-                  <span className="font-semibold">Costa Rica, San José</span>
+                  {hasLocalPosition ? (
+                    "Destinations near you"
+                  ) : (
+                    <>
+                      Available for rent in{" "}
+                      <span className="font-semibold">
+                        Costa Rica, San José
+                      </span>
+                    </>
+                  )}
                 </h1>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {filteredApartments.length} places available
                 </p>
+                {isOutsideCostaRica && (
+                  <p
+                    className="mt-2 text-sm text-muted-foreground"
+                    role="status"
+                  >
+                    You seem to be outside Costa Rica, so we&apos;re showing
+                    popular destinations.
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <div className="hidden sm:block">
+                  <NearMeButton geo={geo} />
+                </div>
                 <button
                   type="button"
                   onClick={() => router.push("/dashboard")}
@@ -285,6 +352,9 @@ function RentListingContent() {
                     <option value="relevance">Recommended</option>
                     <option value="price-low">Price: low to high</option>
                     <option value="price-high">Price: high to low</option>
+                    {hasLocalPosition && (
+                      <option value="nearest">Nearest</option>
+                    )}
                   </select>
                 </label>
               </div>
@@ -299,6 +369,7 @@ function RentListingContent() {
             {filteredApartments.length > 0 ? (
               <ApartmentGrid
                 apartments={filteredApartments}
+                distances={distances}
                 onApartmentClick={handleApartmentClick}
               />
             ) : (
