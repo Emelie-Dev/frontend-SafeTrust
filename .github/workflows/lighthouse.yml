@@ -56,7 +56,6 @@ jobs:
             --collect.url="http://localhost:3000/" \
             --collect.url="http://localhost:3000/rent" \
             --collect.url="http://localhost:3000/login" \
-            --collect.settings.preset=mobile \
             --collect.settings.throttlingMethod=simulate \
             --collect.settings.screenEmulation.mobile=true \
             --collect.settings.screenEmulation.width=412 \

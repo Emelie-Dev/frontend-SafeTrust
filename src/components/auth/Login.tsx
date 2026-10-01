@@ -14,6 +14,7 @@ import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { auth } from "@/lib/firebase";
 import { applyRememberMe } from "@/lib/auth/persistence";
@@ -135,11 +136,9 @@ function LoginForm() {
     setError("");
 
     try {
-<<<<<<< HEAD
       await applyRememberMe(remember);
       const credential = await signInWithEmailAndPassword(
         auth,
-=======
       // Use the lazy accessor from firebase-app so firebase/auth is NOT part
       // of the /login first-load chunk — it is only fetched when the user
       // submits the form.  firebase-app.ts has no static firebase/auth import.
@@ -158,9 +157,7 @@ function LoginForm() {
       );
       const idToken = await credential.user.getIdToken();
 
-<<<<<<< HEAD
       setSessionCookie(idToken);
-=======
 >>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))
       useGlobalAuthenticationStore.getState().setToken(idToken);
 
@@ -174,8 +171,6 @@ function LoginForm() {
           ERROR_MESSAGES[err.code] ??
             "An unexpected error occurred. Please try again.",
           { duration: 4000 },
-<<<<<<< HEAD
-=======
         );
         setError(
           ERROR_MESSAGES[err.code] ?? "Login failed — please try again",
@@ -284,7 +279,6 @@ function LoginForm() {
           </div>
 
           <div className="space-y-3">
-<<<<<<< HEAD
             <GoogleSignInButton
               redirectTo={getSafeRedirect()}
               label="Continue with Google"
@@ -292,7 +286,6 @@ function LoginForm() {
               onLoadingChange={setIsGoogleLoading}
               onBeforeSignIn={() => applyRememberMe(remember)}
             />
-=======
             <Button variant="outline" className="w-full">
               <svg
                 className="mr-2 h-4 w-4"
@@ -348,8 +341,6 @@ function LoginForm() {
 
       <Illustration />
 
-<<<<<<< HEAD
-=======
       {/* Wallet modals are lazy-loaded and only rendered when opened */}
       <MainWalletSelectionModal
         isOpen={isMainModalOpen}
@@ -365,14 +356,38 @@ function LoginForm() {
     </div>
   );
 }
-<<<<<<< HEAD
-=======
 
 /**
  * LoginPage wraps the form with a scoped WalletProvider so that
  * stellar-wallets-kit is contained to this subtree only.
  */
 export default function LoginPage() {
+      {isMainModalOpen && (
+        <MainWalletSelectionModal
+          isOpen={isMainModalOpen}
+          onClose={closeMainModal}
+          onWalletTypeSelected={handleWalletTypeSelected}
+        />
+      )}
+      {isStellarModalOpen && (
+        <WalletSelectionModal
+          isOpen={isStellarModalOpen}
+          onClose={closeStellarModal}
+          onWalletSelected={handleStellarWalletSelected}
+        />
+      )}
+      {isMetaMaskModalOpen && (
+        <MetaMaskWalletModal
+          isOpen={isMetaMaskModalOpen}
+          onClose={closeMetaMaskModal}
+          onWalletConnected={handleMetaMaskSelected}
+        />
+      )}
+    </div>
+  );
+}
+
+export default function Login() {
   return (
     <WalletProviderScoped>
       <LoginForm />
