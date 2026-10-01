@@ -94,6 +94,18 @@ describe("pricing", () => {
     expect(validateEscrowSetup(details({ price: p }), guest)).toEqual([]);
   });
 
+  it.each([NaN, -50, Infinity])(
+    "clamps an invalid nightly rate (%p) to zero and blocks the escrow",
+    (nightlyRate) => {
+      const p = computeBookingPrice({ nightlyRate, nights: 2, guests: 1 });
+      expect(p.nightlyRate).toBe(0);
+      expect(p.total).toBe(0);
+      expect(validateEscrowSetup(details({ price: p }), guest)).toContain(
+        "The price must be greater than zero.",
+      );
+    },
+  );
+
   it("counts calendar nights regardless of time of day", () => {
     expect(
       countNights(new Date(2030, 0, 10, 23, 0), new Date(2030, 0, 12, 1, 0)),
