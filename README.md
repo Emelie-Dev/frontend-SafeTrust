@@ -72,6 +72,30 @@ Refer to [.env.example](.env.example) as the single reference for all environmen
 cp .env.example .env.local
 ```
 
+### 🔥 Firebase
+
+From **Firebase Console → Project Settings → Your apps → Web app → Config**:
+
+```dotenv
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+```
+
+Enable **Email/Password** and **Google** under **Authentication → Sign-in method**:
+
+1. **Google Sign-In:** Under **Authentication → Sign-in method → Google**, click **Enable**, configure the project support email, and save.
+2. **Authorized Domains:** Under **Authentication → Settings → Authorized domains**, ensure `localhost`, your Vercel preview domain pattern (`*.vercel.app`), and your production domain are added.
+3. **Redirect Flow & Safari / Strict Cookie Isolation:** When popups are blocked or for browsers blocking third-party storage (Safari ITP, Firefox Strict), set `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` to your application domain and configure the Next.js rewrite in `next.config.ts` (`/__/auth/:path*` -> `https://<FIREBASE_PROJECT_ID>.firebaseapp.com/__/auth/:path*`).
+4. **Google Cloud Console Authorized Redirect URI:** If using a custom auth domain (rewriting `/__/auth/*`), add `https://<application-domain>/__/auth/handler` under **Authorized redirect URIs** for your Web client OAuth ID in the Google Cloud Console (**APIs & Services → Credentials**) to prevent `redirect_uri_mismatch` errors.
+
+**Setup:** [console.firebase.google.com](https://console.firebase.google.com)
+
+---
+
 ### Variable Migration (Old → New)
 
 If you have an existing `.env.local` file, you must update the following renamed variables:

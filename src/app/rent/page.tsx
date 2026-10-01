@@ -7,10 +7,13 @@ import {
   FilterSidebar,
   HotelHeader,
 } from "@/components/listings";
+import { NearMeButton } from "@/components/listings/NearMeButton";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { distanceKm, sortByDistance } from "@/lib/geo";
 import { STUB_HOTELS } from "@/lib/mockData/hotels";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -19,10 +22,11 @@ import {
 import { LayoutDashboard, Lightbulb, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type SortOption = "relevance" | "price-low" | "price-high";
+type SortOption = "relevance" | "price-low" | "price-high" | "nearest";
 
 export default function HotelListingPage() {
   const router = useRouter();
+  const geo = useGeolocation();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
     "Family",
     "Students",
@@ -35,6 +39,36 @@ export default function HotelListingPage() {
   const [sortOption, setSortOption] = useState<SortOption>("relevance");
   const [minPrice, setMinPrice] = useState<number>(3200);
   const [maxPrice, setMaxPrice] = useState<number>(206000);
+
+  const isOutsideCostaRica = useMemo(() => {
+    if (!geo.position) return false;
+    const origin = geo.position;
+    const nearestListingKm = Math.min(
+      ...STUB_HOTELS.map((hotel) => distanceKm(origin, hotel.coordinates)),
+    );
+    return nearestListingKm > 300;
+  }, [geo.position]);
+
+  useEffect(() => {
+    if (geo.position) {
+      setSortOption(isOutsideCostaRica ? "relevance" : "nearest");
+    } else if (geo.status === "idle") {
+      setSortOption("relevance");
+    }
+  }, [geo.position, geo.status, isOutsideCostaRica]);
+
+  const distances = useMemo(
+    () =>
+      geo.position
+        ? Object.fromEntries(
+            STUB_HOTELS.map((hotel) => [
+              hotel.id,
+              distanceKm(geo.position!, hotel.coordinates),
+            ]),
+          )
+        : undefined,
+    [geo.position],
+  );
 
   const filteredApartments = useMemo(() => {
     const apartments = STUB_HOTELS.filter((apartment) => {
@@ -55,6 +89,14 @@ export default function HotelListingPage() {
       );
     });
 
+    if (sortOption === "nearest" && geo.position && !isOutsideCostaRica) {
+      return sortByDistance(
+        apartments,
+        geo.position,
+        (apartment) => apartment.coordinates,
+      );
+    }
+
     if (sortOption === "price-low") {
       return [...apartments].sort((left, right) => left.price - right.price);
     }
@@ -67,6 +109,8 @@ export default function HotelListingPage() {
       (left, right) => Number(right.promoted) - Number(left.promoted),
     );
   }, [
+    geo.position,
+    isOutsideCostaRica,
     maxPrice,
     minPrice,
     selectedBedrooms,
@@ -108,15 +152,32 @@ export default function HotelListingPage() {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h1 className="text-[24px] leading-tight text-gray-900 dark:text-white sm:text-[30px]">
-                Available for rent in{" "}
-                <span className="font-semibold">Costa Rica, San José</span>
+                {geo.position && !isOutsideCostaRica ? (
+                  "Destinations near you"
+                ) : (
+                  <>
+                    Available for rent in{" "}
+                    <span className="font-semibold">Costa Rica, San José</span>
+                  </>
+                )}
               </h1>
               <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
                 204 units available
               </p>
+              {isOutsideCostaRica ? (
+                <p
+                  className="mt-2 text-sm text-gray-600 dark:text-gray-300"
+                  role="status"
+                >
+                  You seem to be outside Costa Rica, so we&apos;re showing
+                  popular destinations.
+                </p>
+              ) : null}
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
+              <NearMeButton geo={geo} />
+
               <button
                 onClick={() => router.push("/dashboard")}
                 className="flex items-center gap-1.5 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors"
@@ -175,6 +236,9 @@ export default function HotelListingPage() {
                       { label: "Relevance", value: "relevance" },
                       { label: "Price: Low to High", value: "price-low" },
                       { label: "Price: High to Low", value: "price-high" },
+                      ...(geo.position && !isOutsideCostaRica
+                        ? [{ label: "Nearest", value: "nearest" }]
+                        : []),
                     ].map((opt) => (
                       <button
                         key={opt.value}
@@ -338,6 +402,7 @@ export default function HotelListingPage() {
           <div className="mt-8">
             <ApartmentGrid
               apartments={filteredApartments}
+              distances={distances}
               onApartmentClick={handleApartmentClick}
             />
           </div>
