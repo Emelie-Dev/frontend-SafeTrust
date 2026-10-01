@@ -107,13 +107,13 @@ export default function GuestSuggestionsPage() {
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                 Suggestions
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {STUB_APARTMENTS.length} units available
               </p>
               <Link
                 href="/rent"
-                className="text-sm text-orange-500 hover:text-orange-600
-                           font-medium"
+                className="text-sm text-orange-600 hover:text-orange-700
+                           font-medium underline hover:no-underline"
               >
                 Browse all →
               </Link>

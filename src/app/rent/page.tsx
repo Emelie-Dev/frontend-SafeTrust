@@ -239,7 +239,7 @@ function RentListingContent() {
                   </>
                 )}
               </h1>
-              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
                 {filteredApartments.length} units available
               </p>
             </div>
@@ -250,7 +250,7 @@ function RentListingContent() {
               <button
                 type="button"
                 onClick={() => router.push("/dashboard")}
-                className="flex items-center gap-1.5 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors"
+                className="flex items-center gap-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Switch to Host view
@@ -258,7 +258,7 @@ function RentListingContent() {
 
               <Link
                 href="/guest/suggestions"
-                className="flex items-center gap-1.5 text-sm font-medium text-orange-500 transition-colors hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                className="flex items-center gap-1.5 text-sm font-medium text-orange-600 transition-colors hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
               >
                 <Lightbulb aria-hidden="true" className="h-4 w-4" />
                 Suggestions view
@@ -267,7 +267,7 @@ function RentListingContent() {
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <X className="h-3.5 w-3.5" />
                 Clear all

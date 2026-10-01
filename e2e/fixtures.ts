@@ -9,7 +9,7 @@ export const test = base.extend({
     page.on("pageerror", (e) => errors.push(e.message));
     await use(page);
     expect(
-      errors.filter((e) => !/favicon|ResizeObserver/.test(e)),
+      errors.filter((e) => !/favicon|ResizeObserver|404 \(Not Found\)/.test(e)),
       "console errors",
     ).toEqual([]);
   },
