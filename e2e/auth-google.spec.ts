@@ -7,7 +7,7 @@ test.describe("Google auth journey via emulator", () => {
     await page.goto("/login?redirect=/dashboard/escrow-dashboard");
     await expectHealthyPage(page);
 
-    const googleBtn = page.locator('button:has-text("Login with Google")');
+    const googleBtn = page.getByRole("button", { name: /google/i });
     await expect(googleBtn).toBeVisible();
 
     const [popup] = await Promise.all([

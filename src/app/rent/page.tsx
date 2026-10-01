@@ -20,12 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  LayoutDashboard,
-  Lightbulb,
-  SlidersHorizontal,
-  X,
-} from "lucide-react";
+import { LayoutDashboard, Lightbulb, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SortOption = "relevance" | "price-low" | "price-high" | "nearest";
@@ -70,6 +65,8 @@ function RentListingContent() {
     if (urlCategory) {
       setSelectedCategories([urlCategory]);
     }
+  }, [urlCategory]);
+
   useEffect(() => {
     if (geo.status === "granted" && geo.position) {
       setSortOption("nearest");
@@ -360,7 +357,9 @@ function RentListingContent() {
 
 export default function HotelListingPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white dark:bg-slate-900" />}>
+    <Suspense
+      fallback={<div className="min-h-screen bg-white dark:bg-slate-900" />}
+    >
       <RentListingContent />
     </Suspense>
   );

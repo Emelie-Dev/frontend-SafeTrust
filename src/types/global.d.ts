@@ -76,6 +76,12 @@ declare module "react-day-picker" {
 declare module "firebase/app" {
   export class FirebaseError extends Error {
     code: string;
+    customData?: Record<string, unknown>;
+    constructor(
+      code: string,
+      message: string,
+      customData?: Record<string, unknown>,
+    );
   }
   export function initializeApp(config: Record<string, unknown>): unknown;
   export function getApps(): unknown[];
@@ -101,7 +107,15 @@ declare module "firebase/auth" {
   export interface UserCredential {
     user: User;
   }
-  export class GoogleAuthProvider {}
+  export class GoogleAuthProvider {
+    setCustomParameters(customOAuthParameters: Record<string, string>): void;
+  }
+  export interface AdditionalUserInfo {
+    isNewUser?: boolean;
+    providerId?: string;
+    profile?: Record<string, unknown>;
+    username?: string;
+  }
   export function getAuth(app?: unknown): Auth;
   export function connectAuthEmulator(
     auth: unknown,
@@ -117,7 +131,21 @@ declare module "firebase/auth" {
     auth: unknown,
     provider: unknown,
   ): Promise<UserCredential>;
+  export function signInWithRedirect(
+    auth: unknown,
+    provider: unknown,
+  ): Promise<void>;
+  export function getRedirectResult(
+    auth: unknown,
+  ): Promise<UserCredential | null>;
+  export function getAdditionalUserInfo(
+    userCredential: UserCredential,
+  ): AdditionalUserInfo | null;
   export function onAuthStateChanged(
+    auth: unknown,
+    nextOrObserver: (user: User | null) => void,
+  ): () => void;
+  export function onIdTokenChanged(
     auth: unknown,
     nextOrObserver: (user: User | null) => void,
   ): () => void;

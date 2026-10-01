@@ -30,6 +30,7 @@ export default defineConfig({
     command: "npm run build && npm start",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
+    timeout: 180 * 1000,
     env: {
       NEXT_PUBLIC_USE_AUTH_EMULATOR: "true",
       NEXT_PUBLIC_DEMO_MODE: "true",
