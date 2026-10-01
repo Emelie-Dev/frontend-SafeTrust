@@ -6,7 +6,8 @@ describe("Environment Variable Contract", () => {
     NEXT_PUBLIC_FIREBASE_API_KEY: "valid-api-key",
     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "safetrustcr-596e3.firebaseapp.com",
     NEXT_PUBLIC_FIREBASE_PROJECT_ID: "safetrustcr-596e3",
-    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "safetrustcr-596e3.firebasestorage.app",
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET:
+      "safetrustcr-596e3.firebasestorage.app",
     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "736891312580",
     NEXT_PUBLIC_FIREBASE_APP_ID: "1:736891312580:web:2752bc815204c69fcbec91",
   };
@@ -29,11 +30,11 @@ describe("Environment Variable Contract", () => {
 
       expect(parsed.NEXT_PUBLIC_FIREBASE_API_KEY).toBe("valid-api-key");
       expect(parsed.NEXT_PUBLIC_TRUSTLESS_API_URL).toBe(
-        "https://dev.api.trustlesswork.com"
+        "https://dev.api.trustlesswork.com",
       );
       expect(parsed.NEXT_PUBLIC_TRUSTLESS_NETWORK).toBe("testnet");
       expect(parsed.NEXT_PUBLIC_HASURA_GRAPHQL_URL).toBe(
-        "http://localhost:8080/v1/graphql"
+        "http://localhost:8080/v1/graphql",
       );
       expect(parsed.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID).toBe("wc-project-id");
     });
@@ -44,12 +45,12 @@ describe("Environment Variable Contract", () => {
       });
 
       expect(parsed.NEXT_PUBLIC_TRUSTLESS_API_URL).toBe(
-        "https://dev.api.trustlesswork.com"
+        "https://dev.api.trustlesswork.com",
       );
       expect(parsed.NEXT_PUBLIC_TRUSTLESS_NETWORK).toBe("testnet");
       expect(parsed.NEXT_PUBLIC_TRUSTLESS_API_KEY).toBe("");
       expect(parsed.NEXT_PUBLIC_HASURA_GRAPHQL_URL).toBe(
-        "http://localhost:8080/v1/graphql"
+        "http://localhost:8080/v1/graphql",
       );
       expect(parsed.NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS).toBeUndefined();
       expect(parsed.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID).toBeUndefined();
@@ -77,7 +78,7 @@ describe("Environment Variable Contract", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         const issue = result.error.issues.find(
-          (i) => i.path[0] === "NEXT_PUBLIC_FIREBASE_API_KEY"
+          (i) => i.path[0] === "NEXT_PUBLIC_FIREBASE_API_KEY",
         );
         expect(issue).toBeDefined();
       }
@@ -95,21 +96,21 @@ describe("Environment Variable Contract", () => {
         clientSchema.safeParse({
           ...validFirebaseConfig,
           NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS: validAddress,
-        }).success
+        }).success,
       ).toBe(true);
 
       expect(
         clientSchema.safeParse({
           ...validFirebaseConfig,
           NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS: invalidChecksumAddress,
-        }).success
+        }).success,
       ).toBe(false);
 
       expect(
         clientSchema.safeParse({
           ...validFirebaseConfig,
           NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS: invalidFormatAddress,
-        }).success
+        }).success,
       ).toBe(false);
     });
   });
@@ -118,7 +119,8 @@ describe("Environment Variable Contract", () => {
     const originalNodeEnv = process.env.NODE_ENV;
 
     afterEach(() => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = originalNodeEnv;
+      (process.env as Record<string, string | undefined>).NODE_ENV =
+        originalNodeEnv;
     });
 
     it("parses valid BACKEND_URL and allows undefined", () => {
@@ -132,7 +134,8 @@ describe("Environment Variable Contract", () => {
     });
 
     it("disallows SKIP_AUTH_MIDDLEWARE in production environment", () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      (process.env as Record<string, string | undefined>).NODE_ENV =
+        "production";
 
       const parsed = serverSchema.parse({
         SKIP_AUTH_MIDDLEWARE: "true",
@@ -142,7 +145,8 @@ describe("Environment Variable Contract", () => {
     });
 
     it("allows SKIP_AUTH_MIDDLEWARE in non-production environments", () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = "development";
+      (process.env as Record<string, string | undefined>).NODE_ENV =
+        "development";
 
       const parsed = serverSchema.parse({
         SKIP_AUTH_MIDDLEWARE: "true",
@@ -152,20 +156,11 @@ describe("Environment Variable Contract", () => {
     });
 
     it("defaults SKIP_AUTH_MIDDLEWARE to false", () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = "development";
+      (process.env as Record<string, string | undefined>).NODE_ENV =
+        "development";
 
       const parsed = serverSchema.parse({});
       expect(parsed.SKIP_AUTH_MIDDLEWARE).toBe(false);
-    });
-
-    it("parses TRUSTLESS_WORK_WEBHOOK_SECRET and allows undefined", () => {
-      const withSecret = serverSchema.parse({
-        TRUSTLESS_WORK_WEBHOOK_SECRET: "whsec_test_secret_123",
-      });
-      expect(withSecret.TRUSTLESS_WORK_WEBHOOK_SECRET).toBe("whsec_test_secret_123");
-
-      const withoutSecret = serverSchema.parse({});
-      expect(withoutSecret.TRUSTLESS_WORK_WEBHOOK_SECRET).toBeUndefined();
     });
   });
 });

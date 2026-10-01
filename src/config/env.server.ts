@@ -11,7 +11,6 @@ export const serverSchema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((v) => v === "true" && process.env.NODE_ENV !== "production"), // can never be on in prod
-  TRUSTLESS_WORK_WEBHOOK_SECRET: z.string().optional(),
 });
 
 export const serverEnv = serverSchema.parse(process.env);
