@@ -2,16 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import {
-  ChevronDown,
-  Grid2X2,
-  Heart,
-  LayoutDashboard,
-  Lightbulb,
-} from "lucide-react";
+import { ChevronDown, Grid2X2, Heart, Lightbulb } from "lucide-react";
 import { FaBell, FaRegUserCircle, FaSearch } from "react-icons/fa";
 
 interface HotelHeaderProps {
@@ -30,12 +23,6 @@ const RENT_ITEMS = [
     label: "Suggestions",
     description: "Curated picks with detail view",
     href: "/guest/suggestions",
-  },
-  {
-    icon: LayoutDashboard,
-    label: "Switch to Host view",
-    description: "Manage your hosting dashboard",
-    href: "/dashboard",
   },
   {
     icon: Heart,
@@ -109,10 +96,10 @@ export function RentDropdown() {
                 <Icon aria-hidden="true" className="h-4 w-4 text-orange-500" />
               </span>
               <span>
-                <span className="block text-sm font-medium text-foreground">
+                <span className="block text-sm font-medium text-gray-900 dark:text-white">
                   {label}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted-foreground">
+                <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
                   {description}
                 </span>
               </span>
@@ -124,26 +111,12 @@ export function RentDropdown() {
   );
 }
 
-/** Wrap the query-aware header in the required search-parameter boundary. */
-export default function HotelHeader(props: HotelHeaderProps) {
+export default function HotelHeader({
+  showHostSwitch = false,
+}: HotelHeaderProps) {
   return (
-    <Suspense
-      fallback={
-        <header className="h-20 border-b border-border bg-background" />
-      }
-    >
-      <HotelHeaderContent {...props} />
-    </Suspense>
-  );
-}
-
-/** Render shared navigation and search controls for rental pages. */
-function HotelHeaderContent({ showHostSwitch = false }: HotelHeaderProps) {
-  const query = useSearchParams().get("q") ?? "";
-
-  return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:flex-nowrap sm:px-6 lg:px-8">
+    <header className="border-b border-border bg-background">
+      <div className="mx-auto flex max-w-[1180px] items-center gap-4 px-5 py-5 lg:px-7">
         <Link href="/" className="flex items-center gap-3">
           <Image src="/img/logo.png" alt="SafeTrust" width={36} height={36} />
           <span className="text-2xl font-semibold text-foreground">
