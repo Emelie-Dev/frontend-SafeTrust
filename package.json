@@ -16,7 +16,7 @@
     "test": "jest",
     "test:ci": "jest --ci --coverage --passWithNoTests",
     "test:e2e": "firebase emulators:exec --only auth --project demo-safetrust \"playwright test\"",
-    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:ui": "firebase emulators:exec --only auth --project demo-safetrust \"playwright test --ui\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "knip": "knip",

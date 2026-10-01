@@ -11,21 +11,18 @@ test.describe("Google auth journey via emulator", () => {
     await expect(googleBtn).toBeVisible();
 
     const [popup] = await Promise.all([
-      page.waitForEvent("popup").catch(() => null),
+      page.waitForEvent("popup"),
       googleBtn.click(),
     ]);
 
-    if (popup) {
-      await popup.waitForLoadState("domcontentloaded");
-      const submitBtn = popup
-        .locator(
-          'button[type="submit"], button#submit, button:has-text("Sign in"), button:has-text("Add")',
-        )
-        .first();
-      if (await submitBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await submitBtn.click();
-      }
-    }
+    await popup.waitForLoadState("domcontentloaded");
+    const submitBtn = popup
+      .locator(
+        'button[type="submit"], button#submit, button:has-text("Sign in"), button:has-text("Add")',
+      )
+      .first();
+    await expect(submitBtn).toBeVisible();
+    await submitBtn.click();
 
     await expect(page).toHaveURL(/\/dashboard/);
     await expectHealthyPage(page);

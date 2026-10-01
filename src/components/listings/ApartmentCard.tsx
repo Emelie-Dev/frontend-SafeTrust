@@ -28,8 +28,7 @@ export default function ApartmentCard({
   const conversationId = getConversationIdForApartment(apartment.name);
 
   return (
-    <div
-      role="article"
+    <article
       tabIndex={0}
       aria-label={apartment.name}
       onClick={onClick}
@@ -138,6 +137,6 @@ export default function ApartmentCard({
           </button>
         )}
       </div>
-    </div>
+    </article>
   );
 }

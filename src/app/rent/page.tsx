@@ -56,15 +56,15 @@ function RentListingContent() {
   const [maxPrice, setMaxPrice] = useState<number>(206000);
 
   useEffect(() => {
-    if (urlLocation) {
-      setSelectedLocations([urlLocation]);
-    }
+    setSelectedLocations((prev) =>
+      urlLocation ? [urlLocation] : prev.length === 1 ? [] : prev,
+    );
   }, [urlLocation]);
 
   useEffect(() => {
-    if (urlCategory) {
-      setSelectedCategories([urlCategory]);
-    }
+    setSelectedCategories((prev) =>
+      urlCategory ? [urlCategory] : prev.length === 1 ? [] : prev,
+    );
   }, [urlCategory]);
 
   useEffect(() => {
