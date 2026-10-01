@@ -29,7 +29,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { applyRentFilters } from "@/components/listings/filters/applyRentFilters";
-import { useRentFilters } from "@/components/listings/filters/useRentFilters";
+import {
+  resolveSortOption,
+  useRentFilters,
+} from "@/components/listings/filters/useRentFilters";
 
 function RentPageContent() {
   const router = useRouter();
@@ -45,6 +48,8 @@ function RentPageContent() {
     );
     return nearestListingKm > 300;
   }, [geo.position]);
+  const canSortByDistance = Boolean(geo.position && !isOutsideCostaRica);
+  const effectiveSort = resolveSortOption(filters.sort, canSortByDistance);
 
   useEffect(() => {
     if (!geo.position) {
@@ -72,8 +77,11 @@ function RentPageContent() {
   );
 
   const results = useMemo(() => {
-    const filtered = applyRentFilters(STUB_HOTELS, filters);
-    if (filters.sort === "nearest" && geo.position && !isOutsideCostaRica) {
+    const filtered = applyRentFilters(STUB_HOTELS, {
+      ...filters,
+      sort: effectiveSort,
+    });
+    if (effectiveSort === "nearest" && geo.position) {
       return sortByDistance(
         filtered,
         geo.position,
@@ -81,7 +89,7 @@ function RentPageContent() {
       );
     }
     return filtered;
-  }, [filters, geo.position, isOutsideCostaRica]);
+  }, [effectiveSort, filters, geo.position]);
 
   const handleApartmentClick = (apartment: HotelListing) => {
     router.push(`/rent/${apartment.id}`);
@@ -177,7 +185,7 @@ function RentPageContent() {
                         { label: "Relevance", value: "relevance" },
                         { label: "Price: Low to High", value: "price-low" },
                         { label: "Price: High to Low", value: "price-high" },
-                        ...(geo.position && !isOutsideCostaRica
+                        ...(canSortByDistance
                           ? [{ label: "Nearest", value: "nearest" as const }]
                           : []),
                       ] as const
@@ -188,13 +196,13 @@ function RentPageContent() {
                         onClick={() => setFilters({ sort: option.value })}
                         className={cn(
                           "flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors",
-                          filters.sort === option.value
+                          effectiveSort === option.value
                             ? "bg-orange-50 font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
                             : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700",
                         )}
                       >
                         {option.label}
-                        {filters.sort === option.value ? (
+                        {effectiveSort === option.value ? (
                           <Check className="h-4 w-4" aria-hidden="true" />
                         ) : null}
                       </button>

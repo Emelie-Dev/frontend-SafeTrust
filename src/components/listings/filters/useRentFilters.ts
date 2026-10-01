@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { HOTEL_CATEGORIES, HOTEL_LOCATIONS } from "@/lib/mockData/hotels";
 
@@ -27,6 +27,13 @@ export const DEFAULT_FILTERS: RentFilters = {
   maxPrice: PRICE_BOUNDS.max,
   sort: "relevance",
 };
+
+export function resolveSortOption(
+  sort: SortOption,
+  canSortByDistance: boolean,
+): SortOption {
+  return sort === "nearest" && !canSortByDistance ? "relevance" : sort;
+}
 
 const isCategory = (value: string): value is Category =>
   (HOTEL_CATEGORIES as readonly string[]).includes(value);
@@ -90,14 +97,29 @@ export function useRentFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
+  const paramsString = params.toString();
   const filters = useMemo(
-    () => parseFilters(new URLSearchParams(params.toString())),
-    [params],
+    () => parseFilters(new URLSearchParams(paramsString)),
+    [paramsString],
   );
+  const pendingFilters = useRef<{
+    params: string;
+    filters: RentFilters;
+  } | null>(null);
+
+  useEffect(() => {
+    if (pendingFilters.current?.params !== paramsString) {
+      pendingFilters.current = null;
+    }
+  }, [paramsString]);
 
   const setFilters = useCallback(
     (patch: Partial<RentFilters>) => {
-      const next = { ...filters, ...patch };
+      const baseFilters =
+        pendingFilters.current?.params === paramsString
+          ? pendingFilters.current.filters
+          : filters;
+      const next = { ...baseFilters, ...patch };
       const query = new URLSearchParams();
       if (next.categories.length) {
         query.set("categories", next.categories.join(","));
@@ -112,17 +134,19 @@ export function useRentFilters() {
       }
       if (next.sort !== "relevance") query.set("sort", next.sort);
 
-      router.replace(query.size ? `${pathname}?${query}` : pathname, {
+      pendingFilters.current = { params: paramsString, filters: next };
+      const queryString = query.toString();
+      router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
         scroll: false,
       });
     },
-    [filters, pathname, router],
+    [filters, paramsString, pathname, router],
   );
 
-  const reset = useCallback(
-    () => router.replace(pathname, { scroll: false }),
-    [pathname, router],
-  );
+  const reset = useCallback(() => {
+    pendingFilters.current = null;
+    router.replace(pathname, { scroll: false });
+  }, [pathname, router]);
 
   const activeCount =
     filters.categories.length +
