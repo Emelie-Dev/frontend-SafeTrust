@@ -53,12 +53,14 @@ export default function ConversationPage({
 
   // Once auth resolves: if this conversation does not belong to the current
   // user, show 404 instead of "access denied" so the id is not confirmed.
-  if (!loading && user) {
-    const belongsToUser =
-      conversation.guest.id === user.uid || conversation.host.id === user.uid;
-    if (!belongsToUser) {
-      notFound();
-    }
+  if (loading) {
+    return <div className="h-full" aria-busy="true" />;
+  }
+  if (
+    !user ||
+    (conversation.guest.id !== user.uid && conversation.host.id !== user.uid)
+  ) {
+    notFound();
   }
 
   return (
