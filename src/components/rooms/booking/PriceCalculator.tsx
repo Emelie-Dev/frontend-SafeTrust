@@ -8,6 +8,7 @@ import {
   countNights,
   type BookingPriceBreakdown,
 } from "@/features/escrow/pricing";
+import { formatAmount } from "@/lib/format";
 
 interface PriceCalculatorProps {
   basePrice: number;
@@ -46,28 +47,28 @@ const PriceCalculator: React.FC<PriceCalculatorProps> = ({
       <div className="space-y-3">
         <div className="flex justify-between text-sm">
           <span className="flex items-center space-x-2">
-            ${basePrice.toFixed(2)} <X className="w-3 h-3" />{" "}
+            {formatAmount(basePrice)} <X className="w-3 h-3" />{" "}
             {priceBreakdown.nights} nights <X className="w-3 h-3" />{" "}
             {guestCount} guest{guestCount > 1 ? "s" : ""}
           </span>
-          <span>${priceBreakdown.subtotal.toFixed(2)}</span>
+          <span>{formatAmount(priceBreakdown.subtotal)}</span>
         </div>
 
         <div className="flex justify-between text-sm">
           <span>Tax ({Math.round(priceBreakdown.taxRate * 1000) / 10}%)</span>
-          <span>${priceBreakdown.tax.toFixed(2)}</span>
+          <span>{formatAmount(priceBreakdown.tax)}</span>
         </div>
 
         <div className="flex justify-between text-sm">
           <span>SafeTrust Fee ({priceBreakdown.platformFeePercent}%)</span>
-          <span>${priceBreakdown.platformFee.toFixed(2)}</span>
+          <span>{formatAmount(priceBreakdown.platformFee)}</span>
         </div>
 
         <div className="border-t pt-3">
           <div className="flex justify-between font-semibold text-lg">
             <span>Total</span>
             <span data-testid="price-calculator-total">
-              ${priceBreakdown.total.toFixed(2)}
+              {formatAmount(priceBreakdown.total)}
             </span>
           </div>
         </div>

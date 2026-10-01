@@ -84,5 +84,3 @@ export function countNights(checkIn: Date, checkOut: Date): number {
 /** Same amount, compared at cent precision. */
 export const sameAmount = (a: number, b: number): boolean =>
   toCents(a) === toCents(b);
-
-export const formatUsd = (value: number): string => `$${value.toFixed(2)}`;

@@ -26,6 +26,7 @@ import {
 } from "../booking-escrow.machine";
 import { PriceCalculator } from "@/components/rooms/booking/PriceCalculator";
 import { BookingButton } from "@/components/rooms/booking/BookingButton";
+import { formatAmount } from "@/lib/format";
 
 jest.mock(
   "@trustless-work/escrow",
@@ -268,9 +269,7 @@ it("Test 5 (UI): displayed total === deployed amount === funded amount", async (
   await screen.findByText("Booking confirmed");
 
   expect(reviewTotal).toBe(calculatorTotal);
-  expect(`$${(seen.deploy!.amount as number).toFixed(2)}`).toBe(
-    calculatorTotal,
-  );
+  expect(formatAmount(seen.deploy!.amount as number)).toBe(calculatorTotal);
   expect(seen.fund![0].amount).toBe(seen.deploy!.amount);
   expect(seen.deploy!.platformFee).toBe(
     require("../config").PLATFORM_FEE_PERCENT,
