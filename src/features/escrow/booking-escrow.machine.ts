@@ -452,16 +452,16 @@ export function resolveSubmitted(
 
   // Past the deadline the transaction has expired or failed.
   if (previous.step === "fund:submitted") {
-    // The indexer answered and the balance is still short: the fund did not
-    // land, so the guest can fund again. Without an answer, stay cautious.
-    return result && result.escrow
-      ? result.state
-      : {
-          step: "failed",
-          at: "fund",
-          reason: "network",
-          contractId: previous.contractId,
-        };
+    // The tx outcome is unknown: it may still land while the indexer lags,
+    // so never return the fundable "deployed" state here — that would let
+    // a retry fund a second time. Stay non-fundable until the escrow is
+    // provably funded (handled above) or the tx has a definitive outcome.
+    return {
+      step: "failed",
+      at: "fund",
+      reason: "network",
+      contractId: previous.contractId,
+    };
   }
   return { step: "failed", at: "deploy", reason: "network" };
 }

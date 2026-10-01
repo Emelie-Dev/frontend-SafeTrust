@@ -116,12 +116,17 @@ describe("Test 1: deploy succeeds, fund times out, retry", () => {
     await act(() => result.current.start(makeBooking()));
 
     // Uncertain → polled the indexer → deadline passed with the balance
-    // still short → the escrow is deployed and needs funding.
-    expect(step(result)).toBe("deployed");
+    // still short: the tx outcome is unknown, so the state stays non-fundable
+    // until the guest explicitly retries (which reconciles before funding).
+    expect(step(result)).toBe("failed");
+    expect(result.current.intent?.state).toMatchObject({
+      at: "fund",
+      reason: "network",
+    });
     expect(fakes.deployApi).toHaveBeenCalledTimes(1);
     expect(fakes.fundApi).toHaveBeenCalledTimes(1);
 
-    await act(() => result.current.fundNow());
+    await act(() => result.current.retry());
 
     expect(step(result)).toBe("funded");
     expect(fakes.deployApi).toHaveBeenCalledTimes(1);
@@ -210,18 +215,28 @@ describe("Test 2: refresh during fund:submitted", () => {
     expect(fakes.fundApi).not.toHaveBeenCalled();
   });
 
-  it("recovers to deployed when the fund never landed", async () => {
+  it("recovers to a failed state when the fund never landed, then the guest retries", async () => {
     persistFundSubmitted(new Date(Date.now() - 10 * 60_000).toISOString());
 
     const { result } = renderFlow();
 
-    await waitFor(() => expect(step(result)).toBe("deployed"));
+    // The submitted tx's outcome is unknown: stay non-fundable until the
+    // guest explicitly retries (the retry reconciles before funding).
+    await waitFor(() => expect(step(result)).toBe("failed"));
     expect(result.current.intent?.state).toEqual({
-      step: "deployed",
+      step: "failed",
+      at: "fund",
+      reason: "network",
       contractId: "CEXISTING",
     });
     expect(fakes.deployApi).not.toHaveBeenCalled();
     expect(fakes.fundApi).not.toHaveBeenCalled();
+
+    await act(() => result.current.retry());
+
+    expect(step(result)).toBe("funded");
+    expect(fakes.deployApi).not.toHaveBeenCalled();
+    expect(fakes.fundApi).toHaveBeenCalledTimes(1);
   });
 
   it("keeps showing the submitted step while the result is unknown", async () => {

@@ -263,15 +263,31 @@ describe("resolveSubmitted", () => {
     });
   });
 
-  it("after the deadline, a confirmed short balance means the fund did not land", () => {
+  it("after the deadline, an indexer answer with a short balance stays non-fundable", () => {
     const r = {
       state: { step: "deployed", contractId: "C1" } as BookingEscrowState,
       escrow: { engagementId: "b", contractId: "C1", balance: 0 },
     };
+    // The submitted tx may still land while the indexer lags, so the
+    // fundable "deployed" state must never be returned past the deadline.
     expect(resolveSubmitted(fundSubmitted, r, now + 3 * 60_000)).toEqual({
-      step: "deployed",
+      step: "failed",
+      at: "fund",
+      reason: "network",
       contractId: "C1",
     });
+    // A failure outcome is never fundable: the retry path reconciles first.
+    expect(
+      planNextAction({
+        ...r,
+        state: {
+          step: "failed",
+          at: "fund",
+          reason: "network",
+          contractId: "C1",
+        },
+      }),
+    ).toBe("none");
   });
 
   it("after the deadline with no indexer answer, reports an uncertain result", () => {
