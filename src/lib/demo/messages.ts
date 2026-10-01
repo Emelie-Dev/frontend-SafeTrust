@@ -62,7 +62,9 @@ export function getDemoMessages(
   uid: string,
   conversationId: string,
 ): DemoMessage[] {
-  const index = Math.max(0, Number(conversationId.replace("conv-", "")) - 1);
+  const match = /^conv-(\d+)$/.exec(conversationId);
+  const index = match ? Number(match[1]) - 1 : -1;
+  if (index < 0 || index >= APARTMENTS.length) return [];
   const random = seededRandom(seedFor(`${uid}:${conversationId}`));
   const host = HOSTS[Math.floor(random() * HOSTS.length)];
   const opening =
