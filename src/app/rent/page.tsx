@@ -37,13 +37,8 @@ function RentListingContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.trim() ?? "";
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    "Family",
-    "Students",
-  ]);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([
-    "San José",
-    "Heredia",
-  ]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedBedrooms, setSelectedBedrooms] = useState("all");
   const [sortOption, setSortOption] = useState<SortOption>("relevance");
   const [minPrice, setMinPrice] = useState(DEFAULT_MIN_PRICE);
