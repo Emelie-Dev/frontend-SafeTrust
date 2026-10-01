@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { getApps } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
@@ -9,6 +12,7 @@ import {
   WebAuth,
 } from "stellar-sdk";
 import {
+  hasTrustedWalletAuthOrigin,
   issueWalletChallenge,
   verifyWalletChallenge,
   WalletAuthServiceError,
@@ -157,5 +161,33 @@ describe("SEP-10 wallet authentication service", () => {
       status: 401,
     } satisfies Partial<WalletAuthServiceError>);
     expect(mockCreateCustomToken).not.toHaveBeenCalled();
+  });
+
+  it("keeps same-origin requests valid when an optional allow-list entry is malformed", () => {
+    process.env.WALLET_AUTH_ALLOWED_ORIGINS =
+      "not a url, https://trusted.example";
+
+    const request = new Request(
+      "https://app.example/api/auth/wallet/challenge",
+      {
+        headers: { origin: "https://app.example" },
+      },
+    );
+
+    expect(hasTrustedWalletAuthOrigin(request)).toBe(true);
+  });
+
+  it("accepts valid configured origins alongside malformed entries", () => {
+    process.env.WALLET_AUTH_ALLOWED_ORIGINS =
+      "not a url, https://trusted.example/path";
+
+    const request = new Request(
+      "https://app.example/api/auth/wallet/challenge",
+      {
+        headers: { origin: "https://trusted.example" },
+      },
+    );
+
+    expect(hasTrustedWalletAuthOrigin(request)).toBe(true);
   });
 });

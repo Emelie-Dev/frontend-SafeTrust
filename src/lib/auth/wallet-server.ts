@@ -292,14 +292,19 @@ export function hasTrustedWalletAuthOrigin(request: Request): boolean {
 
   try {
     const receivedOrigin = new URL(origin).origin;
-    const allowedOrigins = new Set([
-      new URL(request.url).origin,
-      ...(process.env.WALLET_AUTH_ALLOWED_ORIGINS ?? "")
-        .split(",")
-        .map((value) => value.trim())
-        .filter(Boolean)
-        .map((value) => new URL(value).origin),
-    ]);
+    const allowedOrigins = new Set([new URL(request.url).origin]);
+    for (const value of (process.env.WALLET_AUTH_ALLOWED_ORIGINS ?? "").split(
+      ",",
+    )) {
+      const trimmed = value.trim();
+      if (!trimmed) continue;
+
+      try {
+        allowedOrigins.add(new URL(trimmed).origin);
+      } catch {
+        // Ignore malformed optional configuration entries.
+      }
+    }
     return allowedOrigins.has(receivedOrigin);
   } catch {
     return false;

@@ -16,7 +16,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body: unknown = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid request body." },
+        { status: 400, headers: { "cache-control": "no-store" } },
+      );
+    }
     if (
       typeof body !== "object" ||
       body === null ||
