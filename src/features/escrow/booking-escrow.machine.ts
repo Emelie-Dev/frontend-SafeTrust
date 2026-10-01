@@ -52,6 +52,8 @@ export type BookingEscrowState =
       at: "deploy" | "fund";
       reason: FailureReason;
       contractId?: string;
+      /** Hash of a submitted transaction whose outcome is uncertain. */
+      txHash?: string;
     };
 
 export type BookingEscrowStep = BookingEscrowState["step"];
@@ -192,7 +194,8 @@ function isValidState(value: unknown): value is BookingEscrowState {
           "amount-mismatch",
           "unknown",
         ].includes(s.reason as string) &&
-        (s.contractId === undefined || isString(s.contractId))
+        (s.contractId === undefined || isString(s.contractId)) &&
+        (s.txHash === undefined || isString(s.txHash))
       );
     default:
       return false;
@@ -367,10 +370,17 @@ const covers = (balance: number | undefined, amount: number) =>
 /**
  * Derive the real state of a booking from the indexer's escrows.
  * Pure: the caller fetches `escrows` (see `useBookingEscrow`).
+ *
+ * `previousState` is the state being reconciled from. When it is an
+ * unresolved fund failure, the fundable `deployed` state is never returned:
+ * the submitted transaction may still land while the indexer lags, and a
+ * second fund would double-charge the guest. The caller must resolve the
+ * uncertainty first (see `resolveSubmitted` and the txHash probe).
  */
 export function reconcile(
   intent: BookingEscrowIntent,
   escrows: IndexedEscrow[],
+  previousState?: BookingEscrowState,
 ): ReconcileResult {
   const matches = escrows.filter((e) => e.engagementId === intent.engagementId);
 
@@ -391,8 +401,25 @@ export function reconcile(
   const escrow =
     matches.find((e) => covers(e.balance, intent.amount)) ?? matches[0];
 
+  // An unresolved fund stays non-fundable even though the indexer answers
+  // and the balance is still short: the transaction may not have landed yet.
+  // Only a submitted transaction (we hold its hash) is uncertain; a network
+  // error before the send left nothing on-chain and stays retryable.
+  const unresolvedFund =
+    previousState?.step === "failed" &&
+    previousState.at === "fund" &&
+    previousState.reason === "network" &&
+    isString(previousState.txHash)
+      ? previousState
+      : null;
+
   if (!escrow.contractId) {
     // It exists but we cannot address it. Never deploy; ask to check again.
+    // An unresolved fund keeps its marker: the fund tx outcome is still
+    // unknown, and mislabeling it as a deploy failure would block recovery.
+    if (unresolvedFund) {
+      return { state: unresolvedFund, escrow };
+    }
     return {
       state: { step: "failed", at: "deploy", reason: "network" },
       escrow,
@@ -416,6 +443,13 @@ export function reconcile(
 
   if (covers(escrow.balance, intent.amount)) {
     return { state: { step: "funded", contractId: escrow.contractId }, escrow };
+  }
+
+  if (unresolvedFund) {
+    return {
+      state: { ...unresolvedFund, contractId: escrow.contractId },
+      escrow,
+    };
   }
 
   return { state: { step: "deployed", contractId: escrow.contractId }, escrow };
@@ -456,14 +490,21 @@ export function resolveSubmitted(
     // so never return the fundable "deployed" state here — that would let
     // a retry fund a second time. Stay non-fundable until the escrow is
     // provably funded (handled above) or the tx has a definitive outcome.
+    // The hash is kept so the caller can ask the indexer for that outcome.
     return {
       step: "failed",
       at: "fund",
       reason: "network",
       contractId: previous.contractId,
+      txHash: previous.txHash,
     };
   }
-  return { step: "failed", at: "deploy", reason: "network" };
+  return {
+    step: "failed",
+    at: "deploy",
+    reason: "network",
+    txHash: previous.txHash,
+  };
 }
 
 /**

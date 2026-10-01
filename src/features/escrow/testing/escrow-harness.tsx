@@ -7,7 +7,15 @@
  */
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Keypair } from "stellar-sdk";
+import {
+  Account,
+  Asset,
+  Keypair,
+  Memo,
+  Networks,
+  Operation,
+  TransactionBuilder,
+} from "stellar-sdk";
 import type { BookingDetails } from "../booking-escrow.machine";
 import { computeBookingPrice } from "../pricing";
 
@@ -37,6 +45,7 @@ export const fakes = {
   sendTransaction: jest.fn(),
   signTransaction: jest.fn(),
   getEscrowsBySigner: jest.fn(),
+  txStatusApi: jest.fn(),
 };
 
 /** Last payloads seen by the fakes, so tests can compare amounts. */
@@ -95,7 +104,10 @@ export function resetFakes() {
     };
     return { status: "SUCCESS", unsignedTransaction: "UNSIGNED_FUND_XDR" };
   });
-  fakes.signTransaction.mockImplementation(async () => "SIGNED_XDR");
+  fakes.signTransaction.mockImplementation((p: unknown) =>
+    Promise.resolve(signedXdrFor(p as { unsignedTransaction: string })),
+  );
+  fakes.txStatusApi.mockResolvedValue({ status: "FAILED", message: "ok" });
   chain.send = async (_xdr, kind) => {
     if (kind === "deploy") {
       const escrow = landDeploy();
@@ -123,6 +135,34 @@ export const GUEST = Keypair.random().publicKey();
 export const HOST = Keypair.random().publicKey();
 export const PLATFORM = Keypair.random().publicKey();
 export const RESOLVER = Keypair.random().publicKey();
+
+/**
+ * Real signed-XDR test transactions so `txHashFromXdr` derives a real hash:
+ * the hook's uncertain-failure marker only carries a hash when one existed.
+ */
+function signedXdrFor({
+  unsignedTransaction,
+}: {
+  unsignedTransaction: string;
+}) {
+  const signer = Keypair.random(); // test-only throwaway signer
+  const tx = new TransactionBuilder(new Account(signer.publicKey(), "0"), {
+    fee: "100",
+    networkPassphrase: Networks.TESTNET,
+  })
+    .addOperation(
+      Operation.payment({
+        destination: signer.publicKey(),
+        asset: Asset.native(),
+        amount: "0.0000001",
+      }),
+    )
+    .addMemo(Memo.text(unsignedTransaction))
+    .setTimeout(30)
+    .build();
+  tx.sign(signer);
+  return tx.toXDR();
+}
 
 export function setEscrowEnv() {
   process.env.NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS = PLATFORM;
@@ -184,6 +224,9 @@ export function trustlessWorkModule() {
     }),
     useGetEscrowsFromIndexerBySigner: () => ({
       getEscrowsBySigner: (p: unknown) => fakes.getEscrowsBySigner(p),
+    }),
+    useUpdateFromTxHash: () => ({
+      updateFromTxHash: (p: unknown) => fakes.txStatusApi(p),
     }),
     useUpdateEscrow: noop,
     useChangeMilestoneStatus: noop,

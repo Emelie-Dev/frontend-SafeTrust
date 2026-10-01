@@ -220,18 +220,21 @@ describe("Test 2: refresh during fund:submitted", () => {
 
     const { result } = renderFlow();
 
-    // The submitted tx's outcome is unknown: stay non-fundable until the
-    // guest explicitly retries (the retry reconciles before funding).
+    // The submitted tx's outcome is unknown: the failed state keeps the
+    // submitted hash so the outcome can be probed definitively.
     await waitFor(() => expect(step(result)).toBe("failed"));
     expect(result.current.intent?.state).toEqual({
       step: "failed",
       at: "fund",
       reason: "network",
       contractId: "CEXISTING",
+      txHash: "abc",
     });
     expect(fakes.deployApi).not.toHaveBeenCalled();
     expect(fakes.fundApi).not.toHaveBeenCalled();
 
+    // "Check again": the indexer definitively reports the tx FAILED, so the
+    // flow becomes fundable again — exactly one fund is sent.
     await act(() => result.current.retry());
 
     expect(step(result)).toBe("funded");
@@ -247,6 +250,30 @@ describe("Test 2: refresh during fund:submitted", () => {
     await waitFor(() => expect(fakes.getEscrowsBySigner).toHaveBeenCalled());
     expect(step(result)).toBe("fund:submitted");
     expect(result.current.isBusy).toBe(true);
+  });
+
+  it("keeps the failed marker when the tx outcome cannot be probed", async () => {
+    persistFundSubmitted(new Date(Date.now() - 10 * 60_000).toISOString());
+    // The indexer never answers the probe: the uncertainty must survive.
+    fakes.txStatusApi.mockRejectedValue(new Error("503"));
+
+    const { result } = renderFlow();
+
+    await waitFor(() => expect(step(result)).toBe("failed"));
+    expect(fakes.txStatusApi).not.toHaveBeenCalled();
+
+    await act(() => result.current.retry());
+
+    // No second fund while the original transaction's outcome is unknown.
+    expect(fakes.fundApi).not.toHaveBeenCalled();
+    expect(fakes.deployApi).not.toHaveBeenCalled();
+    expect(result.current.intent?.state).toMatchObject({
+      step: "failed",
+      at: "fund",
+      reason: "network",
+      contractId: "CEXISTING",
+      txHash: "abc",
+    });
   });
 
   it("a reload during a wallet prompt resumes without re-deploying", async () => {

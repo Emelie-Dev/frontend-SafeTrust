@@ -11,7 +11,10 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Networks, TransactionBuilder } from "stellar-sdk";
-import { useGetEscrowsFromIndexerBySigner } from "@trustless-work/escrow";
+import {
+  useGetEscrowsFromIndexerBySigner,
+  useUpdateFromTxHash,
+} from "@trustless-work/escrow";
 import type { InitializeSingleReleaseEscrowResponse } from "@trustless-work/escrow/types";
 import {
   useEscrowsMutations,
@@ -123,6 +126,7 @@ export function useBookingEscrowFlow({
   pollTimeoutMs = SUBMITTED_POLL_TIMEOUT_MS,
 }: UseBookingEscrowFlowOptions): UseBookingEscrowFlowResult {
   const { deployEscrow, fundEscrow } = useEscrowsMutations();
+  const { updateFromTxHash } = useUpdateFromTxHash();
   const { getEscrowsBySigner } = useGetEscrowsFromIndexerBySigner();
 
   const [intent, setIntent] = useState<BookingEscrowIntent | null>(null);
@@ -220,7 +224,7 @@ export function useBookingEscrowFlow({
       });
       if (!Array.isArray(escrows))
         throw new Error("Indexer returned no escrows list");
-      return reconcile(current, escrows as IndexedEscrow[]);
+      return reconcile(current, escrows as IndexedEscrow[], current.state);
     },
     [getEscrowsBySigner],
   );
@@ -258,6 +262,30 @@ export function useBookingEscrowFlow({
       if (mountedRef.current) setIsReconciling(false);
     }
   }, [apply, reconcileNow]);
+
+  /**
+   * Ask the indexer for the definitive outcome of an uncertain transaction.
+   * "SUCCESS" means it landed on-chain; "FAILED" means it definitively
+   * failed, so a timed-out fund can safely go back to `deployed` (fundable).
+   * An unreachable indexer (or a missing hash) answers "unknown": the
+   * uncertainty must survive, so the failure marker is kept as-is.
+   */
+  const probeTxOutcome = useCallback(
+    async (txHash: string): Promise<"SUCCESS" | "FAILED" | null> => {
+      if (!txHash) return null;
+      try {
+        const response = (await updateFromTxHash({ txHash })) as {
+          status?: unknown;
+        } | null;
+        if (response?.status === "SUCCESS" || response?.status === "FAILED")
+          return response.status;
+        return null;
+      } catch {
+        return null; // indexer unreachable: the marker must survive
+      }
+    },
+    [updateFromTxHash],
+  );
 
   // --- one signed transaction ----------------------------------------------
 
@@ -385,15 +413,49 @@ export function useBookingEscrowFlow({
         try {
           result = await reconcileNow(current);
         } catch {
-          const contractId = contractIdOf(current.state);
+          const prev = current.state;
+          const contractId = contractIdOf(prev);
           apply(
             contractId
-              ? { step: "failed", at: "fund", reason: "network", contractId }
+              ? {
+                  step: "failed",
+                  at: "fund",
+                  reason: "network",
+                  contractId,
+                  // An unresolved fund failure keeps its marker (and hash)
+                  // so the uncertainty survives an unreachable indexer.
+                  ...(prev.step === "failed" &&
+                    prev.at === "fund" &&
+                    prev.reason === "network" && { txHash: prev.txHash }),
+                }
               : { step: "failed", at: "deploy", reason: "network" },
           );
           return;
         } finally {
           if (mountedRef.current) setIsReconciling(false);
+        }
+
+        // An unresolved fund failure (timeout with the hash kept) is only
+        // resolved by a definitive outcome, never by the balance being short.
+        if (
+          result.state.step === "failed" &&
+          result.state.at === "fund" &&
+          result.state.reason === "network" &&
+          result.state.txHash
+        ) {
+          const outcome = await probeTxOutcome(result.state.txHash);
+          if (outcome === "FAILED") {
+            result = {
+              state: {
+                step: "deployed",
+                contractId: result.state.contractId!,
+              },
+              escrow: result.escrow,
+            };
+          } else if (outcome === "SUCCESS") {
+            // Covered by the funded branch below when the balance follows;
+            // until then the marker stands (nothing new is sent).
+          }
         }
 
         let latest = apply(result.state);
@@ -452,7 +514,14 @@ export function useBookingEscrowFlow({
     },
     // runDeploy/runFund only read refs and stable mutation objects.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [apply, reconcileNow, settleSubmitted, deployEscrow, fundEscrow],
+    [
+      apply,
+      reconcileNow,
+      probeTxOutcome,
+      settleSubmitted,
+      deployEscrow,
+      fundEscrow,
+    ],
   );
 
   // --- load + reconcile on mount / wallet change ------------------------------

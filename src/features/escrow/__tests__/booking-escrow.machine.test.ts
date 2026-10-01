@@ -303,6 +303,92 @@ describe("resolveSubmitted", () => {
       reason: "network",
     });
   });
+
+  it("after the deadline, keeps the submitted hash so the outcome can be probed", () => {
+    const submitted = {
+      step: "fund:submitted" as const,
+      contractId: "C1",
+      txHash: "abc",
+      submittedAt: new Date(now - 10_000).toISOString(),
+    };
+    expect(resolveSubmitted(submitted, null, now + 3 * 60_000)).toEqual({
+      step: "failed",
+      at: "fund",
+      reason: "network",
+      contractId: "C1",
+      txHash: "abc",
+    });
+  });
+});
+
+describe("reconcile keeps an unresolved fund non-fundable", () => {
+  const unresolved = {
+    step: "failed" as const,
+    at: "fund" as const,
+    reason: "network" as const,
+    contractId: "C1",
+    txHash: "abc",
+  };
+  const amount = intentWith({ step: "idle" }).amount;
+  const existing = {
+    engagementId: "booking-1",
+    contractId: "C1",
+    amount,
+    balance: 0,
+  };
+
+  it("keeps the marker when the escrow exists with a short balance", () => {
+    const r = reconcile(intentWith(unresolved), [existing], unresolved);
+    expect(r.state).toEqual(unresolved);
+    // Never fundable while the submitted transaction's outcome is unknown.
+    expect(planNextAction(r)).toBe("none");
+  });
+
+  it("keeps the marker when the escrow exists but cannot be addressed", () => {
+    const r = reconcile(
+      intentWith(unresolved),
+      [{ engagementId: "booking-1" }],
+      unresolved,
+    );
+    expect(r.state).toEqual(unresolved);
+  });
+
+  it("funded still wins over the marker", () => {
+    const r = reconcile(
+      intentWith(unresolved),
+      [{ ...existing, balance: amount }],
+      unresolved,
+    );
+    expect(r.state).toEqual({ step: "funded", contractId: "C1" });
+  });
+
+  it("a network error before the send is not uncertain and stays retryable", () => {
+    const preSubmit = {
+      step: "failed" as const,
+      at: "fund" as const,
+      reason: "network" as const,
+      contractId: "C1",
+    };
+    const r = reconcile(intentWith(preSubmit), [existing], preSubmit);
+    expect(r.state).toEqual({ step: "deployed", contractId: "C1" });
+  });
+
+  it("a definitive failure is not preserved as unresolved", () => {
+    const definitive = {
+      step: "failed" as const,
+      at: "fund" as const,
+      reason: "insufficient-funds" as const,
+      contractId: "C1",
+    };
+    const r = reconcile(intentWith(definitive), [existing], definitive);
+    // Nothing was ever sent: the escrow is fundable again right away.
+    expect(r.state).toEqual({ step: "deployed", contractId: "C1" });
+  });
+
+  it("round-trips the txHash through persistence", () => {
+    saveIntent(intentWith(unresolved));
+    expect(loadIntent("booking-1")?.state).toEqual(unresolved);
+  });
 });
 
 describe("persistence", () => {
