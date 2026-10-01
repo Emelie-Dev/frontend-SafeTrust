@@ -1,25 +1,35 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
-import { ApolloClientProvider } from "@/providers/ApolloProviderWrapper";
 import { WalletProvider } from "@/components/tw-blocks/wallet-kit/WalletProvider";
 import { Toaster } from "@/components/ui/sonner";
-import { DemoBanner } from "@/components/layouts/DemoBanner";
+import { initSessionListener } from "@/lib/auth/session";
 import { QueryProvider } from "./QueryProvider";
 
+/**
+ * Root client-side providers wrapper component.
+ * Composes Theme, React Query, and Wallet providers for the application tree.
+ *
+ * @param props - Component props containing children to be wrapped by client providers.
+ * @returns React component wrapping children in client provider contexts.
+ */
 export function AppProviders({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    const unsubscribe = initSessionListener();
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <DemoBanner />
-      <ApolloClientProvider>
-        <QueryProvider>
-          <WalletProvider>
-            {children}
-            <Toaster richColors position="top-right" />
-          </WalletProvider>
-        </QueryProvider>
-      </ApolloClientProvider>
+      <QueryProvider>
+        <WalletProvider>
+          {children}
+          <Toaster richColors position="top-right" />
+        </WalletProvider>
+      </QueryProvider>
     </ThemeProvider>
   );
 }
