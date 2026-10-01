@@ -38,6 +38,7 @@ export async function verifyIdToken(
       issuer: `https://securetoken.google.com/${projectId}`,
       audience: projectId,
       algorithms: ["RS256"],
+      requiredClaims: ["exp", "sub"],
     });
     return payload;
   } catch {
