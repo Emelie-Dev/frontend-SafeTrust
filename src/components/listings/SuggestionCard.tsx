@@ -22,6 +22,7 @@ export interface SuggestionCardProps {
   onClick?: (id: string) => void;
 }
 
+/** Render a suggested rental with navigation and favorite controls. */
 export default function SuggestionCard({
   id,
   name,
@@ -60,8 +61,8 @@ export default function SuggestionCard({
   return (
     <div
       className={cn(
-        "group w-full rounded-[12px] border border-[#dfd9d2] bg-white p-3 shadow-sm transition",
-        "hover:border-[#cfc6bc] hover:shadow-md",
+        "group w-full rounded-xl border border-border bg-card p-3 shadow-sm transition",
+        "hover:border-muted-foreground/40 hover:shadow-md",
       )}
     >
       <div className="flex items-start gap-3">
@@ -69,7 +70,7 @@ export default function SuggestionCard({
           type="button"
           onClick={handleCardClick}
           aria-label={`View ${name}`}
-          className="flex min-w-0 flex-1 items-start gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10a156]/30"
+          className="flex min-w-0 flex-1 items-start gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600/30"
         >
           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
             <Image
@@ -98,7 +99,7 @@ export default function SuggestionCard({
                 {bedrooms}bd · {petFriendly ? "pet friendly" : "no pets"} ·{" "}
                 {bathrooms} ba
               </p>
-              <span className="text-right text-[1.75rem] font-semibold leading-none text-green-600">
+              <span className="text-right text-3xl font-semibold leading-none text-green-600">
                 {formatListingPrice(price)}
               </span>
             </div>

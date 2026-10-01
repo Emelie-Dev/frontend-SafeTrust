@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
   ChevronDown,
@@ -44,15 +45,18 @@ const RENT_ITEMS = [
   },
 ] as const;
 
+/** Render the shared rent destination menu. */
 export function RentDropdown() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    /** Close the menu when a click lands outside it. */
     const closeOnOutsideClick = (event: MouseEvent) => {
       if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
     };
+    /** Close the menu and restore focus when Escape is pressed. */
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape" && open) {
         setOpen(false);
@@ -77,7 +81,7 @@ export function RentDropdown() {
         aria-expanded={open}
         aria-controls="rent-navigation-menu"
         onClick={() => setOpen((current) => !current)}
-        className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-900 shadow-sm transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
+        className="flex items-center gap-2 rounded-full bg-background px-4 py-2 text-sm text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
       >
         Rent
         <ChevronDown
@@ -91,7 +95,7 @@ export function RentDropdown() {
           id="rent-navigation-menu"
           role="menu"
           aria-label="Rent navigation"
-          className="absolute left-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+          className="absolute left-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-xl border border-border bg-background py-1 shadow-lg"
         >
           {RENT_ITEMS.map(({ icon: Icon, label, description, href }) => (
             <Link
@@ -99,16 +103,16 @@ export function RentDropdown() {
               href={href}
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 focus:bg-gray-50 focus:outline-none dark:hover:bg-slate-700 dark:focus:bg-slate-700"
+              className="flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted focus:bg-muted focus:outline-none"
             >
               <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
                 <Icon aria-hidden="true" className="h-4 w-4 text-orange-500" />
               </span>
               <span>
-                <span className="block text-sm font-medium text-gray-900 dark:text-white">
+                <span className="block text-sm font-medium text-foreground">
                   {label}
                 </span>
-                <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
+                <span className="mt-0.5 block text-xs text-muted-foreground">
                   {description}
                 </span>
               </span>
@@ -120,9 +124,23 @@ export function RentDropdown() {
   );
 }
 
-export default function HotelHeader({
-  showHostSwitch = false,
-}: HotelHeaderProps) {
+/** Wrap the query-aware header in the required search-parameter boundary. */
+export default function HotelHeader(props: HotelHeaderProps) {
+  return (
+    <Suspense
+      fallback={
+        <header className="h-20 border-b border-border bg-background" />
+      }
+    >
+      <HotelHeaderContent {...props} />
+    </Suspense>
+  );
+}
+
+/** Render shared navigation and search controls for rental pages. */
+function HotelHeaderContent({ showHostSwitch = false }: HotelHeaderProps) {
+  const query = useSearchParams().get("q") ?? "";
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:flex-nowrap sm:px-6 lg:px-8">
@@ -133,28 +151,31 @@ export default function HotelHeader({
           </span>
         </Link>
 
-        <form
-          action="/rent"
-          method="get"
-          className="order-3 mx-0 flex w-full items-center rounded-full border border-border bg-muted/60 px-2 py-1.5 sm:order-none sm:mx-auto sm:max-w-md"
-        >
+        <div className="order-3 mx-0 flex w-full items-center rounded-full border border-border bg-muted/60 px-2 py-1.5 sm:order-none sm:mx-auto sm:max-w-md">
           <RentDropdown />
           <div className="mx-3 h-6 w-px shrink-0 bg-border" />
-          <input
-            name="q"
-            type="search"
-            aria-label="Search rentals"
-            placeholder="City, province or neighborhood"
-            className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
-          />
-          <button
-            type="submit"
-            aria-label="Search rentals"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-background"
+          <form
+            action="/rent"
+            method="get"
+            className="flex min-w-0 flex-1 items-center"
           >
-            <FaSearch aria-hidden="true" className="h-4 w-4" />
-          </button>
-        </form>
+            <input
+              name="q"
+              type="search"
+              aria-label="Search rentals"
+              placeholder="City, province or neighborhood"
+              defaultValue={query}
+              className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="submit"
+              aria-label="Search rentals"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-background"
+            >
+              <FaSearch aria-hidden="true" className="h-4 w-4" />
+            </button>
+          </form>
+        </div>
 
         <div className="ml-auto flex items-center gap-3 sm:gap-5">
           {showHostSwitch && (
@@ -169,14 +190,14 @@ export default function HotelHeader({
             <ThemeToggle />
           </div>
           <div className="relative">
-            <FaBell className="h-4 w-4 text-gray-900 dark:text-white" />
+            <FaBell className="h-4 w-4 text-foreground" />
             <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-orange-500" />
           </div>
-          <span className="hidden text-sm font-semibold text-gray-900 lg:block dark:text-white">
+          <span className="hidden text-sm font-semibold text-foreground lg:block">
             Randall Valenciano
           </span>
-          <div className="grid h-10 w-10 place-items-center rounded-full border border-gray-200 bg-gray-100 dark:border-slate-700 dark:bg-slate-800">
-            <FaRegUserCircle className="h-5 w-5 text-gray-900 dark:text-white" />
+          <div className="grid h-10 w-10 place-items-center rounded-full border border-border bg-muted">
+            <FaRegUserCircle className="h-5 w-5 text-foreground" />
           </div>
         </div>
       </div>

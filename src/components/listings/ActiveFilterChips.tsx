@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "@/lib/rent-filters";
 import { formatListingPrice } from "./formatListingPrice";
 
 interface ActiveFilterChipsProps {
@@ -16,6 +17,7 @@ interface ActiveFilterChipsProps {
   onClearAll: () => void;
 }
 
+/** Render removable chips for each currently active rent filter. */
 export default function ActiveFilterChips({
   selectedCategories,
   selectedLocations,
@@ -30,24 +32,28 @@ export default function ActiveFilterChips({
 }: ActiveFilterChipsProps) {
   const chips = [
     ...selectedLocations.map((value) => ({
+      key: `location:${value}`,
       label: value,
       remove: () => onRemoveLocation(value),
     })),
     ...selectedCategories.map((value) => ({
+      key: `category:${value}`,
       label: value,
       remove: () => onRemoveCategory(value),
     })),
     ...(selectedBedrooms !== "all"
       ? [
           {
+            key: "bedrooms",
             label: `${selectedBedrooms}${selectedBedrooms === "3" ? "+" : ""} bedrooms`,
             remove: onRemoveBedrooms,
           },
         ]
       : []),
-    ...(minPrice !== 3200 || maxPrice !== 206000
+    ...(minPrice !== DEFAULT_MIN_PRICE || maxPrice !== DEFAULT_MAX_PRICE
       ? [
           {
+            key: "price",
             label: `${formatListingPrice(minPrice)}–${formatListingPrice(maxPrice)}`,
             remove: onRemovePrice,
           },
@@ -62,9 +68,9 @@ export default function ActiveFilterChips({
       className="flex flex-wrap items-center gap-2 py-3"
       aria-label="Active filters"
     >
-      {chips.map(({ label, remove }) => (
+      {chips.map(({ key, label, remove }) => (
         <button
-          key={label}
+          key={key}
           type="button"
           aria-label={`Remove filter: ${label}`}
           onClick={remove}

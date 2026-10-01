@@ -9,6 +9,7 @@ import { getHotelById, getSuggestedHotels } from "@/lib/mockData/hotels";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 
+/** Render the selected rental detail and related suggestions. */
 export default function HotelDetailPage({
   params,
 }: {

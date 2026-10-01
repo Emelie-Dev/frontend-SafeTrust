@@ -22,6 +22,7 @@ const BEDROOM_OPTIONS = [
   { label: "3+ bedrooms", value: "3" },
 ];
 
+/** Combine bedrooms with the shared category, location, and price controls. */
 export default function RentFiltersPanel({
   selectedCategories,
   selectedLocations,

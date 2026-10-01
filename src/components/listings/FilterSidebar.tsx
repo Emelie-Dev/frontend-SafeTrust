@@ -1,6 +1,7 @@
 "use client";
 
 import { HOTEL_CATEGORIES, HOTEL_LOCATIONS } from "@/lib/mockData/hotels";
+import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "@/lib/rent-filters";
 import { formatListingPrice } from "./formatListingPrice";
 
 interface FilterSidebarProps {
@@ -15,6 +16,7 @@ interface FilterSidebarProps {
   className?: string;
 }
 
+/** Render one selectable category or location filter. */
 function CheckboxRow({
   checked,
   label,
@@ -37,6 +39,7 @@ function CheckboxRow({
   );
 }
 
+/** Render the shared category, price, and location filters. */
 export default function FilterSidebar({
   selectedCategories,
   selectedLocations,
@@ -90,8 +93,8 @@ export default function FilterSidebar({
             type="range"
             id="minimum-price-range"
             aria-label="Minimum price"
-            min={3200}
-            max={maxPrice}
+            min={DEFAULT_MIN_PRICE}
+            max={DEFAULT_MAX_PRICE}
             step={100}
             value={minPrice}
             onChange={(event) =>
@@ -109,8 +112,8 @@ export default function FilterSidebar({
             type="range"
             id="maximum-price-range"
             aria-label="Maximum price"
-            min={3200}
-            max={206000}
+            min={DEFAULT_MIN_PRICE}
+            max={DEFAULT_MAX_PRICE}
             step={100}
             value={maxPrice}
             onChange={(event) =>

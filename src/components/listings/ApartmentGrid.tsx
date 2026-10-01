@@ -8,6 +8,7 @@ interface ApartmentGridProps {
   onApartmentClick: (apartment: HotelListing) => void;
 }
 
+/** Render rental cards in a responsive listing grid. */
 export default function ApartmentGrid({
   apartments,
   onApartmentClick,

@@ -12,6 +12,7 @@ interface ApartmentDetailProps {
   onBook: () => void;
 }
 
+/** Render rental details, amenities, owner information, and booking action. */
 export default function ApartmentDetail({
   apartment,
   onBook,
@@ -26,12 +27,12 @@ export default function ApartmentDetail({
 
       <div className="mt-8 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex-1">
-          <h1 className="text-3xl font-semibold text-[#181818] sm:text-4xl">
+          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
             {apartment.name}
           </h1>
 
-          <div className="mt-5 flex items-center gap-3 text-sm text-[#717171]">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-[#fff1e7] text-[#ff6a00]">
+          <div className="mt-5 flex items-center gap-3 text-sm text-muted-foreground">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-orange-100 text-orange-600">
               <FaMapMarkerAlt className="h-4 w-4" />
             </span>
             <span>{apartment.address}</span>
@@ -50,19 +51,21 @@ export default function ApartmentDetail({
           <button
             type="button"
             onClick={onBook}
-            className="w-full rounded-[8px] bg-[#ff6a00] px-6 py-4 text-xl font-semibold text-white transition hover:bg-[#ec6200]"
+            className="w-full rounded-md bg-orange-500 px-6 py-4 text-xl font-semibold text-white transition hover:bg-orange-600"
           >
             BOOK
           </button>
           <div className="mt-4 flex items-end gap-2">
-            <span className="text-3xl font-semibold leading-none text-[#10a156] sm:text-4xl">
+            <span className="text-3xl font-semibold leading-none text-green-600 sm:text-4xl">
               {formatListingPrice(apartment.price)}
             </span>
-            <span className="pb-1 text-sm text-[#808080]">Per month</span>
+            <span className="pb-1 text-sm text-muted-foreground">
+              Per month
+            </span>
           </div>
 
           <div className="mt-8 flex items-center justify-end gap-3">
-            <span className="text-sm font-medium text-[#5a5a5a]">
+            <span className="text-sm font-medium text-foreground">
               {apartment.owner.name}
             </span>
             <Image
@@ -77,10 +80,10 @@ export default function ApartmentDetail({
       </div>
 
       <div className="mt-10 max-w-3xl">
-        <h2 className="text-xl font-semibold text-[#1b1b1b]">
+        <h2 className="text-xl font-semibold text-foreground">
           Apartment details
         </h2>
-        <p className="mt-4 text-sm leading-6 text-[#6d6d6d]">
+        <p className="mt-4 text-sm leading-6 text-muted-foreground">
           {apartment.description}
         </p>
       </div>

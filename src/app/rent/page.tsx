@@ -6,6 +6,7 @@ import ApartmentGrid from "@/components/listings/ApartmentGrid";
 import HotelHeader from "@/components/listings/HotelHeader";
 import RentFiltersPanel from "@/components/listings/RentFiltersPanel";
 import { STUB_HOTELS } from "@/lib/mockData/hotels";
+import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "@/lib/rent-filters";
 import { Drawer } from "vaul";
 import { LayoutDashboard, Lightbulb, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
@@ -14,9 +15,7 @@ import { Suspense, useMemo, useState } from "react";
 
 type SortOption = "relevance" | "price-low" | "price-high";
 
-const DEFAULT_MIN_PRICE = 3200;
-const DEFAULT_MAX_PRICE = 206000;
-
+/** Normalize rental text for case- and accent-insensitive search. */
 function normalizeSearchText(value: string) {
   return value
     .normalize("NFD")
@@ -24,6 +23,7 @@ function normalizeSearchText(value: string) {
     .toLocaleLowerCase();
 }
 
+/** Render the rent listing page inside the search-parameter suspense boundary. */
 export default function HotelListingPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
@@ -32,18 +32,13 @@ export default function HotelListingPage() {
   );
 }
 
+/** Own search, sorting, filtering, and responsive listing state. */
 function RentListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.trim() ?? "";
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    "Family",
-    "Students",
-  ]);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([
-    "San José",
-    "Heredia",
-  ]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedBedrooms, setSelectedBedrooms] = useState("all");
   const [sortOption, setSortOption] = useState<SortOption>("relevance");
   const [minPrice, setMinPrice] = useState(DEFAULT_MIN_PRICE);
@@ -99,11 +94,13 @@ function RentListingContent() {
     sortOption,
   ]);
 
+  /** Toggle one string-valued filter selection. */
   const toggleValue = (values: string[], value: string) =>
     values.includes(value)
       ? values.filter((item) => item !== value)
       : [...values, value];
 
+  /** Restore the unfiltered rent-listing state. */
   const clearAll = () => {
     setSelectedCategories([]);
     setSelectedLocations([]);
@@ -134,6 +131,7 @@ function RentListingContent() {
     Number(selectedBedrooms !== "all") +
     Number(minPrice !== DEFAULT_MIN_PRICE || maxPrice !== DEFAULT_MAX_PRICE);
 
+  /** Navigate to a selected rental's detail page. */
   const handleApartmentClick = (apartment: HotelListing) => {
     router.push(`/rent/${apartment.id}`);
   };
@@ -170,7 +168,8 @@ function RentListingContent() {
                   const content = event.currentTarget as HTMLDivElement | null;
                   content?.querySelector<HTMLElement>("button, input")?.focus();
                 }}
-                className="fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-[85dvh] flex-col rounded-t-2xl border border-border bg-background px-4 pt-3 outline-none sm:px-6"
+                style={{ maxHeight: "85dvh" }}
+                className="fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-screen flex-col rounded-t-2xl border border-border bg-background px-4 pt-3 outline-none sm:px-6"
               >
                 <div className="mx-auto mb-3 h-1.5 w-12 shrink-0 rounded-full bg-muted-foreground/30" />
                 <Drawer.Title className="pb-2 text-lg font-semibold text-foreground">

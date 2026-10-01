@@ -9,6 +9,7 @@ interface SuggestionsListProps {
   onSelect?: (id: string) => void;
 }
 
+/** Render the curated rental suggestions list. */
 export default function SuggestionsList({
   apartments,
   onSelect,
@@ -34,10 +35,10 @@ export default function SuggestionsList({
   };
 
   return (
-    <aside className="w-full border-b border-[#e8e1da] px-6 py-8 lg:w-80 lg:border-b-0 lg:border-r">
+    <aside className="w-full border-b border-border px-6 py-8 lg:w-80 lg:border-b-0 lg:border-r">
       <div className="mb-6">
-        <h2 className="text-3xl font-semibold text-[#181818]">Suggestions</h2>
-        <p className="mt-4 text-sm text-[#202020]">
+        <h2 className="text-3xl font-semibold text-foreground">Suggestions</h2>
+        <p className="mt-4 text-sm text-muted-foreground">
           More than 200 units available
         </p>
       </div>
