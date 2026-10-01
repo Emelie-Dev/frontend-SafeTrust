@@ -6,7 +6,7 @@ export function DemoBanner() {
       role="note"
       className="bg-amber-50 px-4 py-1.5 text-center text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200"
     >
-      You're viewing SafeTrust with <strong>demo listings</strong>. Bookings and
+      You&apos;re viewing SafeTrust with <strong>demo listings</strong>. Bookings and
       payments use the Stellar <strong>testnet</strong>.
     </div>
   );
