@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { addDays, format } from "date-fns";
 import HotelDetails from "@/components/hotels/payment/HotelDetails";
 import ReservationSummary from "@/components/hotels/payment/ReservationSummary";
-import { getHotelById } from "@/lib/mockData/hotels";
+import { getApartmentById } from "@/lib/mockData/apartmentListings";
 import { EscrowProviders } from "@/providers/EscrowProviders";
 import type { BookingDetails } from "@/features/escrow/booking-escrow.machine";
 import { computeBookingPrice } from "@/features/escrow/pricing";
@@ -18,7 +18,7 @@ const MOCK_NIGHTS = 2;
 function BookContent({ hotelId }: { hotelId: string }) {
   const searchParams = useSearchParams();
   const bookingId = searchParams.get("bookingId") ?? "";
-  const listing = getHotelById(hotelId);
+  const listing = getApartmentById(hotelId);
   const booking = useMemo<BookingDetails>(() => {
     const checkIn = addDays(new Date(), 7);
     return {

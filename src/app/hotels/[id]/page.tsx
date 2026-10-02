@@ -7,7 +7,7 @@ import { SideBar } from "@/components/layouts/SideBar";
 import Gallery from "@/components/hotels/details/Gallery";
 import Information from "@/components/hotels/details/Information";
 import Details from "@/components/hotels/details/Details";
-import { getHotelById } from "@/lib/mockData/hotels";
+import { getApartmentById } from "@/lib/mockData/apartmentListings";
 
 const HotelMap = dynamic(() => import("@/components/hotels/payment/Map"), {
   ssr: false,
@@ -27,7 +27,7 @@ export default function HotelPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const hotelName = getHotelById(id).name;
+  const hotelName = getApartmentById(id).name;
   const images = [
     "/img/room1.png",
     "/img/room2.png",
