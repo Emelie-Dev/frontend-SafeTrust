@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight, SlidersHorizontal } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import {
   Popover,
   PopoverContent,
@@ -15,86 +15,32 @@ import { EscrowsByStatus } from "./EscrowsByStatus";
 import { RecentActivity } from "./RecentActivity";
 import { QuickActions } from "./QuickActions";
 import { EscrowTable } from "./EscrowTable";
-import dynamic from "next/dynamic";
-import { DemoBadge } from "@/components/ui/demo-badge";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { AnalyticsDashboard } from "./analytics";
+import type {
+  EscrowData,
+  NotificationData,
+} from "@/types/dashboard";
 
-const AnalyticsDashboard = dynamic(
-  () => import("./analytics").then((module) => module.AnalyticsDashboard),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        className="space-y-4 rounded-xl border border-slate-700 bg-slate-900 p-6"
-        role="status"
-        aria-label="Loading analytics"
-      >
-        <div className="h-8 w-48 animate-pulse rounded-lg bg-slate-700" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, index) => (
-            <div
-              key={index}
-              className="h-28 animate-pulse rounded-xl bg-slate-800"
-            />
-          ))}
-        </div>
-        <div className="h-64 animate-pulse rounded-xl bg-slate-800" />
-      </div>
-    ),
-  },
-);
+export type {
+  EscrowData,
+  EscrowStatus,
+  Milestone,
+  NotificationData,
+} from "@/types/dashboard";
 
-type EscrowStatus =
-  | "pending"
-  | "funded"
-  | "check_in_approved"
-  | "check_out_approved"
-  | "completed"
-  | "cancelled";
-
-export interface EscrowData {
-  id: string;
-  contractId: string;
-  status: EscrowStatus;
-  amount: number;
-  asset: {
-    code: string;
-    issuer?: string;
-  };
-  metadata?: {
-    bookingId: string;
-    hotelName: string;
-    checkInDate: string;
-    checkOutDate: string;
-    guestName?: string;
-    guestEmail?: string;
-    roomNumber?: string;
-    counterparty?: string;
-  };
-  nextMilestone?: string;
-  milestones?: Milestone[];
-  marker: string;
-  createdAt: string;
-  updatedAt: string;
-  isDemo?: true;
+// Placeholder functions for notifications - in a real app, these would be API calls
+async function checkPendingNotifications(): Promise<NotificationData[]> {
+  // In a real implementation, this would fetch from Trustless Work API
+  // const response = await fetch('/api/notifications/pending');
+  // return response.json();
+  return [];
 }
 
-export interface NotificationData {
-  id: string;
-  type: "milestone" | "payment" | "alert";
-  message: string;
-  timestamp: string;
-  read: boolean;
-  escrowId?: string;
-  isDemo?: true;
-}
-
-export interface Milestone {
-  id: string;
-  name: string;
-  status: "pending" | "in_progress" | "completed" | "rejected";
-  dueDate?: string;
-  completedAt?: string;
+async function checkMilestoneNotifications(): Promise<NotificationData[]> {
+  // In a real implementation, this would fetch from Trustless Work API
+  // const response = await fetch('/api/notifications/milestones');
+  // return response.json();
+  return [];
 }
 
 const formatNotificationTimestamp = (timestamp: string) => {
@@ -109,7 +55,6 @@ interface RoleEscrowDashboardProps {
   notifications?: NotificationData[];
   isLoading?: boolean;
   error?: string | null;
-  source?: "demo" | "live" | "none";
   onRefresh?: () => void;
 }
 
@@ -135,11 +80,13 @@ export function RoleEscrowDashboard({
   notifications: initialNotifications = [],
   isLoading = false,
   error = null,
-  source = "none",
   onRefresh,
 }: RoleEscrowDashboardProps) {
-  const notifications = initialNotifications;
+  const [notifications, setNotifications] =
+    useState<NotificationData[]>(initialNotifications);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const isMountedRef = useRef(true);
+  const isPollingRef = useRef(false);
 
   // Filter state
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
@@ -243,6 +190,57 @@ export function RoleEscrowDashboard({
     escrows,
   ]);
 
+  // Real-time updates using Trustless Work notifications
+  useEffect(() => {
+    if (isLoading) return;
+
+    const checkUpdates = async () => {
+      // Prevent overlapping requests
+      if (isPollingRef.current) return;
+      isPollingRef.current = true;
+
+      try {
+        const pendingNotifications = await checkPendingNotifications();
+        const milestoneUpdates = await checkMilestoneNotifications();
+
+        // Combine and deduplicate notifications
+        const allNotifications = [...pendingNotifications, ...milestoneUpdates];
+        const uniqueNotifications = allNotifications.filter(
+          (notif, index, self) =>
+            index === self.findIndex((n) => n.id === notif.id),
+        );
+
+        if (uniqueNotifications.length > 0 && isMountedRef.current) {
+          setNotifications((prev) => {
+            // Merge with existing notifications, avoiding duplicates
+            const existingIds = new Set(prev.map((n) => n.id));
+            const newNotifications = uniqueNotifications.filter(
+              (n) => !existingIds.has(n.id),
+            );
+            return [...prev, ...newNotifications];
+          });
+        }
+      } catch (error) {
+        console.error("Error checking for updates:", error);
+      } finally {
+        isPollingRef.current = false;
+      }
+    };
+
+    // Initial check
+    checkUpdates();
+
+    // Poll every 15 seconds
+    const interval = setInterval(checkUpdates, 15000);
+
+    // Cleanup function
+    return () => {
+      isMountedRef.current = false;
+      isPollingRef.current = false;
+      clearInterval(interval);
+    };
+  }, [isLoading]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -267,27 +265,6 @@ export function RoleEscrowDashboard({
     );
   }
 
-  if (source === "none") {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <EmptyState
-          title="No escrows yet"
-          description="Your escrow activity will appear here."
-        />
-        {onRefresh && (
-          <div className="text-center">
-            <button
-              onClick={onRefresh}
-              className="text-sm text-primary hover:underline"
-            >
-              Refresh
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
       <div className="max-w-8xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-6">
@@ -296,19 +273,10 @@ export function RoleEscrowDashboard({
           <DashboardHeader
             userRole={userRole}
             notifications={notifications}
-            isDemo={source === "demo"}
             showAnalytics={showAnalytics}
             onToggleAnalytics={() => setShowAnalytics((prev) => !prev)}
-            onRefresh={onRefresh}
           />
         </div>
-
-        {source === "demo" && (
-          <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <DemoBadge />
-            <span>Sample escrows for demonstration. No funds are held.</span>
-          </div>
-        )}
 
         {/* Stats and Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
