@@ -59,6 +59,7 @@ export const STUB_HOTELS: HotelListing[] = [
     description:
       "Compact apartment near key routes with bright interiors and fast access to the city center.",
     favorite: false,
+    rating: 4.6,
   },
   {
     id: "3",
@@ -82,6 +83,7 @@ export const STUB_HOTELS: HotelListing[] = [
     description:
       "Loft-style living with clean finishes, natural light, and walkable access to major amenities.",
     favorite: true,
+    rating: 4.8,
   },
   {
     id: "4",
@@ -232,18 +234,6 @@ export const STUB_HOTELS: HotelListing[] = [
     rating: 4.5,
   },
 ];
-
-export const HOTEL_CATEGORIES = ["Family", "Students", "Travelers"] as const;
-
-export const HOTEL_LOCATIONS = [
-  "San José",
-  "Heredia",
-  "Alajuela",
-  "Cartago",
-  "Puntarenas",
-  "Guanacaste",
-  "Limón",
-] as const;
 
 export const BEDROOM_FILTERS = [
   { label: "All apartments", value: "all" },
