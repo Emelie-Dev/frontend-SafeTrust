@@ -2,12 +2,15 @@
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { HOTEL_CATEGORIES, HOTEL_LOCATIONS } from "@/lib/mockData/hotels";
+import {
+  APARTMENT_CATEGORIES,
+  APARTMENT_LOCATIONS,
+} from "@/lib/mockData/apartmentListings";
 
 export const PRICE_BOUNDS = { min: 0, max: 250_000 } as const;
 export type SortOption = "relevance" | "price-low" | "price-high" | "nearest";
-export type Category = (typeof HOTEL_CATEGORIES)[number];
-export type Location = (typeof HOTEL_LOCATIONS)[number];
+export type Category = (typeof APARTMENT_CATEGORIES)[number];
+export type Location = (typeof APARTMENT_LOCATIONS)[number];
 export type BedroomCount = "all" | "1" | "2" | "3";
 
 export type RentFilters = {
@@ -36,9 +39,9 @@ export function resolveSortOption(
 }
 
 const isCategory = (value: string): value is Category =>
-  (HOTEL_CATEGORIES as readonly string[]).includes(value);
+  (APARTMENT_CATEGORIES as readonly string[]).includes(value);
 const isLocation = (value: string): value is Location =>
-  (HOTEL_LOCATIONS as readonly string[]).includes(value);
+  (APARTMENT_LOCATIONS as readonly string[]).includes(value);
 
 export function parseFilters(params: URLSearchParams): RentFilters {
   const numberParam = (key: string, fallback: number) => {

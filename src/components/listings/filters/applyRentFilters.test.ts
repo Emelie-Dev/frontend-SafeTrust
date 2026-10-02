@@ -1,4 +1,4 @@
-import { STUB_HOTELS } from "@/lib/mockData/hotels";
+import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 import { applyRentFilters } from "./applyRentFilters";
 import {
   DEFAULT_FILTERS,
@@ -47,10 +47,10 @@ describe("parseFilters", () => {
 
 describe("applyRentFilters", () => {
   const filter = (patch: Partial<RentFilters>) =>
-    applyRentFilters(STUB_HOTELS, { ...DEFAULT_FILTERS, ...patch });
+    applyRentFilters(APARTMENT_LISTINGS, { ...DEFAULT_FILTERS, ...patch });
 
   it("returns every listing by default", () => {
-    expect(filter({})).toHaveLength(STUB_HOTELS.length);
+    expect(filter({})).toHaveLength(APARTMENT_LISTINGS.length);
   });
 
   it("filters by category", () => {
@@ -77,10 +77,10 @@ describe("applyRentFilters", () => {
 
   it("sorts by price in both directions and relevance by promotion", () => {
     expect(filter({ sort: "price-low" }).map((item) => item.price)).toEqual(
-      [...STUB_HOTELS].map((item) => item.price).sort((a, b) => a - b),
+      [...APARTMENT_LISTINGS].map((item) => item.price).sort((a, b) => a - b),
     );
     expect(filter({ sort: "price-high" }).map((item) => item.price)).toEqual(
-      [...STUB_HOTELS].map((item) => item.price).sort((a, b) => b - a),
+      [...APARTMENT_LISTINGS].map((item) => item.price).sort((a, b) => b - a),
     );
     const relevance = filter({ sort: "relevance" });
     expect(relevance[0].promoted).toBe(true);

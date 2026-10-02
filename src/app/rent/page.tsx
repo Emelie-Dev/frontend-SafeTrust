@@ -1,17 +1,17 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
-import type { HotelListing } from "@/@types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
 import {
   ApartmentGrid,
   BedroomTabs,
   FilterSidebar,
   HotelHeader,
 } from "@/components/listings";
+import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 import { NearMeButton } from "@/components/listings/NearMeButton";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { distanceKm, sortByDistance } from "@/lib/geo";
-import { STUB_HOTELS } from "@/lib/mockData/hotels";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -44,7 +44,9 @@ function RentPageContent() {
     if (!geo.position) return false;
     const origin = geo.position;
     const nearestListingKm = Math.min(
-      ...STUB_HOTELS.map((hotel) => distanceKm(origin, hotel.coordinates)),
+      ...APARTMENT_LISTINGS.map((apartment) =>
+        distanceKm(origin, apartment.coordinates),
+      ),
     );
     return nearestListingKm > 300;
   }, [geo.position]);
@@ -67,9 +69,9 @@ function RentPageContent() {
     () =>
       geo.position
         ? Object.fromEntries(
-            STUB_HOTELS.map((hotel) => [
-              hotel.id,
-              distanceKm(geo.position!, hotel.coordinates),
+            APARTMENT_LISTINGS.map((apartment) => [
+              apartment.id,
+              distanceKm(geo.position!, apartment.coordinates),
             ]),
           )
         : undefined,
@@ -77,7 +79,7 @@ function RentPageContent() {
   );
 
   const results = useMemo(() => {
-    const filtered = applyRentFilters(STUB_HOTELS, {
+    const filtered = applyRentFilters(APARTMENT_LISTINGS, {
       ...filters,
       sort: effectiveSort,
     });
@@ -91,7 +93,7 @@ function RentPageContent() {
     return filtered;
   }, [effectiveSort, filters, geo.position]);
 
-  const handleApartmentClick = (apartment: HotelListing) => {
+  const handleApartmentClick = (apartment: ApartmentListing) => {
     router.push(`/rent/${apartment.id}`);
   };
 

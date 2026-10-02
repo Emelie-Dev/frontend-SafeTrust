@@ -1,10 +1,10 @@
-import type { HotelListing } from "@/@types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
 import type { RentFilters } from "./useRentFilters";
 
 export function applyRentFilters(
-  items: HotelListing[],
+  items: ApartmentListing[],
   filters: RentFilters,
-): HotelListing[] {
+): ApartmentListing[] {
   const results = items.filter(
     (apartment) =>
       (filters.categories.length === 0 ||
