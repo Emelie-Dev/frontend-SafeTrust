@@ -8,7 +8,7 @@ import { Hotel } from "@/@types/hotel.entity";
 
 interface HotelCardProps {
   hotel: Hotel;
-  onToggleFavorite: (id: number) => void;
+  onToggleFavorite: (id: string) => void;
 }
 
 export default function HotelCard({ hotel, onToggleFavorite }: HotelCardProps) {
