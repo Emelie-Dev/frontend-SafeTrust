@@ -51,31 +51,13 @@ export function parseFilters(params: URLSearchParams): RentFilters {
   const rawLocation = params.get("location");
   const rawSort = params.get("sort");
   const rawBedrooms = params.get("bedrooms");
-  const minPrice = numberParam("min", DEFAULT_FILTERS.minPrice);
-  const maxPrice = numberParam("max", DEFAULT_FILTERS.maxPrice);
-
-  if (
-    minPrice < PRICE_BOUNDS.min ||
-    maxPrice > PRICE_BOUNDS.max ||
-    minPrice > maxPrice
-  ) {
-    return {
-      ...DEFAULT_FILTERS,
-      categories: (params.get("categories")?.split(",") ?? []).filter(
-        isCategory,
-      ),
-      location: rawLocation && isLocation(rawLocation) ? rawLocation : null,
-      bedrooms:
-        rawBedrooms === "1" || rawBedrooms === "2" || rawBedrooms === "3"
-          ? rawBedrooms
-          : "all",
-      sort:
-        rawSort === "price-low" ||
-        rawSort === "price-high" ||
-        rawSort === "nearest"
-          ? rawSort
-          : "relevance",
-    };
+  let minPrice = numberParam("min", DEFAULT_FILTERS.minPrice);
+  let maxPrice = numberParam("max", DEFAULT_FILTERS.maxPrice);
+  minPrice = Math.max(PRICE_BOUNDS.min, Math.min(minPrice, PRICE_BOUNDS.max));
+  maxPrice = Math.max(PRICE_BOUNDS.min, Math.min(maxPrice, PRICE_BOUNDS.max));
+  if (minPrice > maxPrice) {
+    minPrice = DEFAULT_FILTERS.minPrice;
+    maxPrice = DEFAULT_FILTERS.maxPrice;
   }
 
   return {

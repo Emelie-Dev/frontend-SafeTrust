@@ -43,6 +43,21 @@ describe("parseFilters", () => {
       DEFAULT_FILTERS,
     );
   });
+
+  it("clamps an out-of-range price bound without discarding the valid bound", () => {
+    expect(
+      parseFilters(new URLSearchParams("min=1000&max=300000")),
+    ).toMatchObject({
+      minPrice: 1000,
+      maxPrice: 250_000,
+    });
+    expect(
+      parseFilters(new URLSearchParams("min=-1000&max=5000")),
+    ).toMatchObject({
+      minPrice: 0,
+      maxPrice: 5000,
+    });
+  });
 });
 
 describe("applyRentFilters", () => {
@@ -67,6 +82,20 @@ describe("applyRentFilters", () => {
 
   it("filters by bedroom count", () => {
     expect(filter({ bedrooms: "1" }).map((item) => item.bedrooms)).toEqual([1]);
+  });
+
+  it("includes apartments with three or more bedrooms in the 3-bedroom filter", () => {
+    const threeBedroomAndLarger = [
+      APARTMENT_LISTINGS[3],
+      { ...APARTMENT_LISTINGS[3], id: "larger", bedrooms: 4 },
+    ];
+
+    expect(
+      applyRentFilters(threeBedroomAndLarger, {
+        ...DEFAULT_FILTERS,
+        bedrooms: "3",
+      }).map((item) => item.bedrooms),
+    ).toEqual([3, 4]);
   });
 
   it("filters by price range", () => {
