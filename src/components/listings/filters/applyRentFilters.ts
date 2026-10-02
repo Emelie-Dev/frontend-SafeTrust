@@ -1,17 +1,19 @@
-import type { HotelListing } from "@/@types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
 import type { RentFilters } from "./useRentFilters";
 
 export function applyRentFilters(
-  items: HotelListing[],
+  items: ApartmentListing[],
   filters: RentFilters,
-): HotelListing[] {
+): ApartmentListing[] {
   const results = items.filter(
     (apartment) =>
       (filters.categories.length === 0 ||
         filters.categories.includes(apartment.category)) &&
       (filters.location === null || apartment.location === filters.location) &&
       (filters.bedrooms === "all" ||
-        apartment.bedrooms === Number(filters.bedrooms)) &&
+        (filters.bedrooms === "3"
+          ? apartment.bedrooms >= 3
+          : apartment.bedrooms === Number(filters.bedrooms))) &&
       apartment.price >= filters.minPrice &&
       apartment.price <= filters.maxPrice,
   );

@@ -1,4 +1,4 @@
-import { STUB_HOTELS } from "@/lib/mockData/hotels";
+import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 import { applyRentFilters } from "./applyRentFilters";
 import {
   DEFAULT_FILTERS,
@@ -43,14 +43,23 @@ describe("parseFilters", () => {
       DEFAULT_FILTERS,
     );
   });
+
+  it("preserves a valid price bound when the other bound is out of range", () => {
+    expect(
+      parseFilters(new URLSearchParams("min=1000&max=300000")),
+    ).toMatchObject({
+      minPrice: 1000,
+      maxPrice: 250_000,
+    });
+  });
 });
 
 describe("applyRentFilters", () => {
   const filter = (patch: Partial<RentFilters>) =>
-    applyRentFilters(STUB_HOTELS, { ...DEFAULT_FILTERS, ...patch });
+    applyRentFilters(APARTMENT_LISTINGS, { ...DEFAULT_FILTERS, ...patch });
 
   it("returns every listing by default", () => {
-    expect(filter({})).toHaveLength(STUB_HOTELS.length);
+    expect(filter({})).toHaveLength(APARTMENT_LISTINGS.length);
   });
 
   it("filters by category", () => {
@@ -69,6 +78,19 @@ describe("applyRentFilters", () => {
     expect(filter({ bedrooms: "1" }).map((item) => item.bedrooms)).toEqual([1]);
   });
 
+  it("includes three or more bedrooms in the 3-bedroom filter", () => {
+    const listings = [
+      APARTMENT_LISTINGS[3],
+      { ...APARTMENT_LISTINGS[3], id: "larger", bedrooms: 4 },
+    ];
+
+    expect(
+      applyRentFilters(listings, { ...DEFAULT_FILTERS, bedrooms: "3" }).map(
+        (item) => item.bedrooms,
+      ),
+    ).toEqual([3, 4]);
+  });
+
   it("filters by price range", () => {
     expect(
       filter({ minPrice: 4000, maxPrice: 4050 }).map((item) => item.price),
@@ -77,10 +99,10 @@ describe("applyRentFilters", () => {
 
   it("sorts by price in both directions and relevance by promotion", () => {
     expect(filter({ sort: "price-low" }).map((item) => item.price)).toEqual(
-      [...STUB_HOTELS].map((item) => item.price).sort((a, b) => a - b),
+      [...APARTMENT_LISTINGS].map((item) => item.price).sort((a, b) => a - b),
     );
     expect(filter({ sort: "price-high" }).map((item) => item.price)).toEqual(
-      [...STUB_HOTELS].map((item) => item.price).sort((a, b) => b - a),
+      [...APARTMENT_LISTINGS].map((item) => item.price).sort((a, b) => b - a),
     );
     const relevance = filter({ sort: "relevance" });
     expect(relevance[0].promoted).toBe(true);

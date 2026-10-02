@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getAddress } from "@stellar/freighter-api";
-import { WalletDetectionResult, WalletType } from "../types/wallet.types";
+import type { WalletDetectionResult, WalletType } from "@/types/wallet";
 
 /**
  * Attempts to retrieve the Stellar public key from the Freighter extension.

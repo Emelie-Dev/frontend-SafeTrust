@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { BEDROOM_FILTERS } from "@/lib/mockData/hotels";
+import { APARTMENT_BEDROOM_FILTERS } from "@/lib/mockData/apartmentListings";
 import type { BedroomCount } from "./filters/useRentFilters";
 
 interface BedroomTabsProps {
@@ -12,7 +12,7 @@ interface BedroomTabsProps {
 export default function BedroomTabs({ selected, onSelect }: BedroomTabsProps) {
   return (
     <div className="flex flex-wrap gap-3">
-      {BEDROOM_FILTERS.map((tab) => (
+      {APARTMENT_BEDROOM_FILTERS.map((tab) => (
         <button
           key={tab.value}
           type="button"

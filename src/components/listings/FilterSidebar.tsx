@@ -1,6 +1,9 @@
 "use client";
 
-import { HOTEL_CATEGORIES, HOTEL_LOCATIONS } from "@/lib/mockData/hotels";
+import {
+  APARTMENT_CATEGORIES,
+  APARTMENT_LOCATIONS,
+} from "@/lib/mockData/apartmentListings";
 import { formatListingPrice } from "./formatListingPrice";
 import {
   PRICE_BOUNDS,
@@ -84,7 +87,7 @@ export default function FilterSidebar({
             label="All categories"
             onChange={() => setFilters({ categories: [] })}
           />
-          {HOTEL_CATEGORIES.map((category) => (
+          {APARTMENT_CATEGORIES.map((category) => (
             <CheckboxRow
               key={category}
               checked={categories.includes(category)}
@@ -173,7 +176,7 @@ export default function FilterSidebar({
             label="All Costa Rica"
             onChange={() => setFilters({ location: null })}
           />
-          {HOTEL_LOCATIONS.map((location) => (
+          {APARTMENT_LOCATIONS.map((location) => (
             <CheckboxRow
               key={location}
               checked={filters.location === location}

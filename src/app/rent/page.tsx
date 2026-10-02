@@ -1,17 +1,17 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
-import type { HotelListing } from "@/@types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
 import {
   ApartmentGrid,
   BedroomTabs,
   FilterSidebar,
   HotelHeader,
 } from "@/components/listings";
+import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 import { NearMeButton } from "@/components/listings/NearMeButton";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { distanceKm, sortByDistance } from "@/lib/geo";
-import { STUB_HOTELS } from "@/lib/mockData/hotels";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -29,7 +29,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { applyRentFilters } from "@/components/listings/filters/applyRentFilters";
-import { useRentFilters } from "@/components/listings/filters/useRentFilters";
+import {
+  resolveSortOption,
+  useRentFilters,
+} from "@/components/listings/filters/useRentFilters";
 
 function RentPageContent() {
   const router = useRouter();
@@ -41,10 +44,16 @@ function RentPageContent() {
     if (!geo.position) return false;
     const origin = geo.position;
     const nearestListingKm = Math.min(
-      ...STUB_HOTELS.map((hotel) => distanceKm(origin, hotel.coordinates)),
+      ...APARTMENT_LISTINGS.map((apartment) =>
+        distanceKm(origin, apartment.coordinates),
+      ),
     );
     return nearestListingKm > 300;
   }, [geo.position]);
+  const effectiveSort = resolveSortOption(
+    filters.sort,
+    Boolean(geo.position && !isOutsideCostaRica),
+  );
 
   useEffect(() => {
     if (!geo.position) {
@@ -65,9 +74,9 @@ function RentPageContent() {
     () =>
       geo.position
         ? Object.fromEntries(
-            STUB_HOTELS.map((hotel) => [
-              hotel.id,
-              distanceKm(geo.position!, hotel.coordinates),
+            APARTMENT_LISTINGS.map((apartment) => [
+              apartment.id,
+              distanceKm(geo.position!, apartment.coordinates),
             ]),
           )
         : undefined,
@@ -75,8 +84,11 @@ function RentPageContent() {
   );
 
   const results = useMemo(() => {
-    const filtered = applyRentFilters(STUB_HOTELS, filters);
-    if (filters.sort === "nearest" && geo.position && !isOutsideCostaRica) {
+    const filtered = applyRentFilters(APARTMENT_LISTINGS, {
+      ...filters,
+      sort: effectiveSort,
+    });
+    if (effectiveSort === "nearest" && geo.position && !isOutsideCostaRica) {
       return sortByDistance(
         filtered,
         geo.position,
@@ -84,9 +96,9 @@ function RentPageContent() {
       );
     }
     return filtered;
-  }, [filters, geo.position, isOutsideCostaRica]);
+  }, [effectiveSort, filters, geo.position, isOutsideCostaRica]);
 
-  const handleApartmentClick = (apartment: HotelListing) => {
+  const handleApartmentClick = (apartment: ApartmentListing) => {
     router.push(`/rent/${apartment.id}`);
   };
 
@@ -191,13 +203,13 @@ function RentPageContent() {
                         onClick={() => setFilters({ sort: option.value })}
                         className={cn(
                           "flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors",
-                          filters.sort === option.value
+                          effectiveSort === option.value
                             ? "bg-orange-50 font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
                             : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700",
                         )}
                       >
                         {option.label}
-                        {filters.sort === option.value ? (
+                        {effectiveSort === option.value ? (
                           <Check className="h-4 w-4" aria-hidden="true" />
                         ) : null}
                       </button>
