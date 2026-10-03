@@ -45,8 +45,12 @@ export function computeBookingPrice({
     Number.isFinite(nights) && nights > 0 ? Math.floor(nights) : 0;
   const safeGuests =
     Number.isFinite(guests) && guests > 0 ? Math.floor(guests) : 0;
+  // A missing or bad listing price must never become a NaN or negative escrow
+  // amount; a zero rate is rejected later by validateEscrowSetup.
+  const safeRate =
+    Number.isFinite(nightlyRate) && nightlyRate > 0 ? nightlyRate : 0;
 
-  const subtotalCents = toCents(nightlyRate) * safeNights * safeGuests;
+  const subtotalCents = toCents(safeRate) * safeNights * safeGuests;
   const taxCents = Math.round(subtotalCents * taxRate);
   const platformFeeCents = Math.round(
     (subtotalCents * platformFeePercent) / 100,
@@ -54,7 +58,7 @@ export function computeBookingPrice({
   const totalCents = subtotalCents + taxCents + platformFeeCents;
 
   return {
-    nightlyRate,
+    nightlyRate: safeRate,
     nights: safeNights,
     guests: safeGuests,
     subtotal: fromCents(subtotalCents),
@@ -84,5 +88,3 @@ export function countNights(checkIn: Date, checkOut: Date): number {
 /** Same amount, compared at cent precision. */
 export const sameAmount = (a: number, b: number): boolean =>
   toCents(a) === toCents(b);
-
-export const formatUsd = (value: number): string => `$${value.toFixed(2)}`;

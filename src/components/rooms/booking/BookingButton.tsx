@@ -5,15 +5,14 @@ import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { useWallet } from "@/components/auth/wallet/hooks/wallet.hook";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
+import type { ApartmentListing, ApartmentOwner } from "@/types/hotel";
 import { BookingEscrowCheckout } from "@/features/escrow/BookingEscrowCheckout";
 import type { BookingDetails } from "@/features/escrow/booking-escrow.machine";
 import { computeBookingPrice, countNights } from "@/features/escrow/pricing";
 
 /** What the escrow needs to know about the listing being booked. */
-type BookingListing = {
-  id: string;
-  name: string;
-  owner: { walletAddress?: string };
+type BookingListing = Pick<ApartmentListing, "id" | "name"> & {
+  owner: Pick<ApartmentOwner, "walletAddress">;
 };
 
 interface BookingButtonProps {

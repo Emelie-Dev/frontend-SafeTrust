@@ -18,7 +18,8 @@ import {
   type BookingEscrowState,
 } from "./booking-escrow.machine";
 import { stellarExpertContractUrl, stellarExpertTxUrl } from "./config";
-import { formatUsd, type BookingPriceBreakdown } from "./pricing";
+import { formatAmount } from "@/lib/format";
+import { type BookingPriceBreakdown } from "./pricing";
 import { useBookingEscrowFlow } from "./useBookingEscrow";
 
 export interface BookingEscrowCheckoutProps {
@@ -52,25 +53,25 @@ export function PriceBreakdownList({
           Price ({price.nights} night{price.nights === 1 ? "" : "s"}
           {price.guests > 1 ? ` × ${price.guests} guests` : ""})
         </dt>
-        <dd data-testid="breakdown-price">{formatUsd(price.subtotal)}</dd>
+        <dd data-testid="breakdown-price">{formatAmount(price.subtotal)}</dd>
       </div>
       <div className="flex justify-between">
         <dt className="text-muted-foreground">
           Taxes ({Math.round(price.taxRate * 1000) / 10}%)
         </dt>
-        <dd data-testid="breakdown-tax">{formatUsd(price.tax)}</dd>
+        <dd data-testid="breakdown-tax">{formatAmount(price.tax)}</dd>
       </div>
       <div className="flex justify-between">
         <dt className="text-muted-foreground">
           Platform fee ({price.platformFeePercent}%)
         </dt>
         <dd data-testid="breakdown-platform-fee">
-          {formatUsd(price.platformFee)}
+          {formatAmount(price.platformFee)}
         </dd>
       </div>
       <div className="flex justify-between border-t pt-2 font-semibold">
         <dt>Total held in escrow</dt>
-        <dd data-testid="escrow-total">{formatUsd(price.total)}</dd>
+        <dd data-testid="escrow-total">{formatAmount(price.total)}</dd>
       </div>
     </dl>
   );
@@ -238,7 +239,7 @@ export function BookingEscrowCheckout({
               ) : (
                 <Wallet className="h-4 w-4" />
               )}
-              Fund now - {formatUsd(intent.amount)}
+              Fund now - {formatAmount(intent.amount)}
             </Button>
             {flow.canDiscard && (
               <Button variant="ghost" className="w-full" onClick={flow.discard}>
@@ -256,7 +257,7 @@ export function BookingEscrowCheckout({
             </p>
             <StayLine booking={b} />
             <p className="text-sm">
-              {formatUsd(intent.amount)} is held in escrow until your stay is
+              {formatAmount(intent.amount)} is held in escrow until your stay is
               complete.
             </p>
             <a
@@ -328,7 +329,7 @@ export function BookingEscrowCheckout({
       <>
         <Button className="h-12 w-full rounded-3xl" disabled>
           <Shield className="h-4 w-4" /> Book Now -{" "}
-          {formatUsd(activeBooking.price.total)}
+          {formatAmount(activeBooking.price.total)}
         </Button>
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">
           {MISSING_HOST_WALLET_MESSAGE}
@@ -363,7 +364,7 @@ export function BookingEscrowCheckout({
         >
           <Shield className="h-4 w-4" />
           {intent ? "Continue booking" : "Book Now"} -{" "}
-          {formatUsd(activeBooking.price.total)}
+          {formatAmount(activeBooking.price.total)}
         </Button>
       </>,
     );
@@ -392,7 +393,7 @@ export function BookingEscrowCheckout({
         ) : (
           <Shield className="h-4 w-4" />
         )}
-        Confirm and pay {formatUsd(activeBooking.price.total)}
+        Confirm and pay {formatAmount(activeBooking.price.total)}
       </Button>
       <Button
         variant="ghost"
