@@ -19,7 +19,7 @@ import {
 import { useRouter } from "next/navigation";
 import { parseISO } from "date-fns";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
-import { getHotelById } from "@/lib/mockData/hotels";
+import { getApartmentById } from "@/lib/mockData/apartmentListings";
 import { EscrowProviders } from "@/providers/EscrowProviders";
 import type { BookingDetails } from "@/features/escrow/booking-escrow.machine";
 
@@ -32,7 +32,7 @@ const additionalImages = [
 // Static demo room: no dynamic hotel id is available on /room yet.
 // Keep the id explicit here so the booking link does not silently drift.
 const hotelId = "1";
-const listing = getHotelById(hotelId);
+const listing = getApartmentById(hotelId);
 // Nightly rate for the demo room (kept small for testnet walkthroughs).
 const NIGHTLY_RATE = 2;
 
