@@ -1,8 +1,10 @@
 "use client";
 
-import { HOTEL_CATEGORIES, HOTEL_LOCATIONS } from "@/lib/mockData/hotels";
-import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "@/lib/rent-filters";
-import { formatListingPrice } from "./formatListingPrice";
+import {
+  APARTMENT_CATEGORIES,
+  APARTMENT_LOCATIONS,
+} from '@/lib/mockData/apartmentListings';
+import { formatListingPrice } from './formatListingPrice';
 
 interface FilterSidebarProps {
   selectedCategories: string[];
@@ -61,7 +63,7 @@ export default function FilterSidebar({
       <section className="pb-8">
         <h2 className="mb-5 text-sm font-semibold text-foreground">Category</h2>
         <div className="space-y-3">
-          {HOTEL_CATEGORIES.map((category) => (
+          {APARTMENT_CATEGORIES.map((category) => (
             <CheckboxRow
               key={category}
               checked={selectedCategories.includes(category)}
@@ -129,7 +131,7 @@ export default function FilterSidebar({
       <section className="pt-8">
         <h2 className="mb-5 text-sm font-semibold text-foreground">Location</h2>
         <div className="space-y-3">
-          {HOTEL_LOCATIONS.map((location) => (
+          {APARTMENT_LOCATIONS.map((location) => (
             <CheckboxRow
               key={location}
               checked={selectedLocations.includes(location)}

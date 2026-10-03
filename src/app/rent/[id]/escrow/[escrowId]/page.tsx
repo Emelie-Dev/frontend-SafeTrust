@@ -8,9 +8,9 @@ import {
   EscrowNotesPanel,
   EscrowPaidView,
   EscrowReleasedView,
-  getStubEscrow,
   getViewForStatus,
 } from "@/components/escrow/views";
+import { getStubEscrow } from "@/lib/mockData/stubEscrow";
 
 /** Render the escrow status and its supporting notes. */
 export default function HotelEscrowDetailPage() {
