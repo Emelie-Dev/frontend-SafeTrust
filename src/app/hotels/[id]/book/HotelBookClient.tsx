@@ -2,11 +2,11 @@
 
 import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import type { HotelListing } from "@/@types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
 import HotelDetails from "@/components/hotels/payment/HotelDetails";
 import ReservationSummary from "@/components/hotels/payment/ReservationSummary";
 
-function BookContent({ hotel }: { hotel: HotelListing }) {
+function BookContent({ hotel }: { hotel: ApartmentListing }) {
   const searchParams = useSearchParams();
   const bookingId = searchParams.get("bookingId") ?? "";
   const hotelData = {
@@ -15,7 +15,10 @@ function BookContent({ hotel }: { hotel: HotelListing }) {
     details: hotel.description,
     goodToKnow: `Located in ${hotel.location}, Costa Rica. Contact your host to confirm check-in arrangements.`,
     location: `${hotel.address}, Costa Rica`,
-    coordinates: [hotel.coordinates.lat, hotel.coordinates.lng] as [number, number],
+    coordinates: [hotel.coordinates.lat, hotel.coordinates.lng] as [
+      number,
+      number,
+    ],
     rating: hotel.rating,
     beds: hotel.bedrooms,
     baths: hotel.bathrooms,
@@ -27,7 +30,11 @@ function BookContent({ hotel }: { hotel: HotelListing }) {
   };
 
   return (
-    <div data-hotel-id={hotel.id} data-booking-id={bookingId} className="bg-gray-100 min-h-screen">
+    <div
+      data-hotel-id={hotel.id}
+      data-booking-id={bookingId}
+      className="bg-gray-100 min-h-screen"
+    >
       <div className="w-full px-4 md:px-10 py-8 mt-10">
         <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto">
           <div className="flex-grow">
@@ -62,7 +69,11 @@ function BookContent({ hotel }: { hotel: HotelListing }) {
   );
 }
 
-export default function HotelBookClient({ hotel }: { hotel: HotelListing }) {
+export default function HotelBookClient({
+  hotel,
+}: {
+  hotel: ApartmentListing;
+}) {
   return (
     <Suspense fallback={<div className="bg-gray-100 min-h-screen" />}>
       <BookContent hotel={hotel} />

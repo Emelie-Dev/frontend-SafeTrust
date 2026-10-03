@@ -1,6 +1,6 @@
 "use client";
 
-import type { HotelListing } from "@/@types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
 import {
   ApartmentDetail,
   HotelHeader,
@@ -12,8 +12,8 @@ export default function RentalDetail({
   apartment,
   suggestions,
 }: {
-  apartment: HotelListing;
-  suggestions: HotelListing[];
+  apartment: ApartmentListing;
+  suggestions: ApartmentListing[];
 }) {
   const router = useRouter();
 

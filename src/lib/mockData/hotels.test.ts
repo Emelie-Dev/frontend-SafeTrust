@@ -1,41 +1,48 @@
-import { existsSync } from 'node:fs';
-import path from 'node:path';
+import { existsSync } from "node:fs";
+import path from "node:path";
 import {
-  HOTEL_CATEGORIES,
-  HOTEL_LOCATIONS,
-  getHotelById,
-  STUB_HOTELS,
-} from './hotels';
+  APARTMENT_CATEGORIES,
+  APARTMENT_LISTINGS,
+  APARTMENT_LOCATIONS,
+  getApartmentById,
+} from "./apartmentListings";
 
-describe('STUB_HOTELS', () => {
-  it('contains unique listing IDs and unique lead photos', () => {
-    expect(new Set(STUB_HOTELS.map((hotel) => hotel.id)).size).toBe(
-      STUB_HOTELS.length,
-    );
-    expect(new Set(STUB_HOTELS.map((hotel) => hotel.images[0])).size).toBe(
-      STUB_HOTELS.length,
-    );
+describe("APARTMENT_LISTINGS", () => {
+  it("contains unique listing IDs and unique lead photos", () => {
+    expect(
+      new Set(APARTMENT_LISTINGS.map((apartment) => apartment.id)).size,
+    ).toBe(APARTMENT_LISTINGS.length);
+    expect(
+      new Set(APARTMENT_LISTINGS.map((apartment) => apartment.images[0])).size,
+    ).toBe(APARTMENT_LISTINGS.length);
   });
 
-  it('covers every location and category with complete local photo sets', () => {
-    expect(new Set(STUB_HOTELS.map((hotel) => hotel.location))).toEqual(
-      new Set(HOTEL_LOCATIONS),
-    );
-    expect(new Set(STUB_HOTELS.map((hotel) => hotel.category))).toEqual(
-      new Set(HOTEL_CATEGORIES),
-    );
+  it("covers every location and category with complete local photo sets", () => {
+    expect(
+      new Set(APARTMENT_LISTINGS.map((apartment) => apartment.location)),
+    ).toEqual(new Set(APARTMENT_LOCATIONS));
+    expect(
+      new Set(APARTMENT_LISTINGS.map((apartment) => apartment.category)),
+    ).toEqual(new Set(APARTMENT_CATEGORIES));
 
-    for (const hotel of STUB_HOTELS) {
-      expect(new Set(hotel.images).size).toBe(4);
-      expect(hotel.description.trim().split(/[.!?]+/).filter(Boolean).length).toBeGreaterThanOrEqual(2);
-      for (const image of hotel.images) {
-        expect(existsSync(path.join('public', image))).toBe(true);
+    for (const apartment of APARTMENT_LISTINGS) {
+      expect(new Set(apartment.images).size).toBe(4);
+      expect(
+        apartment.description
+          .trim()
+          .split(/[.!?]+/)
+          .filter(Boolean).length,
+      ).toBeGreaterThanOrEqual(2);
+      for (const image of apartment.images) {
+        expect(existsSync(path.join("public", image))).toBe(true);
       }
-      expect(existsSync(path.join('public', hotel.owner.avatar))).toBe(true);
+      expect(existsSync(path.join("public", apartment.owner.avatar))).toBe(
+        true,
+      );
     }
   });
 
-  it('returns undefined for unknown IDs', () => {
-    expect(getHotelById('not-a-listing')).toBeUndefined();
+  it("falls back to the first listing for unknown IDs", () => {
+    expect(getApartmentById("not-a-listing")).toBe(APARTMENT_LISTINGS[0]);
   });
 });

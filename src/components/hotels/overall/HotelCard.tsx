@@ -4,11 +4,12 @@ import Image from "next/image";
 import { Heart, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Hotel } from "@/@types/hotel.entity";
+import type { HotelSearchResult } from "@/types/hotel";
+import { formatPrice } from "@/lib/format";
 
 interface HotelCardProps {
-  hotel: Hotel;
-  onToggleFavorite: (id: string) => void;
+  hotel: HotelSearchResult;
+  onToggleFavorite: (id: number) => void;
 }
 
 export default function HotelCard({ hotel, onToggleFavorite }: HotelCardProps) {
@@ -77,7 +78,7 @@ export default function HotelCard({ hotel, onToggleFavorite }: HotelCardProps) {
       </CardContent>
       <CardFooter className="p-4 pt-0 flex justify-between items-center">
         <div>
-          <span className="font-bold text-lg">${hotel.price.toFixed(2)}</span>
+          <span className="font-bold text-lg">{formatPrice(hotel.price)}</span>
           <span className="text-sm text-gray-500">/night</span>
         </div>
       </CardFooter>

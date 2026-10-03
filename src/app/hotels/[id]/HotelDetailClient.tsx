@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { HotelListing } from "@/@types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
 import Details from "@/components/hotels/details/Details";
 import Gallery from "@/components/hotels/details/Gallery";
 import Information from "@/components/hotels/details/Information";
@@ -20,7 +20,11 @@ const HotelMap = dynamic(() => import("@/components/hotels/payment/Map"), {
   ),
 });
 
-export default function HotelDetailClient({ hotel }: { hotel: HotelListing }) {
+export default function HotelDetailClient({
+  hotel,
+}: {
+  hotel: ApartmentListing;
+}) {
   const coordinates: [number, number] = [
     hotel.coordinates.lat,
     hotel.coordinates.lng,

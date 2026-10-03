@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import DatePicker from "@/components/hotels/search/datepicker";
 import Link from "next/link";
 import { Heart, MapPin } from "lucide-react";
-import { STUB_HOTELS } from "@/lib/mockData/hotels";
+import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 
 export default function HotelSearch() {
-  const searchData = STUB_HOTELS;
+  const searchData = APARTMENT_LISTINGS;
   return (
     <div className="mt-[20px]">
       <Header />
@@ -49,9 +49,7 @@ export default function HotelSearch() {
             </div>
             <CardContent className="p-4">
               <h3 className="text-lg font-semibold flex justify-between py-2">
-                <Link href={`/hotels/${data.id}`}>
-                {data.name}{" "}
-                </Link>
+                <Link href={`/hotels/${data.id}`}>{data.name} </Link>
                 <button>
                   <Heart className="text-rose-400" />
                 </button>

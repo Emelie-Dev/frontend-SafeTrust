@@ -39,17 +39,17 @@ describe("GuestSuggestionsPage – Message host", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Message host/i }));
 
-    expect(mockPush).toHaveBeenCalledWith("/dashboard/messages/conv-4");
+    expect(mockPush).toHaveBeenCalledWith("/dashboard/messages/conv-10");
   });
 
   it("updates the target conversation when another apartment is selected", () => {
     render(<GuestSuggestionsPage />);
 
     fireEvent.click(
-      screen.getByRole("button", { name: /Los yoses/i }),
+      screen.getByRole("button", { name: /Suite Ejecutiva Sabana Norte/i }),
     );
     fireEvent.click(screen.getByRole("button", { name: /Message host/i }));
 
-    expect(mockPush).toHaveBeenCalledWith("/dashboard/messages/conv-5");
+    expect(mockPush).toHaveBeenCalledWith("/dashboard/messages/conv-11");
   });
 });

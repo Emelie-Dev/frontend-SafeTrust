@@ -18,9 +18,9 @@ import {
 } from "@/components/rooms";
 import { useRouter } from "next/navigation";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
-import { getHotelById } from "@/lib/mockData/hotels";
+import { getApartmentById } from "@/lib/mockData/apartmentListings";
 
-const roomListing = getHotelById("1")!;
+const roomListing = getApartmentById("1");
 const additionalImages = roomListing.images.slice(1);
 
 const breadcrumbs = [
