@@ -30,3 +30,9 @@ process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID =
 process.env.NEXT_PUBLIC_FIREBASE_APP_ID =
   process.env.NEXT_PUBLIC_FIREBASE_APP_ID ||
   "1:736891312580:web:2752bc815204c69fcbec91";
+
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};

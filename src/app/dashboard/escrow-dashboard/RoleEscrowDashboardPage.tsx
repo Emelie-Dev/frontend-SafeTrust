@@ -2,14 +2,11 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
-import type {
-  EscrowData,
-  NotificationData,
-} from "@/components/dashboard/RoleEscrowDashboard";
+import type { EscrowData, NotificationData } from "@/types";
 import {
   fetchMockEscrows,
   generateMockNotifications,
-} from "@/lib/mockData";
+} from "@/lib/mockData/dashboard";
 import { getUserRole } from "@/utils/role-utils";
 
 // Dynamic import: RoleEscrowDashboard (chart libraries, escrow component tree,
@@ -33,11 +30,13 @@ const RoleEscrowDashboard = dynamic(
         <div className="h-64 rounded-xl bg-muted animate-pulse" />
       </div>
     ),
-  }
+  },
 );
 
 export function RoleEscrowDashboardPage() {
-  const [userRole, setUserRole] = useState<"guest" | "hotel" | "admin">("guest");
+  const [userRole, setUserRole] = useState<"guest" | "hotel" | "admin">(
+    "guest",
+  );
   const [escrows, setEscrows] = useState<EscrowData[]>([]);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
