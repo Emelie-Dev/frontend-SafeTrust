@@ -3,8 +3,9 @@
 import {
   APARTMENT_CATEGORIES,
   APARTMENT_LOCATIONS,
-} from '@/lib/mockData/apartmentListings';
-import { formatListingPrice } from './formatListingPrice';
+} from "@/lib/mockData/apartmentListings";
+import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "@/lib/rent-filters";
+import { formatListingPrice } from "./formatListingPrice";
 
 interface FilterSidebarProps {
   selectedCategories: string[];

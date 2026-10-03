@@ -2,8 +2,10 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import HotelHeader from "./HotelHeader";
 
+const mockUseSearchParams = jest.fn(() => new URLSearchParams("q=sabana"));
+
 jest.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams("q=sabana"),
+  useSearchParams: () => mockUseSearchParams(),
 }));
 
 jest.mock("next/image", () => ({
@@ -22,6 +24,10 @@ jest.mock("@/components/ui/ThemeToggle", () => ({
 }));
 
 describe("HotelHeader rent navigation", () => {
+  beforeEach(() => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams("q=sabana"));
+  });
+
   it("exposes all rent destinations and closes after selection", () => {
     render(<HotelHeader />);
     const trigger = screen.getByRole("button", { name: "Rent" });
@@ -46,6 +52,19 @@ describe("HotelHeader rent navigation", () => {
       screen.getByRole("menuitem", { name: /browse all units/i }),
     );
     expect(trigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("refreshes the search input when the query changes", () => {
+    const { rerender } = render(<HotelHeader />);
+    const input = screen.getByRole("searchbox", { name: "Search rentals" });
+
+    fireEvent.change(input, { target: { value: "edited" } });
+    mockUseSearchParams.mockReturnValue(new URLSearchParams("q=nosara"));
+    rerender(<HotelHeader />);
+
+    expect(
+      screen.getByRole("searchbox", { name: "Search rentals" }),
+    ).toHaveValue("nosara");
   });
 
   it("closes on outside click", () => {

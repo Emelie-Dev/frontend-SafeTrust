@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ChevronDown, Grid2X2, Heart, Lightbulb } from "lucide-react";
 import { FaBell, FaRegUserCircle, FaSearch } from "react-icons/fa";
@@ -115,6 +116,17 @@ export default function HotelHeader({
   showHostSwitch = false,
 }: HotelHeaderProps) {
   return (
+    <Suspense fallback={null}>
+      <HotelHeaderContent showHostSwitch={showHostSwitch} />
+    </Suspense>
+  );
+}
+
+function HotelHeaderContent({ showHostSwitch }: HotelHeaderProps) {
+  const searchParams = useSearchParams();
+  const query = searchParams.get("q") ?? "";
+
+  return (
     <header className="border-b border-border bg-background">
       <div className="mx-auto flex max-w-[1180px] items-center gap-4 px-5 py-5 lg:px-7">
         <Link href="/" className="flex items-center gap-3">
@@ -133,6 +145,7 @@ export default function HotelHeader({
             className="flex min-w-0 flex-1 items-center"
           >
             <input
+              key={query}
               name="q"
               type="search"
               aria-label="Search rentals"
