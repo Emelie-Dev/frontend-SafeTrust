@@ -1,7 +1,8 @@
 "use client";
-import { Card, CardContent } from "@/components/ui/card";
-import Header from "@/components/layouts/Header";
 import React from "react";
+import Image from "next/image";
+import Header from "@/components/layouts/Header";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import DatePicker from "@/components/hotels/search/datepicker";
@@ -67,11 +68,15 @@ export default function HotelSearch() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8">
         {searchData.map((data, idx) => (
           <Card key={idx}>
-            <img
-              src={data.image}
-              alt={data.name}
-              className="w-full h-48 object-cover rounded-t-md"
-            />
+            <div className="relative h-48 w-full overflow-hidden rounded-t-md">
+              <Image
+                src={data.image}
+                alt={data.name}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                className="object-cover"
+              />
+            </div>
             <CardContent className="p-4">
               <h3 className="text-lg font-semibold flex justify-between py-2">
                 {data.name}{" "}

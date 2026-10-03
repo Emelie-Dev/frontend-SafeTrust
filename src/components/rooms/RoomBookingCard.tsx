@@ -148,5 +148,5 @@ const RoomBookingCard: React.FC<RoomBookingCardProps> = ({
 };
 
 export { RoomBookingCard };
-export type { RoomBookingCardProps };
 export default RoomBookingCard;
+export type { RoomBookingCardProps };

@@ -136,5 +136,5 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
 };
 
 export { BookingConfirmation };
-export type { BookingConfirmationProps };
 export default BookingConfirmation;
+export type { BookingConfirmationProps };

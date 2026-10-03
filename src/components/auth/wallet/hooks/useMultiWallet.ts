@@ -17,7 +17,7 @@ import {
   Balance,
   PaymentOptions,
   StellarWalletInfo,
-} from "../types/wallet.types";
+} from "@/types/wallet";
 import { validateWalletConnection } from "../utils/walletValidation";
 
 const Server = Horizon.Server;
@@ -39,8 +39,9 @@ export const useMultiWallet = (
         const account = await server.accounts().accountId(key).call();
         setBalances(account.balances);
       } catch (err: unknown) {
-        const error = err as { response?: { status?: number } };
-        if (error?.response?.status === 404) {
+        const status = (err as { response?: { status?: number } })?.response
+          ?.status;
+        if (status === 404) {
           // Account not funded yet
           setBalances([]);
         } else {
@@ -95,10 +96,9 @@ export const useMultiWallet = (
         },
       });
     } catch (err: unknown) {
-      const error = err as Error;
       const walletError: WalletError = {
         code: "STELLAR_CONNECTION_FAILED",
-        message: error.message || "Failed to connect Stellar wallet",
+        message: (err as Error)?.message || "Failed to connect Stellar wallet",
         details: err,
       };
       setError(walletError);
@@ -151,10 +151,9 @@ export const useMultiWallet = (
           setBalances([]);
         }
       } catch (err: unknown) {
-        const error = err as Error;
         const walletError: WalletError = {
           code: "DISCONNECT_FAILED",
-          message: error.message || "Failed to disconnect wallet",
+          message: (err as Error)?.message || "Failed to disconnect wallet",
           details: err,
         };
         setError(walletError);

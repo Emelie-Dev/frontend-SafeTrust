@@ -10,9 +10,9 @@ interface AditionalRoomPhotosProps {
 
 const AditionalRoomPhotos = ({
   images = [
-    "/placeholder.svg?height=200&width=200",
-    "/placeholder.svg?height=200&width=200",
-    "/placeholder.svg?height=200&width=200",
+    "/img/placeholder.svg?height=200&width=200",
+    "/img/placeholder.svg?height=200&width=200",
+    "/img/placeholder.svg?height=200&width=200",
   ],
   className = "",
   onImageClick,
@@ -29,7 +29,7 @@ const AditionalRoomPhotos = ({
               style={{ height: "calc(33.33% - 0.5rem)" }}
             >
               <Image
-                src={image || "/placeholder.svg"}
+                src={image || "/img/placeholder.svg"}
                 alt={`Room view ${index + 1}`}
                 fill
                 className="object-cover"

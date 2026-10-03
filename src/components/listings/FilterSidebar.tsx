@@ -1,7 +1,10 @@
-'use client';
+"use client";
 
-import { HOTEL_CATEGORIES, HOTEL_LOCATIONS } from '@/lib/mockData/hotels';
-import { formatListingPrice } from './formatListingPrice';
+import {
+  APARTMENT_CATEGORIES,
+  APARTMENT_LOCATIONS,
+} from "@/lib/mockData/apartmentListings";
+import { formatListingPrice } from "./formatListingPrice";
 
 interface FilterSidebarProps {
   selectedCategories: string[];
@@ -15,16 +18,16 @@ interface FilterSidebarProps {
 }
 
 const PRICE_BARS = [
-  { id: 'bar-1', height: 10 },
-  { id: 'bar-2', height: 18 },
-  { id: 'bar-3', height: 24 },
-  { id: 'bar-4', height: 20 },
-  { id: 'bar-5', height: 28 },
-  { id: 'bar-6', height: 16 },
-  { id: 'bar-7', height: 22 },
-  { id: 'bar-8', height: 14 },
-  { id: 'bar-9', height: 10 },
-  { id: 'bar-10', height: 26 },
+  { id: "bar-1", height: 10 },
+  { id: "bar-2", height: 18 },
+  { id: "bar-3", height: 24 },
+  { id: "bar-4", height: 20 },
+  { id: "bar-5", height: 28 },
+  { id: "bar-6", height: 16 },
+  { id: "bar-7", height: 22 },
+  { id: "bar-8", height: 14 },
+  { id: "bar-9", height: 10 },
+  { id: "bar-10", height: 26 },
 ];
 
 function CheckboxRow({
@@ -69,7 +72,7 @@ export default function FilterSidebar({
           Category
         </h2>
         <div className="space-y-3">
-          {HOTEL_CATEGORIES.map((category) => (
+          {APARTMENT_CATEGORIES.map((category) => (
             <CheckboxRow
               key={category}
               checked={selectedCategories.includes(category)}
@@ -149,7 +152,7 @@ export default function FilterSidebar({
           Location
         </h2>
         <div className="space-y-3">
-          {HOTEL_LOCATIONS.map((location) => (
+          {APARTMENT_LOCATIONS.map((location) => (
             <CheckboxRow
               key={location}
               checked={selectedLocations.includes(location)}
@@ -162,4 +165,3 @@ export default function FilterSidebar({
     </aside>
   );
 }
-

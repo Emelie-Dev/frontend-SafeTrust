@@ -7,7 +7,7 @@ import { useMultiWallet } from "./hooks/useMultiWallet";
 import WalletOption from "./WalletOption";
 import ConnectionStatus from "./ConnectionStatus";
 import { STELLAR_WALLETS } from "./utils/walletConfig";
-import { WalletInfo, WalletType } from "./types/wallet.types";
+import type { WalletInfo, WalletType } from "@/types/wallet";
 import { toast } from "react-toastify";
 
 interface SimpleWalletModalProps {
