@@ -2,12 +2,12 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
-import type {
-  EscrowData,
-  NotificationData,
-} from "@/components/dashboard/RoleEscrowDashboard";
-import { fetchMockEscrows, generateMockNotifications } from "@/lib/mockData";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import type { EscrowData, NotificationData } from "@/types";
+import {
+  fetchMockEscrows,
+  generateMockNotifications,
+} from "@/lib/mockData/dashboard";
+import { getUserRole } from "@/utils/role-utils";
 
 // Dynamic import: RoleEscrowDashboard (chart libraries, escrow component tree,
 // mock data generators) loads in a separate chunk only when this route is
