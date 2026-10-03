@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import Illustration from "@/components/auth/ui/Illustration";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
@@ -39,6 +39,7 @@ export default function LoginPage() {
   );
   const [isWalletModalOpen, setWalletModalOpen] = useState(false);
   const [walletError, setWalletError] = useState<string | null>(null);
+  const walletLoginRedirect = useRef(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -52,6 +53,7 @@ export default function LoginPage() {
       if (!isValidStellarAddress(address)) {
         throw new Error("Wallet returned an invalid Stellar address");
       }
+      walletLoginRedirect.current = true;
       connectWalletStore(address, wallet.name);
       setWalletModalOpen(false);
       router.push("/dashboard");
@@ -87,6 +89,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     if ((address || token) && pathname === "/login") {
+      if (walletLoginRedirect.current) {
+        walletLoginRedirect.current = false;
+        return;
+      }
       router.push(getSafeRedirect());
     }
   }, [address, token, router, pathname, getSafeRedirect]);
