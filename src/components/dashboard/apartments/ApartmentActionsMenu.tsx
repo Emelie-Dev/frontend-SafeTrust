@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Users } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +29,10 @@ export function ApartmentActionsMenu({
     router.push(`/dashboard/apartments/${apartmentId}/edit`);
   };
 
+  const handleViewOffers = () => {
+    router.push(`/dashboard/apartments/${apartmentId}/offers`);
+  };
+
   const handleDelete = () => {
     if (!confirmingDelete) {
       setConfirmingDelete(true);
@@ -46,12 +50,20 @@ export function ApartmentActionsMenu({
           className="flex items-center justify-center h-8 w-8
                      rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700
                      transition-colors text-gray-500 dark:text-gray-400"
-          aria-label="Apartment actions"
+          aria-label={`Apartment actions for ${apartmentName}`}
         >
           <MoreHorizontal className="h-4 w-4" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuItem
+          onClick={handleViewOffers}
+          className="flex items-center gap-2 cursor-pointer
+                     text-gray-700 dark:text-gray-300"
+        >
+          <Users className="h-4 w-4 text-blue-500" />
+          View offers
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={handleEdit}
           className="flex items-center gap-2 cursor-pointer
@@ -73,7 +85,7 @@ export function ApartmentActionsMenu({
           )}
         >
           <Trash2 className="h-4 w-4 text-red-500" />
-          {confirmingDelete ? "Confirm delete?" : "Delete"}
+          {confirmingDelete ? `Delete "${apartmentName}"?` : "Delete"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

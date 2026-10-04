@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/guest"];
+const PROTECTED_PREFIXES = ["/dashboard", "/guest", "/bookings"];
+
+const PROTECTED_PATTERNS = [/^\/hotels\/[^/]+\/book(\/.*)?$/];
 
 const PUBLIC_PATHS = new Set([
   "/",
   "/login",
   "/register",
   "/forgot-password",
-  "/new-password",
   "/reset-password",
   "/verify-email",
   "/rent",
@@ -20,10 +21,9 @@ const PUBLIC_PATHS = new Set([
 function isProtected(pathname: string): boolean {
   if (PUBLIC_PATHS.has(pathname)) return false;
 
-  // Rental and room pages are public, including their nested routes.
-  if (pathname.startsWith("/rent/") || pathname.startsWith("/room/")) {
-    return false;
-  }
+  if (PROTECTED_PATTERNS.some((re) => re.test(pathname))) return true;
+
+  if (/^\/(rent|room|hotels)(\/|$)/.test(pathname)) return false;
 
   // Protected routes must take precedence over static-file exclusions.
   if (
@@ -57,7 +57,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
 
   if (!isProtected(pathname)) {
     return NextResponse.next();
@@ -69,7 +69,7 @@ export function middleware(req: NextRequest) {
 
   if (!token) {
     const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("redirect", pathname);
+    loginUrl.searchParams.set("redirect", `${pathname}${search}`);
     return NextResponse.redirect(loginUrl);
   }
 

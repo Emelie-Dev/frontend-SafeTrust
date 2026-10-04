@@ -9,16 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Illustration from "@/components/auth/ui/Illustration";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { auth } from "@/lib/firebase";
-import { useMultiWallet } from "./wallet/hooks/multi-wallet.hook";
-import { MainWalletSelectionModal } from "./wallet/components/MainWalletSelectionModal";
+import { applyRememberMe } from "@/lib/auth/persistence";
+import { setSessionCookie } from "@/lib/auth/session";
 import { WalletSelectionModal } from "./wallet/components/WalletSelectionModal";
-import { MetaMaskWalletModal } from "./wallet/components/MetaMaskWalletModal";
+import type { ISupportedWallet } from "@creit.tech/stellar-wallets-kit";
+import { kit } from "./wallet/constants/wallet-kit.constant";
+import { isValidStellarAddress } from "./wallet/utils/walletValidation";
 import { toast } from "sonner";
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -31,32 +34,68 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 export default function LoginPage() {
   const { address, token } = useGlobalAuthenticationStore();
-  const {
-    handleConnect,
-    isMainModalOpen,
-    isStellarModalOpen,
-    isMetaMaskModalOpen,
-    closeMainModal,
-    closeStellarModal,
-    closeMetaMaskModal,
-    handleWalletTypeSelected,
-    handleStellarWalletSelected,
-    handleMetaMaskSelected,
-  } = useMultiWallet();
+  const connectWalletStore = useGlobalAuthenticationStore(
+    (s) => s.connectWalletStore,
+  );
+  const [isWalletModalOpen, setWalletModalOpen] = useState(false);
+  const [walletError, setWalletError] = useState<string | null>(null);
+  const walletLoginRedirect = useRef(false);
 
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const handleStellarWalletSelected = async (wallet: ISupportedWallet) => {
+    setWalletError(null);
+    try {
+      kit.setWallet(wallet.id);
+      const { address } = await kit.getAddress();
+      if (!isValidStellarAddress(address)) {
+        throw new Error("Wallet returned an invalid Stellar address");
+      }
+      walletLoginRedirect.current = true;
+      connectWalletStore(address, wallet.name);
+      setWalletModalOpen(false);
+      router.push("/dashboard");
+    } catch (err) {
+      setWalletError(
+        err instanceof Error ? err.message : "Could not connect wallet",
+      );
+    }
+  };
+
+  const getSafeRedirect = useCallback(() => {
+    const redirect = searchParams.get("redirect");
+    if (
+      redirect &&
+      redirect.startsWith("/") &&
+      !redirect.startsWith("//") &&
+      !redirect.startsWith("/\\") &&
+      !redirect.includes("://")
+    ) {
+      return redirect;
+    }
+    return "/dashboard/escrow-dashboard";
+  }, [searchParams]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const isAnyAuthLoading = isLoading || isGoogleLoading;
 
   useEffect(() => {
     if ((address || token) && pathname === "/login") {
-      router.push("/dashboard/escrow-dashboard");
+      if (walletLoginRedirect.current) {
+        walletLoginRedirect.current = false;
+        return;
+      }
+      router.push(getSafeRedirect());
     }
-  }, [address, token, router, pathname]);
+  }, [address, token, router, pathname, getSafeRedirect]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,21 +103,27 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const credential = await signInWithEmailAndPassword(auth, email, password);
+      await applyRememberMe(remember);
+      const credential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       const idToken = await credential.user.getIdToken();
 
-      // setToken handles cookie sync internally via data.ts
+      setSessionCookie(idToken);
       useGlobalAuthenticationStore.getState().setToken(idToken);
 
       toast.success("Login successful!", {
         description: "Redirecting to your dashboard...",
       });
-      router.push("/dashboard/escrow-dashboard");
+      router.push(getSafeRedirect());
     } catch (err: unknown) {
       if (err instanceof FirebaseError) {
         toast.error(
-          ERROR_MESSAGES[err.code] ?? "An unexpected error occurred. Please try again.",
-          { duration: 4000 }
+          ERROR_MESSAGES[err.code] ??
+            "An unexpected error occurred. Please try again.",
+          { duration: 4000 },
         );
         setError(ERROR_MESSAGES[err.code] ?? "Login failed — please try again");
       } else {
@@ -103,40 +148,57 @@ export default function LoginPage() {
 
           <form className="space-y-4" onSubmit={handleLogin}>
             <div className="space-y-2">
-              <Label htmlFor="email">Email or username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
+                inputMode="email"
+                autoComplete="username"
                 placeholder="Enter your email"
                 required
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
+                autoComplete="current-password"
+                placeholder="Enter your password"
                 required
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
               />
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
-                <label
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="remember"
+                  name="remember"
+                  checked={remember}
+                  onCheckedChange={(v) => setRemember(v === true)}
+                />
+                <Label
                   htmlFor="remember"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="font-normal text-sm cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  Remember me
-                </label>
+                  Keep me signed in on this device
+                </Label>
               </div>
               <Link
                 href="/forgot-password"
-                className="text-sm text-[#2857B8] hover:underline"
+                className="text-sm text-primary hover:underline"
               >
                 Forgot your password?
               </Link>
@@ -144,14 +206,14 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full bg-[#2857B8] hover:bg-[#2857B8]/90"
-              disabled={isLoading}
+              className="w-full"
+              disabled={isAnyAuthLoading}
             >
               {isLoading ? "Signing in..." : "Login"}
             </Button>
 
             {error && (
-              <p className="text-center text-sm text-red-600">{error}</p>
+              <p className="text-center text-sm text-destructive">{error}</p>
             )}
           </form>
 
@@ -160,36 +222,41 @@ export default function LoginPage() {
               <Separator />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white dark:bg-[#0a0a0a] px-2 text-muted-foreground dark:text-gray-400">
+              <span className="bg-background px-2 text-muted-foreground">
                 or
               </span>
             </div>
           </div>
 
           <div className="space-y-3">
-            <Button variant="outline" className="w-full">
-              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-              </svg>
-              Login with Google
-            </Button>
+            <GoogleSignInButton
+              redirectTo={getSafeRedirect()}
+              label="Continue with Google"
+              disabled={isAnyAuthLoading}
+              onLoadingChange={setIsGoogleLoading}
+              onBeforeSignIn={() => applyRememberMe(remember)}
+            />
 
             <Button
+              type="button"
               variant="outline"
-              className="w-full bg-black text-white"
-              onClick={handleConnect}
+              className="w-full bg-black text-white hover:bg-black/90 hover:text-white"
+              onClick={() => setWalletModalOpen(true)}
+              disabled={isAnyAuthLoading}
             >
               <Wallet className="mr-2 h-4 w-4" />
-              Login with wallet
+              Connect Stellar wallet
             </Button>
+            {walletError && (
+              <p role="alert" className="text-center text-sm text-destructive">
+                {walletError}
+              </p>
+            )}
           </div>
 
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-[#2857B8] hover:underline">
+            <Link href="/register" className="text-primary hover:underline">
               Register here
             </Link>
           </div>
@@ -198,20 +265,10 @@ export default function LoginPage() {
 
       <Illustration />
 
-      <MainWalletSelectionModal
-        isOpen={isMainModalOpen}
-        onClose={closeMainModal}
-        onWalletTypeSelected={handleWalletTypeSelected}
-      />
       <WalletSelectionModal
-        isOpen={isStellarModalOpen}
-        onClose={closeStellarModal}
+        isOpen={isWalletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
         onWalletSelected={handleStellarWalletSelected}
-      />
-      <MetaMaskWalletModal
-        isOpen={isMetaMaskModalOpen}
-        onClose={closeMetaMaskModal}
-        onWalletConnected={handleMetaMaskSelected}
       />
     </div>
   );

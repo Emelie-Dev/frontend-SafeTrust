@@ -1,21 +1,20 @@
-# Multi-Wallet Integration for SafeTrust
+# Stellar Wallet Integration for SafeTrust
 
-This directory contains a comprehensive multi-wallet integration system for the SafeTrust frontend, supporting multiple blockchain networks and wallet types.
+This directory contains the Stellar wallet integration system for the SafeTrust frontend, supporting Stellar blockchain wallets.
 
 ## Features
 
 ### Supported Wallets
 
 - **Stellar Wallets**: Freighter, Albedo, LOBSTR
-- **Ethereum/BSC Wallets**: MetaMask, WalletConnect (planned)
 
 ### Key Components
 
 #### Hooks
 
-- `useMultiWallet()` - Main hook for multi-wallet management
+- `useMultiWallet()` - Main hook for wallet management
 - `useWalletDetection()` - Detects available wallets in browser
-- `useWallet()` - Legacy hook updated to work with new system
+- `useWallet()` - Legacy hook updated to work with the system
 
 #### Components
 
@@ -27,7 +26,7 @@ This directory contains a comprehensive multi-wallet integration system for the 
 #### Types
 
 - Comprehensive TypeScript interfaces for wallet types
-- Support for multiple chains (Stellar, Ethereum, BSC)
+- Support for Stellar network
 - Connection states and error handling
 
 #### Utils
@@ -61,35 +60,6 @@ function MyComponent() {
         onWalletConnected={(wallet) => console.log("Connected:", wallet)}
       />
     </div>
-  );
-}
-```
-
-### Integration with Auth System
-
-The wallet system integrates with the existing Zustand authentication store:
-
-```tsx
-import { useWallet } from "./wallet/hooks/wallet.hook";
-
-function LoginComponent() {
-  const {
-    handleConnect,
-    showWalletModal,
-    setShowWalletModal,
-    handleMultiWalletConnect,
-  } = useWallet();
-
-  return (
-    <>
-      <button onClick={handleConnect}>Connect Wallet</button>
-
-      <WalletConnectionModal
-        isOpen={showWalletModal}
-        onClose={() => setShowWalletModal(false)}
-        onWalletConnected={handleMultiWalletConnect}
-      />
-    </>
   );
 }
 ```
@@ -187,34 +157,6 @@ export interface StellarWalletInfo extends WalletInfo {
 }
 ```
 
-## Integration with Existing Components
-
-### Login Component
-
-The Login component has been updated to use the new multi-wallet modal while maintaining backward compatibility:
-
-```tsx
-// Before
-<Button onClick={handleConnect}>Login with wallet</Button>
-
-// After - same interface, enhanced functionality
-<Button onClick={handleConnect}>Login with wallet</Button>
-<WalletConnectionModal
-  isOpen={showWalletModal}
-  onClose={() => setShowWalletModal(false)}
-  onWalletConnected={handleMultiWalletConnect}
-/>
-```
-
-## Future Enhancements
-
-1. **WalletConnect Integration** - Full WalletConnect v2 support
-2. **Hardware Wallet Support** - Ledger integration
-3. **Mobile Wallet Support** - Deep linking for mobile wallets
-4. **Chain Switching** - Dynamic network switching
-5. **Wallet State Persistence** - Remember connected wallets
-6. **Transaction History** - Multi-chain transaction tracking
-
 ## Development Notes
 
 ### Testing
@@ -223,19 +165,7 @@ The Login component has been updated to use the new multi-wallet modal while mai
 - Stellar testnet is used by default
 - Mock wallet detection for testing environments
 
-### Error Handling
-
-- Comprehensive error handling with user-friendly messages
-- Network-specific error messages
-- Graceful fallbacks for unsupported wallets
-
-### Performance
-
-- Lazy loading of wallet detection
-- Efficient re-renders with proper memoization
-- Minimal bundle size impact with tree-shaking
-
-## Dependencies
+### Dependencies
 
 ```json
 {
