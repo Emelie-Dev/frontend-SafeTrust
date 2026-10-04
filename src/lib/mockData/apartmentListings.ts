@@ -19,7 +19,13 @@ export const APARTMENT_LISTINGS: ApartmentListing[] = [
     ],
     category: "Family",
     location: "San José",
-    owner: { name: "Alberto Casas", avatar: "/img/person.jpg" },
+    owner: {
+      name: "Alberto Casas",
+      avatar: "/img/person.jpg",
+      // Demo host payout wallet for the /room escrow walkthrough. Unset means
+      // the booking UI refuses to start an escrow (no fallback address).
+      walletAddress: process.env.NEXT_PUBLIC_DEMO_HOST_WALLET_ADDRESS,
+    },
     description:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry’s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
     favorite: false,
