@@ -35,8 +35,6 @@ export const useWalletDetection = (): WalletDetectionResult & {
     freighter: false,
     albedo: false,
     lobstr: false,
-    metamask: false,
-    walletconnect: true, // WalletConnect is always available as it's a protocol
     freighterAddress: null,
   });
 
@@ -62,8 +60,6 @@ export const useWalletDetection = (): WalletDetectionResult & {
           freighter: freighterInstalled,
           albedo: await detectAlbedo(),
           lobstr: await detectLobstr(),
-          metamask: await detectMetaMask(),
-          walletconnect: true, // Always available
           freighterAddress,
         };
 
@@ -112,40 +108,8 @@ const detectAlbedo = async (): Promise<boolean> => {
  */
 const detectLobstr = async (): Promise<boolean> => {
   try {
-    // LOBSTR can be used via WalletConnect or browser extension
     return typeof window !== "undefined" && ("lobstrApi" in window || true);
   } catch {
-    return false;
-  }
-};
-
-/**
- * Detect MetaMask wallet extension
- */
-const detectMetaMask = async (): Promise<boolean> => {
-  try {
-    if (typeof window === "undefined") return false;
-
-    const win = window as unknown as {
-      ethereum?: {
-        isMetaMask?: boolean;
-        providers?: Array<{ isMetaMask?: boolean }>;
-      };
-    };
-    const ethereum = win.ethereum;
-    if (!ethereum) return false;
-
-    if (ethereum.isMetaMask) {
-      return true;
-    }
-
-    if (ethereum.providers) {
-      return ethereum.providers.some((provider) => provider.isMetaMask);
-    }
-
-    return false;
-  } catch (error) {
-    console.error("🔍 Error detecting MetaMask:", error);
     return false;
   }
 };
@@ -173,5 +137,5 @@ export const isWalletAvailable = (
   walletType: WalletType,
   detection: WalletDetectionResult,
 ): boolean => {
-  return detection[walletType] || false;
+  return (detection as unknown as Record<string, boolean>)[walletType] || false;
 };

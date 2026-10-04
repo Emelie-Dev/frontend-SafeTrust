@@ -220,7 +220,7 @@ function RentPageContent() {
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-8">
             <BedroomTabs
               selected={filters.bedrooms}
               onSelect={(bedrooms) => setFilters({ bedrooms })}
