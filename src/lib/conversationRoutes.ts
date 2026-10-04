@@ -12,7 +12,9 @@ const CONVERSATION_APARTMENTS = [
   "Suite Ejecutiva Sabana Norte",
 ];
 
-export function getConversationIdForApartment(apartmentName: string): string | undefined {
+export function getConversationIdForApartment(
+  apartmentName: string,
+): string | undefined {
   const normalized = apartmentName.trim().toLowerCase();
   const index = CONVERSATION_APARTMENTS.findIndex(
     (name) => name.trim().toLowerCase() === normalized,

@@ -11,9 +11,9 @@ describe("getConversationIdForApartment", () => {
   });
 
   it("maps every /guest/suggestions apartment to a stub conversation", () => {
-    expect(getConversationIdForApartment("Moderno Apartamento en San José Centro")).toBe(
-      "conv-10",
-    );
+    expect(
+      getConversationIdForApartment("Moderno Apartamento en San José Centro"),
+    ).toBe("conv-10");
     expect(getConversationIdForApartment("Suite Ejecutiva Sabana Norte")).toBe(
       "conv-11",
     );
