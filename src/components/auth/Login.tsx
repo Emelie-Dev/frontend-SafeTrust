@@ -14,40 +14,21 @@ import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
-import { auth } from "@/lib/firebase";
 import { applyRememberMe } from "@/lib/auth/persistence";
 import { setSessionCookie } from "@/lib/auth/session";
-import { WalletSelectionModal } from "./wallet/components/WalletSelectionModal";
 import type { ISupportedWallet } from "@creit.tech/stellar-wallets-kit";
 import { kit } from "./wallet/constants/wallet-kit.constant";
 import { isValidStellarAddress } from "./wallet/utils/walletValidation";
 import { toast } from "sonner";
 import { WalletProviderScoped } from "@/providers/WalletProviderScoped";
 
-// Lazy-load the heavy wallet modal stack — they pull in stellar-wallets-kit.
-// They are only needed when the user clicks "Login with wallet".
-const MainWalletSelectionModal = dynamic(
-  () =>
-    import("./wallet/components/MainWalletSelectionModal").then(
-      (m) => m.MainWalletSelectionModal,
-    ),
-  { ssr: false },
-);
-
+// Lazy-load the wallet modal — pulls in stellar-wallets-kit.
+// Only needed when the user clicks "Connect Stellar wallet".
 const WalletSelectionModal = dynamic(
   () =>
     import("./wallet/components/WalletSelectionModal").then(
       (m) => m.WalletSelectionModal,
-    ),
-  { ssr: false },
-);
-
-const MetaMaskWalletModal = dynamic(
-  () =>
-    import("./wallet/components/MetaMaskWalletModal").then(
-      (m) => m.MetaMaskWalletModal,
     ),
   { ssr: false },
 );
@@ -137,8 +118,6 @@ function LoginForm() {
 
     try {
       await applyRememberMe(remember);
-      const credential = await signInWithEmailAndPassword(
-        auth,
       // Use the lazy accessor from firebase-app so firebase/auth is NOT part
       // of the /login first-load chunk — it is only fetched when the user
       // submits the form.  firebase-app.ts has no static firebase/auth import.
@@ -151,14 +130,12 @@ function LoginForm() {
 
       const credential = await signInWithEmailAndPassword(
         authInstance,
->>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))
         email,
         password,
       );
       const idToken = await credential.user.getIdToken();
 
       setSessionCookie(idToken);
->>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))
       useGlobalAuthenticationStore.getState().setToken(idToken);
 
       toast.success("Login successful!", {
@@ -172,10 +149,7 @@ function LoginForm() {
             "An unexpected error occurred. Please try again.",
           { duration: 4000 },
         );
-        setError(
-          ERROR_MESSAGES[err.code] ?? "Login failed — please try again",
->>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))
-        );
+        setError(ERROR_MESSAGES[err.code] ?? "Login failed — please try again");
       } else {
         toast.error("An unexpected error occurred. Please try again.", {
           duration: 4000,
@@ -311,7 +285,6 @@ function LoginForm() {
               </svg>
               Login with Google
             </Button>
->>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))
 
             <Button
               type="button"
@@ -341,13 +314,7 @@ function LoginForm() {
 
       <Illustration />
 
-      {/* Wallet modals are lazy-loaded and only rendered when opened */}
-      <MainWalletSelectionModal
-        isOpen={isMainModalOpen}
-        onClose={closeMainModal}
-        onWalletTypeSelected={handleWalletTypeSelected}
-      />
->>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))
+      {/* Wallet modal — lazy-loaded, only rendered when opened */}
       <WalletSelectionModal
         isOpen={isWalletModalOpen}
         onClose={() => setWalletModalOpen(false)}
@@ -358,35 +325,9 @@ function LoginForm() {
 }
 
 /**
- * LoginPage wraps the form with a scoped WalletProvider so that
+ * Login wraps the form with a scoped WalletProvider so that
  * stellar-wallets-kit is contained to this subtree only.
  */
-export default function LoginPage() {
-      {isMainModalOpen && (
-        <MainWalletSelectionModal
-          isOpen={isMainModalOpen}
-          onClose={closeMainModal}
-          onWalletTypeSelected={handleWalletTypeSelected}
-        />
-      )}
-      {isStellarModalOpen && (
-        <WalletSelectionModal
-          isOpen={isStellarModalOpen}
-          onClose={closeStellarModal}
-          onWalletSelected={handleStellarWalletSelected}
-        />
-      )}
-      {isMetaMaskModalOpen && (
-        <MetaMaskWalletModal
-          isOpen={isMetaMaskModalOpen}
-          onClose={closeMetaMaskModal}
-          onWalletConnected={handleMetaMaskSelected}
-        />
-      )}
-    </div>
-  );
-}
-
 export default function Login() {
   return (
     <WalletProviderScoped>
@@ -394,4 +335,3 @@ export default function Login() {
     </WalletProviderScoped>
   );
 }
->>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))

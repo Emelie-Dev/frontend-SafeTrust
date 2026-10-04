@@ -14,36 +14,14 @@ import { getApartmentById } from "@/lib/mockData/apartmentListings";
  * viewport (IntersectionObserver).  This keeps it out of the initial bundle
  * for /hotels/[id] and avoids the SSR window-is-not-defined error.
  */
-const HotelMap = dynamic(
-  () => import("@/components/hotels/payment/Map"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-full w-full rounded-lg bg-gray-200 animate-pulse flex items-center justify-center text-gray-400 text-sm">
-        Loading map…
-      </div>
-    ),
-  },
-);
->>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))
-
-/**
- * Leaflet / react-leaflet is only loaded when the map section enters the
- * viewport (IntersectionObserver).  This keeps it out of the initial bundle
- * for /hotels/[id] and avoids the SSR window-is-not-defined error.
- */
-const HotelMap = dynamic(
-  () => import("@/components/hotels/payment/Map"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-full w-full rounded-lg bg-gray-200 animate-pulse flex items-center justify-center text-gray-400 text-sm">
-        Loading map…
-      </div>
-    ),
-  },
-);
->>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))
+const HotelMap = dynamic(() => import("@/components/hotels/payment/Map"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full w-full rounded-lg bg-gray-200 animate-pulse flex items-center justify-center text-gray-400 text-sm">
+      Loading map…
+    </div>
+  ),
+});
 
 export default function HotelPage({
   params,
@@ -116,19 +94,14 @@ export default function HotelPage({
                   description="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
                 />
               </div>
-<<<<<<< HEAD
-              <div className="w-full md:w-1/2 min-h-[250px]">
-                <HotelMap coordinates={coordinates} hotelName={hotelName} />
-=======
               {/* Map section — deferred until visible */}
-              <div ref={mapSectionRef} className="w-full md:w-1/2 min-h-[250px]">
+              <div
+                ref={mapSectionRef}
+                className="w-full md:w-1/2 min-h-[250px]"
+              >
                 {mapVisible && (
-                  <HotelMap
-                    coordinates={coordinates}
-                    hotelName="Shikara Hotel"
-                  />
+                  <HotelMap coordinates={coordinates} hotelName={hotelName} />
                 )}
->>>>>>> 209a868 (perf(bundle): cut first-load JS on /room, /bookings/*, /login (#538))
               </div>
             </div>
             <div className="hidden md:block md:w-1/4 lg:w-1/4" />

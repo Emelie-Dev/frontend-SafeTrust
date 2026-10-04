@@ -1,14 +1,8 @@
 "use client";
 
 import * as React from "react";
-import dynamic from "next/dynamic";
 import type { DateRange } from "react-day-picker";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -22,40 +16,6 @@ import { AvailabilityChecker } from "./booking/AvailabilityChecker";
 import { BookingButton, type BookingListing } from "./booking/BookingButton";
 import type { BookingDetails } from "@/features/escrow/booking-escrow.machine";
 import { Users, Calendar } from "lucide-react";
-
-interface RoomBookingCardProps {
-  roomId?: string;
-  listing: BookingListing;
-  basePrice: number;
-  onBookingStart?: () => void;
-  onBookingComplete?: (bookingId: string, booking: BookingDetails) => void;
-import { PriceCalculator } from "./booking/PriceCalculator";
-import { AvailabilityChecker } from "./booking/AvailabilityChecker";
-import { BookingButton } from "./booking/BookingButton";
-import { Users, Calendar } from "lucide-react";
-import type { CustomDateRangePickerProps } from "./booking/CustomDateRangePicker";
-
-// Lazy-load react-day-picker (calendar) — only needed when the user opens
-// the date control.  Keeps it out of the /room first-load bundle.
-const CustomDateRangePicker = dynamic<CustomDateRangePickerProps>(
-  () =>
-    import("./booking/CustomDateRangePicker").then(
-      (m) => m.CustomDateRangePicker,
-    ),
-  {
-    ssr: false,
-    loading: () => (
-      <button
-        className="w-full h-12 rounded-3xl border border-black/10 px-4 text-left text-sm text-muted-foreground flex items-center gap-3"
-        disabled
-        aria-label="Loading date picker…"
-      >
-        <Calendar strokeWidth={1} className="h-4 w-4 text-blue-600" />
-        Select your dates
-      </button>
-    ),
-  },
-);
 
 interface RoomBookingCardProps {
   roomId?: string;
@@ -80,10 +40,6 @@ const RoomBookingCard: React.FC<RoomBookingCardProps> = ({
   const [guestCount, setGuestCount] = React.useState(1);
   const [isAvailable, setIsAvailable] = React.useState(false);
 
-  const handleAvailabilityChange = (available: boolean) => {
-    setIsAvailable(available);
-  };
-
   const handleBookingStart = () => {
     onBookingStart?.();
   };
@@ -98,22 +54,6 @@ const RoomBookingCard: React.FC<RoomBookingCardProps> = ({
   const handleBookingError = (error: string) => {
     onBookingError?.(error);
   };
-  const [totalPrice, setTotalPrice] = React.useState(0);
-
-  React.useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      const nights = Math.ceil(
-        (dateRange.to.getTime() - dateRange.from.getTime()) /
-          (1000 * 60 * 60 * 24),
-      );
-      const subtotal = basePrice * nights * guestCount;
-      const tax = subtotal * 0.1;
-      const platformFee = subtotal * 0.05;
-      setTotalPrice(subtotal + tax + platformFee);
-    } else {
-      setTotalPrice(0);
-    }
-  }, [dateRange, guestCount, basePrice]);
 
   return (
     <Card
@@ -157,7 +97,6 @@ const RoomBookingCard: React.FC<RoomBookingCardProps> = ({
                 <SelectItem
                   key={count}
                   value={count.toString()}
-                  className="rounded-3xl shadow-none border-black/10 py-4 px-4 "
                   className="rounded-3xl shadow-none border-black/10 py-4 px-4"
                 >
                   {count} {count === 1 ? "Guest" : "Guests"}
@@ -189,10 +128,6 @@ const RoomBookingCard: React.FC<RoomBookingCardProps> = ({
           onBookingStart={handleBookingStart}
           onBookingComplete={handleBookingComplete}
           onBookingError={handleBookingError}
-          totalPrice={totalPrice}
-          onBookingStart={onBookingStart}
-          onBookingComplete={onBookingComplete}
-          onBookingError={onBookingError}
           className="mt-6"
         />
       </CardContent>

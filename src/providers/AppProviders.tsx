@@ -2,7 +2,6 @@
 
 import { useEffect, type ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
-import { ApolloClientProvider } from "@/providers/ApolloProviderWrapper";
 import { Toaster } from "@/components/ui/sonner";
 import { initSessionListener } from "@/lib/auth/session";
 import { QueryProvider } from "./QueryProvider";
@@ -32,12 +31,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <ApolloClientProvider>
-        <QueryProvider>
-          {children}
-          <Toaster richColors position="top-right" />
-        </QueryProvider>
-      </ApolloClientProvider>
+      <QueryProvider>
+        {children}
+        <Toaster richColors position="top-right" />
+      </QueryProvider>
     </ThemeProvider>
   );
 }
