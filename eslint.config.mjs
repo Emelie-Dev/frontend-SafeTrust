@@ -52,6 +52,43 @@ const eslintConfig = [
             "Use a design token (bg-primary, text-muted-foreground, …) instead of a hex colour.",
         },
       ],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: ["@/lib/mockData*", "@/lib/demo*"],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/hooks/**/*.{ts,tsx}", "**/*.test.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": "off",
+    },
+  },
+  {
+    // Legacy pages that still consume demo/mock data directly; the rule above
+    // only bans *new* consumers. Dynamic route segments are written as * because
+    // a literal [id] is a minimatch character class and never matches "[id]".
+    files: [
+      "src/app/dashboard/favorites/page.tsx",
+      "src/app/dashboard/escrow-dashboard/RoleEscrowDashboardPage.tsx",
+      "src/app/dashboard/escrow/*/page.tsx",
+      "src/app/guest/suggestions/page.tsx",
+      "src/app/hotels/*/page.tsx",
+      "src/app/hotels/*/book/page.tsx",
+      "src/app/rent/page.tsx",
+      "src/app/rent/*/page.tsx",
+      "src/app/rent/*/escrow/*/page.tsx",
+      "src/app/room/page.tsx",
+      "src/components/dashboard/WishlistCard.tsx",
+      "src/components/dashboard/guest/GuestDashboard.tsx",
+      "src/components/hotels/overall/HotelGrid.tsx",
+      "src/components/listings/BedroomTabs.tsx",
+      "src/components/listings/FilterSidebar.tsx",
+    ],
+    rules: {
+      "no-restricted-imports": "off",
     },
   },
 ];
