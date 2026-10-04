@@ -294,47 +294,76 @@ function ApartmentListingContent() {
           </span>
         </div>
 
-        <div className="flex flex-col gap-6 py-6 lg:flex-row lg:gap-8">
-          <aside className="hidden w-72 shrink-0 lg:block">
-            <FilterSidebar
-              selectedCategories={selectedCategories}
-              selectedLocations={selectedLocations}
-              minPrice={minPrice}
-              maxPrice={maxPrice}
-              onCategoryToggle={filterProps.onCategoryToggle}
-              onLocationToggle={filterProps.onLocationToggle}
-              onMinPriceChange={setMinPrice}
-              onMaxPriceChange={setMaxPrice}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded-md px-2 py-1"
+                    aria-label="Sort options"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Sort by:{" "}
+                    <span className="font-semibold capitalize">
+                      {sortOption}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-2">
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => setSortOption("relevance")}
+                      className={cn(
+                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
+                        sortOption === "relevance"
+                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
+                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      Relevance
+                    </button>
+                    <button
+                      onClick={() => setSortOption("nearest")}
+                      className={cn(
+                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
+                        sortOption === "nearest"
+                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
+                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      Nearest
+                    </button>
+                    <button
+                      onClick={() => setSortOption("price-low")}
+                      className={cn(
+                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
+                        sortOption === "price-low"
+                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
+                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      Price: Low to High
+                    </button>
+                    <button
+                      onClick={() => setSortOption("price-high")}
+                      className={cn(
+                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
+                        sortOption === "price-high"
+                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
+                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      Price: High to Low
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+          <div className="mt-8">
+            <BedroomTabs
+              selected={selectedBedrooms}
+              onSelect={setSelectedBedrooms}
             />
-          </aside>
-
-          <main className="min-w-0 flex-1">
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h1 className="text-2xl font-semibold text-foreground">
-                  Available rentals
-                </h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {filteredApartments.length} units available in Costa Rica
-                </p>
-              </div>
-              <div className="flex flex-wrap items-start gap-4">
-                <NearMeButton geo={geo} />
-                <div className="hidden lg:block">
-                  <SortControl
-                    sortOption={sortOption}
-                    onChange={setSortOption}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <BedroomTabs
-                selected={selectedBedrooms}
-                onSelect={filterProps.onBedroomChange}
-              />
-            </div>
+          </div>
 
             <ApartmentGrid
               apartments={filteredApartments}

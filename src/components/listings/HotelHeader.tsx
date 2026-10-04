@@ -5,8 +5,15 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { ChevronDown, Grid2X2, Heart, Lightbulb } from "lucide-react";
-import { FaBell, FaRegUserCircle, FaSearch } from "react-icons/fa";
+import {
+  Bell,
+  ChevronDown,
+  CircleUserRound,
+  Grid2X2,
+  Heart,
+  Lightbulb,
+  Search,
+} from "lucide-react";
 
 interface HotelHeaderProps {
   showHostSwitch?: boolean;
@@ -138,29 +145,15 @@ function HotelHeaderContent({ showHostSwitch }: HotelHeaderProps) {
 
         <div className="order-3 mx-0 flex w-full items-center rounded-full border border-border bg-muted/60 px-2 py-1.5 sm:order-none sm:mx-auto sm:max-w-md">
           <RentDropdown />
-          <div className="mx-3 h-6 w-px shrink-0 bg-border" />
-          <form
-            action="/rent"
-            method="get"
-            className="flex min-w-0 flex-1 items-center"
-          >
-            <input
-              key={query}
-              name="q"
-              type="search"
-              aria-label="Search rentals"
-              placeholder="City, province or neighborhood"
-              defaultValue={query}
-              className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
-            />
-            <button
-              type="submit"
-              aria-label="Search rentals"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-background"
-            >
-              <FaSearch aria-hidden="true" className="h-4 w-4" />
-            </button>
-          </form>
+          <div className="mx-3 h-6 w-px bg-gray-300 dark:bg-slate-600" />
+          <span className="text-sm text-gray-500 dark:text-gray-300">
+            City, province or neighborhood
+          </span>
+          <Search
+            aria-hidden="true"
+            data-testid="header-search-icon"
+            className="ml-auto h-4 w-4 text-gray-600 dark:text-gray-300"
+          />
         </div>
 
         <div className="ml-auto flex items-center gap-3 sm:gap-5">
@@ -176,14 +169,22 @@ function HotelHeaderContent({ showHostSwitch }: HotelHeaderProps) {
             <ThemeToggle />
           </div>
           <div className="relative">
-            <FaBell className="h-4 w-4 text-foreground" />
+            <Bell
+              aria-hidden="true"
+              data-testid="header-notification-icon"
+              className="h-4 w-4 text-gray-900 dark:text-white"
+            />
             <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-orange-500" />
           </div>
           <span className="hidden text-sm font-semibold text-foreground lg:block">
             Randall Valenciano
           </span>
-          <div className="grid h-10 w-10 place-items-center rounded-full border border-border bg-muted">
-            <FaRegUserCircle className="h-5 w-5 text-foreground" />
+          <div className="grid h-10 w-10 place-items-center rounded-full border border-gray-200 bg-gray-100 dark:border-slate-700 dark:bg-slate-800">
+            <CircleUserRound
+              aria-hidden="true"
+              data-testid="header-user-icon"
+              className="h-5 w-5 text-gray-900 dark:text-white"
+            />
           </div>
         </div>
       </div>

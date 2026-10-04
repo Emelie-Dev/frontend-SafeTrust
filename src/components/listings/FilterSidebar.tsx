@@ -4,7 +4,6 @@ import {
   APARTMENT_CATEGORIES,
   APARTMENT_LOCATIONS,
 } from "@/lib/mockData/apartmentListings";
-import { DEFAULT_MAX_PRICE, DEFAULT_MIN_PRICE } from "@/lib/rent-filters";
 import { formatListingPrice } from "./formatListingPrice";
 
 interface FilterSidebarProps {
@@ -19,7 +18,19 @@ interface FilterSidebarProps {
   className?: string;
 }
 
-/** Render one selectable category or location filter. */
+const PRICE_BARS = [
+  { id: "bar-1", height: 10 },
+  { id: "bar-2", height: 18 },
+  { id: "bar-3", height: 24 },
+  { id: "bar-4", height: 20 },
+  { id: "bar-5", height: 28 },
+  { id: "bar-6", height: 16 },
+  { id: "bar-7", height: 22 },
+  { id: "bar-8", height: 14 },
+  { id: "bar-9", height: 10 },
+  { id: "bar-10", height: 26 },
+];
+
 function CheckboxRow({
   checked,
   label,
