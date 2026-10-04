@@ -31,9 +31,8 @@ describe("ConversationList", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: /downtown loft apartment/i })).toHaveAttribute(
-      "href",
-      "/dashboard/messages/conv-1",
-    );
+    expect(
+      screen.getByRole("link", { name: /downtown loft apartment/i }),
+    ).toHaveAttribute("href", "/dashboard/messages/conv-1");
   });
 });

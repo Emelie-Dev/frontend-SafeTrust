@@ -17,13 +17,8 @@ import {
   Balance,
   PaymentOptions,
   StellarWalletInfo,
-  EthereumWalletInfo,
 } from "@/types/wallet";
 import { validateWalletConnection } from "../utils/walletValidation";
-import {
-  connectWalletConnect as connectWCWallet,
-  disconnectWalletConnect,
-} from "../utils/walletConnect";
 
 const Server = Horizon.Server;
 
@@ -113,143 +108,6 @@ export const useMultiWallet = (
     }
   }, [refreshBalancesForKey]);
 
-  const connectMetaMask = useCallback(async () => {
-    const win =
-      typeof window !== "undefined"
-        ? (window as unknown as {
-            ethereum?: {
-              isMetaMask?: boolean;
-              providers?: Array<{ isMetaMask?: boolean }>;
-              request: (args: {
-                method: string;
-                params?: unknown[];
-              }) => Promise<string[]>;
-            };
-          })
-        : undefined;
-
-    if (!win?.ethereum) {
-      throw new Error("MetaMask not found");
-    }
-
-    let ethereum = win.ethereum;
-
-    // Handle multiple wallet providers (OKX, etc.)
-    if (!ethereum.isMetaMask && ethereum.providers) {
-      const metamaskProvider = ethereum.providers.find((p) => p.isMetaMask);
-      if (!metamaskProvider) {
-        throw new Error("MetaMask not found");
-      }
-      ethereum = metamaskProvider as typeof ethereum;
-    }
-
-    setIsConnecting(true);
-    setError(undefined);
-
-    try {
-      const accounts = await ethereum.request({
-        method: "eth_requestAccounts",
-      });
-
-      if (!accounts || accounts.length === 0) {
-        throw new Error("No accounts returned from MetaMask");
-      }
-
-      const address = accounts[0];
-
-      const walletInfo: EthereumWalletInfo = {
-        address,
-        name: "MetaMask",
-        chain: "ethereum",
-        connectionStatus: "connected",
-        walletType: "metamask",
-      };
-
-      const validation = validateWalletConnection({
-        address,
-        chain: "ethereum",
-        walletType: "metamask",
-      });
-
-      if (!validation.isValid) {
-        throw new Error(validation.errors.join(", "));
-      }
-
-      setConnectedWallets((prev) => [
-        ...prev.filter((w) => w.walletType !== "metamask"),
-        walletInfo,
-      ]);
-
-      setSelectedWallet(walletInfo);
-    } catch (err: unknown) {
-      setError({
-        code: "METAMASK_CONNECTION_FAILED",
-        message: (err as Error)?.message || "MetaMask connection failed",
-        details: err,
-      });
-      throw err;
-    } finally {
-      setIsConnecting(false);
-    }
-  }, []);
-
-  /**
-   * Connect to WalletConnect
-   */
-  const connectWalletConnect = useCallback(async () => {
-    setIsConnecting(true);
-    setError(undefined);
-
-    try {
-      const result = await connectWCWallet();
-
-      // Handle user cancellation gracefully
-      if (!result) {
-        // User cancelled connection - just return without error
-        return;
-      }
-
-      const { address, chainId } = result;
-
-      const walletInfo: EthereumWalletInfo = {
-        address,
-        name: "WalletConnect",
-        chain: "ethereum",
-        connectionStatus: "connected",
-        walletType: "walletconnect",
-        chainId,
-      };
-
-      // Validate the wallet connection
-      const validation = validateWalletConnection({
-        address,
-        chain: "ethereum",
-        walletType: "walletconnect",
-      });
-
-      if (!validation.isValid) {
-        throw new Error(validation.errors.join(", "));
-      }
-
-      setConnectedWallets((prev) => {
-        const filtered = prev.filter((w) => w.walletType !== "walletconnect");
-        return [...filtered, walletInfo];
-      });
-
-      setSelectedWallet(walletInfo);
-    } catch (err: unknown) {
-      const walletError: WalletError = {
-        code: "WALLETCONNECT_CONNECTION_FAILED",
-        message: (err as Error)?.message || "Failed to connect WalletConnect",
-        details: err,
-      };
-      setError(walletError);
-      throw walletError;
-    } finally {
-      setIsConnecting(false);
-    }
-  }, []);
-
   /**
    * Generic connect wallet method
    */
@@ -261,17 +119,11 @@ export const useMultiWallet = (
         case "lobstr":
           await connectStellarWallet();
           break;
-        case "metamask":
-          await connectMetaMask();
-          break;
-        case "walletconnect":
-          await connectWalletConnect();
-          break;
         default:
           throw new Error(`Unsupported wallet type: ${walletType}`);
       }
     },
-    [connectStellarWallet, connectMetaMask, connectWalletConnect],
+    [connectStellarWallet],
   );
 
   /**
@@ -282,8 +134,6 @@ export const useMultiWallet = (
       try {
         if (["freighter", "albedo", "lobstr"].includes(walletType)) {
           await kit.disconnect();
-        } else if (walletType === "walletconnect") {
-          await disconnectWalletConnect();
         }
 
         setConnectedWallets((prev) =>
@@ -413,7 +263,5 @@ export const useMultiWallet = (
     refreshBalances,
     sendPayment: selectedWallet?.chain === "stellar" ? sendPayment : undefined,
     connectStellarWallet,
-    connectMetaMask,
-    connectWalletConnect,
   };
 };

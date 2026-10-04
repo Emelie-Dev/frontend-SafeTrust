@@ -89,7 +89,7 @@ export default function FullscreenImageViewer({
           break;
       }
     },
-    [goToNext, goToPrevious, isOpen, onClose, resetZoom, zoomIn, zoomOut],
+    [isOpen, onClose, goToPrevious, goToNext, zoomIn, zoomOut, resetZoom],
   );
 
   // Close on escape key
