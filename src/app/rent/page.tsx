@@ -79,6 +79,8 @@ function RentListingContent() {
   useEffect(() => {
     if (geo.status === "granted" && geo.position) {
       setSortOption("nearest");
+    } else if (geo.status === "idle") {
+      setSortOption("relevance");
     }
   }, [geo.status, geo.position]);
 
