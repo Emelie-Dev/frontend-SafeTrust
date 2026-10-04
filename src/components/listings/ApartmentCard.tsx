@@ -5,12 +5,10 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import { FaFireAlt } from "react-icons/fa";
-import { MessageCircle } from "lucide-react";
+import { Flame, Heart, MessageCircle } from "lucide-react";
 import AmenityIcons from "./AmenityIcons";
 import { formatListingPrice } from "./formatListingPrice";
-import { getConversationIdForApartment } from "@/lib/mockData/messages";
+import { getConversationIdForApartment } from "@/lib/conversationRoutes";
 
 interface ApartmentCardProps {
   apartment: ApartmentListing;
@@ -43,7 +41,12 @@ export default function ApartmentCard({
         />
         {apartment.promoted ? (
           <span className="absolute bottom-0 left-0 inline-flex items-center gap-1 rounded-tr-[10px] bg-orange-500 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.02em] text-white">
-            <FaFireAlt className="h-3.5 w-3.5" />
+            <Flame
+              aria-hidden="true"
+              data-testid="listing-card-promoted"
+              className="h-3.5 w-3.5"
+              fill="currentColor"
+            />
             Promoted
           </span>
         ) : null}
@@ -69,14 +72,19 @@ export default function ApartmentCard({
               }
               className="relative z-10 shrink-0 rounded-full p-1 text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
             >
-              {isFavorite ? (
-                <AiFillHeart className="h-5 w-5 fill-red-500 text-red-500" />
-              ) : (
-                <AiOutlineHeart className="h-5 w-5 text-red-500" />
-              )}
+              <Heart
+                aria-hidden="true"
+                data-testid="listing-card-favorite"
+                className={cn(
+                  "h-5 w-5",
+                  isFavorite ? "fill-red-500 text-red-500" : "text-red-500",
+                )}
+              />
             </button>
           ) : (
-            <AiOutlineHeart
+            <Heart
+              aria-hidden="true"
+              data-testid="listing-card-favorite"
               className={cn(
                 "h-5 w-5",
                 isFavorite ? "fill-red-500 text-red-500" : "text-red-500",

@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import HotelHeader from "@/components/listings/HotelHeader";
-import { getConversationIdForApartment } from "@/lib/mockData/messages";
+import { getConversationIdForApartment } from "@/lib/conversationRoutes";
 import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 
 export default function GuestSuggestionsPage() {
