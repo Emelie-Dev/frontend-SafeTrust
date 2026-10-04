@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 import { MOCK_CONVERSATIONS } from "@/lib/mockData/messages";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useConversation } from "@/hooks/useConversation";
+import { DemoBadge } from "@/components/ui/demo-badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 const ConversationThread = dynamic(
   () =>
@@ -44,6 +47,14 @@ export default function ConversationPage({
   const { user, loading } = useCurrentUser();
 
   const conversation = MOCK_CONVERSATIONS.find((c) => c.id === conversationId);
+  const {
+    conversation,
+    messages,
+    source,
+    currentUserId,
+    loading,
+    appendMessage,
+  } = useConversation(conversationId);
 
   // Unknown conversation id → 404 (does not reveal whether the id exists for
   // a different user, as required by the acceptance criteria).
@@ -65,20 +76,37 @@ export default function ConversationPage({
 
   return (
     <div className="h-full flex flex-col">
-      {conversation && (
-        <div className="p-4 border-b flex items-center gap-3">
-          <div>
-            <h2 className="font-semibold">{conversation.apartment.name}</h2>
-            <p className="text-sm text-muted-foreground">
-              Host: {conversation.host.first_name} {conversation.host.last_name}
-            </p>
+      {loading ? (
+        <div
+          className="flex-1"
+          role="status"
+          aria-label="Loading conversation"
+        />
+      ) : source === "none" || !conversation ? (
+        <EmptyState
+          title="No messages yet"
+          description="This conversation is not available."
+        />
+      ) : (
+        <>
+          <div className="p-4 border-b flex items-center gap-3">
+            <div>
+              <h2 className="font-semibold">{conversation.apartment.name}</h2>
+              <p className="text-sm text-muted-foreground">
+                Host: {conversation.host.first_name}{" "}
+                {conversation.host.last_name}
+              </p>
+            </div>
+            {source === "demo" && <DemoBadge />}
           </div>
-        </div>
+          <ConversationThread
+            conversationId={conversationId}
+            messages={messages}
+            currentUserId={currentUserId}
+            onSend={appendMessage}
+          />
+        </>
       )}
-      <ConversationThread
-        conversationId={conversationId}
-        apartmentId="mock-apartment-1"
-      />
     </div>
   );
 }

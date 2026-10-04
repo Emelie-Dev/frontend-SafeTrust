@@ -3,6 +3,9 @@
 import dynamic from "next/dynamic";
 import { MOCK_CONVERSATIONS } from "@/lib/mockData/messages";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useConversations } from "@/hooks/useConversations";
+import { DemoBadge } from "@/components/ui/demo-badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 const ConversationList = dynamic(
   () =>
@@ -38,16 +41,32 @@ export default function MessagesPage() {
         (c) => c.guest.id === user.uid || c.host.id === user.uid,
       )
     : [];
+  const { data, currentUserId, source, loading } = useConversations();
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b">
+      <div className="p-4 border-b flex items-center gap-2">
         <h1 className="text-xl font-semibold">Your Conversations</h1>
+        {source === "demo" && <DemoBadge />}
       </div>
       <ConversationList
         conversations={conversations}
         currentUserId={user?.uid ?? ""}
       />
+      {loading ? (
+        <div
+          className="flex-1"
+          role="status"
+          aria-label="Loading conversations"
+        />
+      ) : source === "none" ? (
+        <EmptyState
+          title="No messages yet"
+          description="Your conversations will appear here."
+        />
+      ) : (
+        <ConversationList conversations={data} currentUserId={currentUserId} />
+      )}
     </div>
   );
 }

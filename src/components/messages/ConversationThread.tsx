@@ -7,10 +7,31 @@ import { MessageBubble } from "./MessageBubble";
 import { AutomatedEventMessage } from "./AutomatedEventMessage";
 import { MessageComposer } from "./MessageComposer";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { MessageBubble } from "./MessageBubble";
+import { AutomatedEventMessage } from "./AutomatedEventMessage";
+import { MessageComposer } from "./MessageComposer";
+import { DemoBadge } from "@/components/ui/demo-badge";
+
+type ThreadMessage = {
+  id: string;
+  body: string;
+  is_automated: boolean;
+  event_type: string | null;
+  read_at: string | null;
+  created_at: string;
+  sender: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+};
 
 type ConversationThreadProps = {
   conversationId: string;
-  apartmentId: string;
+  messages: ThreadMessage[];
+  currentUserId: string;
+  onSend: (body: string) => void;
 };
 
 const styles = {
@@ -32,7 +53,9 @@ const styles = {
 
 export function ConversationThread({
   conversationId,
-  apartmentId,
+  messages,
+  currentUserId,
+  onSend,
 }: ConversationThreadProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const { user } = useCurrentUser();
@@ -53,6 +76,7 @@ export function ConversationThread({
               key={message.id}
               message={message}
               isOwn={user ? message.sender.id === user.uid : false}
+              isOwn={message.sender.id === currentUserId}
             />
           ),
         )}
@@ -64,6 +88,17 @@ export function ConversationThread({
         senderId={user?.uid ?? ""}
         apartmentId={apartmentId}
       />
+      <div className="border-t bg-background">
+        <div className="px-4 pt-3 text-xs text-muted-foreground flex items-center gap-2">
+          <DemoBadge />
+          <span>Sample conversation</span>
+        </div>
+        <MessageComposer
+          conversationId={conversationId}
+          onSend={onSend}
+          isDemo
+        />
+      </div>
     </div>
   );
 }
