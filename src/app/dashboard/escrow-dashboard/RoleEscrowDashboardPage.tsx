@@ -7,7 +7,7 @@ import {
   fetchMockEscrows,
   generateMockNotifications,
 } from "@/lib/mockData/dashboard";
-import { getUserRole } from "@/utils/role-utils";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 // Dynamic import: RoleEscrowDashboard (chart libraries, escrow component tree,
 // mock data generators) loads in a separate chunk only when this route is
