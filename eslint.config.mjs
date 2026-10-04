@@ -52,6 +52,33 @@ const eslintConfig = [
             "Use a design token (bg-primary, text-muted-foreground, …) instead of a hex colour.",
         },
       ],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['@/lib/mockData*', '@/lib/demo*'],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/hooks/**/*.{ts,tsx}', '**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
+  {
+    files: [
+      'src/app/dashboard/favorites/page.tsx',
+      'src/app/rent/[id]/escrow/create/page.tsx',
+      'src/app/rent/[id]/page.tsx',
+      'src/app/rent/page.tsx',
+      'src/components/dashboard/WishlistCard.tsx',
+      'src/components/dashboard/guest/GuestDashboard.tsx',
+      'src/components/listings/BedroomTabs.tsx',
+      'src/components/listings/FilterSidebar.tsx',
+    ],
+    rules: {
+      'no-restricted-imports': 'off',
     },
   },
 ];

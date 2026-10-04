@@ -1,4 +1,4 @@
-import { getConversationIdForApartment } from "./messages";
+import { getConversationIdForApartment } from "../conversationRoutes";
 
 describe("getConversationIdForApartment", () => {
   it("maps every /rent listing to a stub conversation", () => {

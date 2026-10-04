@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Flame, Heart, MessageCircle } from "lucide-react";
 import AmenityIcons from "./AmenityIcons";
 import { formatListingPrice } from "./formatListingPrice";
-import { getConversationIdForApartment } from "@/lib/mockData/messages";
+import { getConversationIdForApartment } from "@/lib/conversationRoutes";
 
 interface ApartmentCardProps {
   apartment: ApartmentListing;
