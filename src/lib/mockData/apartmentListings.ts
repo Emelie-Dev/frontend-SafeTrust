@@ -18,8 +18,13 @@ export const APARTMENT_LISTINGS: ApartmentListing[] = [
     ],
     category: "Family",
     location: "San José",
-    coordinates: { lat: 9.9352, lng: -84.0611 },
-    owner: { name: "Alberto Casas", avatar: "/img/avatars/alberto.webp" },
+    owner: {
+      name: "Alberto Casas",
+      avatar: "/img/person.jpg",
+      // Demo host payout wallet for the /room escrow walkthrough. Unset means
+      // the booking UI refuses to start an escrow (no fallback address).
+      walletAddress: process.env.NEXT_PUBLIC_DEMO_HOST_WALLET_ADDRESS,
+    },
     description:
       "Set on a leafy street in Barrio Escalante, this bright apartment is a short walk from the neighborhood’s cafés and restaurants. Families can settle in easily, with Parque Francia and the city center close by.",
     favorite: false,

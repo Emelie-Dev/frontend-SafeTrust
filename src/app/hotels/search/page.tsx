@@ -11,7 +11,38 @@ import { Heart, MapPin } from "lucide-react";
 import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 
 export default function HotelSearch() {
-  const searchData = APARTMENT_LISTINGS;
+  const searchData = [
+    {
+      image: "/img/room1.png",
+      name: "La sabana sur",
+      location: "329 calle santos, paseo collos, San Jose",
+      price: "40.14",
+    },
+    {
+      image: "/img/room1.png",
+      name: "Los yoses",
+      location: "329 calle santos, paseo collos, San Jose",
+      price: "40.14",
+    },
+    {
+      image: "/img/room1.png",
+      name: "Paseo Colón Loft",
+      location: "329 calle santos, paseo collos, San Jose",
+      price: "40.14",
+    },
+    {
+      image: "/img/room1.png",
+      name: "Heredia Central",
+      location: "329 calle santos, paseo collos, San Jose",
+      price: "40.14",
+    },
+    {
+      image: "/img/room1.png",
+      name: "Alajuela Heights",
+      location: "329 calle santos, paseo collos, San Jose",
+      price: "40.14",
+    },
+  ];
   return (
     <div className="mt-[20px]">
       <Header />
