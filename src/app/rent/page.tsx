@@ -1,6 +1,6 @@
 "use client";
 
-import type { HotelListing } from "@/@types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
 import {
   ApartmentGrid,
   BedroomTabs,
@@ -8,10 +8,10 @@ import {
   FilterSidebar,
   HotelHeader,
 } from "@/components/listings";
+import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 import { NearMeButton } from "@/components/listings/NearMeButton";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { distanceKm, sortByDistance } from "@/lib/geo";
-import { STUB_HOTELS } from "@/lib/mockData/hotels";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -54,6 +54,15 @@ function RentListingContent() {
   const [sortOption, setSortOption] = useState<SortOption>("relevance");
   const [minPrice, setMinPrice] = useState<number>(3200);
   const [maxPrice, setMaxPrice] = useState<number>(206000);
+  const [favorites, setFavorites] = useState<string[]>(
+    APARTMENT_LISTINGS.filter((h) => h.favorite).map((h) => h.id),
+  );
+
+  const toggleFavorite = (id: string) => {
+    setFavorites((curr) =>
+      curr.includes(id) ? curr.filter((f) => f !== id) : [...curr, id],
+    );
+  };
 
   useEffect(() => {
     setSelectedLocations((prev) =>
@@ -85,19 +94,21 @@ function RentListingContent() {
     router.replace(query ? `/rent?${query}` : "/rent", { scroll: false });
   };
 
-  const distances = useMemo(() => {
-    if (!geo.position) return undefined;
-    const result: Record<string, number> = {};
-    for (const apt of STUB_HOTELS) {
-      if (apt.coordinates) {
-        result[apt.id] = distanceKm(geo.position, apt.coordinates);
-      }
-    }
-    return result;
-  }, [geo.position]);
+  const distances = useMemo(
+    () =>
+      geo.position
+        ? Object.fromEntries(
+            APARTMENT_LISTINGS.map((apartment) => [
+              apartment.id,
+              distanceKm(geo.position!, apartment.coordinates),
+            ]),
+          )
+        : undefined,
+    [geo.position],
+  );
 
   const filteredApartments = useMemo(() => {
-    const apartments = STUB_HOTELS.filter((apartment) => {
+    const apartments = APARTMENT_LISTINGS.filter((apartment) => {
       const matchesCategory =
         selectedCategories.length === 0 ||
         selectedCategories.includes(apartment.category);
@@ -180,7 +191,7 @@ function RentListingContent() {
     router.replace("/rent", { scroll: false });
   };
 
-  const handleApartmentClick = (apartment: HotelListing) => {
+  const handleApartmentClick = (apartment: ApartmentListing) => {
     router.push(`/rent/${apartment.id}`);
   };
 
@@ -208,7 +219,7 @@ function RentListingContent() {
         <main className="flex-1 px-6 py-8 lg:px-12">
           {/* Destination Quick Selector */}
           <div className="mb-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-3">
               Popular Destinations
             </h2>
             <div className="flex gap-3 overflow-x-auto pb-2">
@@ -276,66 +287,69 @@ function RentListingContent() {
               <Popover>
                 <PopoverTrigger asChild>
                   <button
-                    className="flex items-center gap-2 text-sm
-                                     border border-gray-200 dark:border-slate-700
-                                     rounded-lg px-3 py-2 hover:bg-gray-50
-                                     dark:hover:bg-slate-800 transition-colors
-                                     text-gray-700 dark:text-gray-300"
+                    className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded-md px-2 py-1"
+                    aria-label="Sort options"
                   >
                     <SlidersHorizontal className="h-4 w-4" />
-                    <span>Sort & Filter</span>
+                    Sort by:{" "}
+                    <span className="font-semibold capitalize">
+                      {sortOption}
+                    </span>
                   </button>
                 </PopoverTrigger>
-                <PopoverContent
-                  align="end"
-                  className="w-72 p-4 space-y-4 max-h-[85vh] overflow-y-auto
-                             bg-white dark:bg-slate-800
-                             border border-gray-200 dark:border-slate-700"
-                >
-                  {/* Category Chips inside Popover */}
-                  <div className="space-y-2">
-                    <p
-                      className="text-xs font-semibold uppercase tracking-wide
-                                  text-gray-500 dark:text-gray-400"
+                <PopoverContent className="w-48 p-2">
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => setSortOption("relevance")}
+                      className={cn(
+                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
+                        sortOption === "relevance"
+                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
+                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
+                      )}
                     >
-                      Category
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {["Family", "Students", "Travelers"].map((cat) => (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => handleCategoryToggle(cat)}
-                          className={cn(
-                            "text-xs px-3 py-1.5 rounded-full transition-colors border",
-                            selectedCategories.includes(cat)
-                              ? "bg-orange-500 border-orange-500 text-white"
-                              : "border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300",
-                          )}
-                        >
-                          {cat}
-                        </button>
-                      ))}
-                    </div>
+                      Relevance
+                    </button>
+                    <button
+                      onClick={() => setSortOption("nearest")}
+                      className={cn(
+                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
+                        sortOption === "nearest"
+                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
+                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      Nearest
+                    </button>
+                    <button
+                      onClick={() => setSortOption("price-low")}
+                      className={cn(
+                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
+                        sortOption === "price-low"
+                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
+                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      Price: Low to High
+                    </button>
+                    <button
+                      onClick={() => setSortOption("price-high")}
+                      className={cn(
+                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
+                        sortOption === "price-high"
+                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
+                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      Price: High to Low
+                    </button>
                   </div>
-
-                  <hr className="border-gray-100 dark:border-slate-700" />
-
-                  {/* Reset */}
-                  <button
-                    type="button"
-                    onClick={handleClearAll}
-                    className="w-full text-sm text-center text-orange-500
-                               hover:text-orange-600 font-medium"
-                  >
-                    Reset filters
-                  </button>
                 </PopoverContent>
               </Popover>
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-8">
             <BedroomTabs
               selected={selectedBedrooms}
               onSelect={setSelectedBedrooms}
@@ -346,6 +360,8 @@ function RentListingContent() {
             <ApartmentGrid
               apartments={filteredApartments}
               distances={distances}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
               onApartmentClick={handleApartmentClick}
             />
           </div>

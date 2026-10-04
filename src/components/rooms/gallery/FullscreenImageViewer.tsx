@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import Image from 'next/image';
-import { X, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
+import { X, ZoomIn, ZoomOut, Maximize } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface FullscreenImageViewerProps {
   images: string[];
@@ -26,18 +26,27 @@ export default function FullscreenImageViewer({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLDivElement>(null);
+  const previousIndexRef = useRef(initialIndex);
+
+  // Reset zoom and position when changing images
+  useEffect(() => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  }, [currentIndex]);
 
   const goToPrevious = useCallback(() => {
-    const nextIndex = (currentIndex - 1 + images.length) % images.length;
-    setCurrentIndex(nextIndex);
-    onChangeImage(nextIndex);
-  }, [currentIndex, images.length, onChangeImage]);
+    setCurrentIndex((previousIndex) => {
+      const nextIndex = (previousIndex - 1 + images.length) % images.length;
+      return nextIndex;
+    });
+  }, [images.length]);
 
   const goToNext = useCallback(() => {
-    const nextIndex = (currentIndex + 1) % images.length;
-    setCurrentIndex(nextIndex);
-    onChangeImage(nextIndex);
-  }, [currentIndex, images.length, onChangeImage]);
+    setCurrentIndex((previousIndex) => {
+      const nextIndex = (previousIndex + 1) % images.length;
+      return nextIndex;
+    });
+  }, [images.length]);
 
   const zoomIn = useCallback(() => {
     setScale((prev) => Math.min(prev + 0.5, 3));
@@ -53,57 +62,60 @@ export default function FullscreenImageViewer({
   }, []);
 
   // Handle keyboard navigation
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!isOpen) return;
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!isOpen) return;
 
-    switch (e.key) {
-      case 'Escape':
-        onClose();
-        break;
-      case 'ArrowLeft':
-        goToPrevious();
-        break;
-      case 'ArrowRight':
-        goToNext();
-        break;
-      case '+':
-      case '=':
-        zoomIn();
-        break;
-      case '-':
-      case '_':
-        zoomOut();
-        break;
-      case '0':
-        resetZoom();
-        break;
-    }
-  }, [isOpen, onClose, goToPrevious, goToNext, zoomIn, zoomOut, resetZoom]);
+      switch (e.key) {
+        case "Escape":
+          onClose();
+          break;
+        case "ArrowLeft":
+          goToPrevious();
+          break;
+        case "ArrowRight":
+          goToNext();
+          break;
+        case "+":
+        case "=":
+          zoomIn();
+          break;
+        case "-":
+        case "_":
+          zoomOut();
+          break;
+        case "0":
+          resetZoom();
+          break;
+      }
+    },
+    [isOpen, onClose, goToPrevious, goToNext, zoomIn, zoomOut, resetZoom],
+  );
 
   // Close on escape key
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handleKeyDown);
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = "unset";
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, handleKeyDown]);
 
-  // Reset zoom and position when changing images
   useEffect(() => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
-  }, [currentIndex]);
+    if (previousIndexRef.current === currentIndex) return;
+    previousIndexRef.current = currentIndex;
+    onChangeImage(currentIndex);
+  }, [currentIndex, onChangeImage]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (scale <= 1) return;
-    
+
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
@@ -113,10 +125,10 @@ export default function FullscreenImageViewer({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || scale <= 1) return;
-    
+
     const x = e.clientX - dragStart.x;
     const y = e.clientY - dragStart.y;
-    
+
     setPosition({ x, y });
   };
 
@@ -127,7 +139,7 @@ export default function FullscreenImageViewer({
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 bg-black/90 flex flex-col"
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -189,7 +201,17 @@ export default function FullscreenImageViewer({
               className="absolute left-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
               aria-label="Previous image"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <polyline points="15 18 9 12 15 6"></polyline>
               </svg>
             </button>
@@ -198,7 +220,17 @@ export default function FullscreenImageViewer({
               className="absolute right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
               aria-label="Next image"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
@@ -212,16 +244,16 @@ export default function FullscreenImageViewer({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           style={{
-            cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
+            cursor: scale > 1 ? (isDragging ? "grabbing" : "grab") : "default",
           }}
         >
           <div
             className="relative"
             style={{
               transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-              transition: isDragging ? 'none' : 'transform 0.2s ease-out',
-              maxWidth: '90%',
-              maxHeight: '90%',
+              transition: isDragging ? "none" : "transform 0.2s ease-out",
+              maxWidth: "90%",
+              maxHeight: "90%",
             }}
           >
             <Image
@@ -245,12 +277,11 @@ export default function FullscreenImageViewer({
                 key={index}
                 onClick={() => {
                   setCurrentIndex(index);
-                  onChangeImage(index);
                 }}
                 className={`h-full aspect-video flex-shrink-0 overflow-hidden rounded-md border-2 transition-all ${
                   index === currentIndex
-                    ? 'border-white scale-105'
-                    : 'border-transparent hover:border-gray-400 opacity-70 hover:opacity-100'
+                    ? "border-white scale-105"
+                    : "border-transparent hover:border-gray-400 opacity-70 hover:opacity-100"
                 }`}
                 aria-label={`View image ${index + 1}`}
               >

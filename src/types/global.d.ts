@@ -92,7 +92,7 @@ declare module "firebase/auth" {
   export interface User {
     getIdToken(forceRefresh?: boolean): Promise<string>;
     email?: string | null;
-    uid?: string;
+    uid: string;
     displayName?: string | null;
     photoURL?: string | null;
     metadata: {
@@ -116,6 +116,12 @@ declare module "firebase/auth" {
     profile?: Record<string, unknown>;
     username?: string;
   }
+  export const browserLocalPersistence: unknown;
+  export const browserSessionPersistence: unknown;
+  export function setPersistence(
+    auth: unknown,
+    persistence: unknown,
+  ): Promise<void>;
   export function getAuth(app?: unknown): Auth;
   export function connectAuthEmulator(
     auth: unknown,

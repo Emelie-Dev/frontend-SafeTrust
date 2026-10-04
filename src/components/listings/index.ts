@@ -9,4 +9,10 @@ export { default as SuggestionCard } from "./SuggestionCard";
 export { default as SuggestionsList } from "./SuggestionsList";
 export { default as AmenityIcons } from "./AmenityIcons";
 export { default as DestinationCard } from "./DestinationCard";
-export * from "./types";
+export type {
+  ApartmentAmenitySummary,
+  ApartmentListing,
+  ApartmentOwner,
+  HotelSearchResult,
+} from "@/types/hotel";
+export type * from "./types";

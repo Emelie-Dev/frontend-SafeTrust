@@ -5,7 +5,10 @@ import {
   HotelHeader,
   SuggestionsList,
 } from "@/components/listings";
-import { getHotelById, getSuggestedHotels } from "@/lib/mockData/hotels";
+import {
+  APARTMENT_LISTINGS,
+  getSuggestedApartments,
+} from "@/lib/mockData/apartmentListings";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { notFound, useRouter } from "next/navigation";
 import { use } from "react";
@@ -18,13 +21,15 @@ export default function HotelDetailPage({
   const router = useRouter();
   const { token, address } = useGlobalAuthenticationStore();
   const resolvedParams = use(params);
-  const apartment = getHotelById(resolvedParams.id);
+  const apartment = APARTMENT_LISTINGS.find(
+    (apt) => apt.id === resolvedParams.id,
+  );
 
   if (!apartment) {
     notFound();
   }
 
-  const suggestions = getSuggestedHotels(apartment.id);
+  const suggestions = getSuggestedApartments(apartment.id);
 
   const handleBook = () => {
     if (!token && !address) {
@@ -35,7 +40,7 @@ export default function HotelDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-slate-900">
       <HotelHeader />
 
       <div className="mx-auto flex max-w-[1180px] flex-col lg:flex-row">

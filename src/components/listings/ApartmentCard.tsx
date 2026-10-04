@@ -1,48 +1,34 @@
 "use client";
 
-import type { HotelListing } from "@/@types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { AiOutlineHeart } from "react-icons/ai";
-import { FaFireAlt } from "react-icons/fa";
-import { MessageCircle } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Flame, Heart, MessageCircle } from "lucide-react";
 import AmenityIcons from "./AmenityIcons";
 import { formatListingPrice } from "./formatListingPrice";
-import { getConversationIdForApartment } from "@/lib/mockData/messages";
+import { getConversationIdForApartment } from "@/lib/conversationRoutes";
 
 interface ApartmentCardProps {
-  apartment: HotelListing;
+  apartment: ApartmentListing;
   distanceKm?: number;
   loading?: "eager" | "lazy";
-  onClick?: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
 }
 
 export default function ApartmentCard({
   apartment,
   distanceKm,
   loading = "lazy",
-  onClick,
+  isFavorite = apartment.favorite,
+  onToggleFavorite,
 }: ApartmentCardProps) {
-  const router = useRouter();
   const conversationId = getConversationIdForApartment(apartment.name);
 
   return (
-    <article
-      tabIndex={0}
-      aria-label={apartment.name}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (
-          (e.key === "Enter" || e.key === " ") &&
-          e.target === e.currentTarget
-        ) {
-          e.preventDefault();
-          onClick?.();
-        }
-      }}
-      className="group w-full overflow-hidden rounded-[16px] border dark:border-slate-700 bg-white dark:bg-slate-800 text-left transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
-    >
+    <article className="group relative flex flex-col overflow-hidden rounded-[16px] border dark:border-slate-700 bg-white dark:bg-slate-800 transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] focus-within:ring-2 focus-within:ring-orange-500">
       <div className="relative">
         <Image
           src={apartment.images[0]}
@@ -54,8 +40,13 @@ export default function ApartmentCard({
           className="h-[170px] w-full object-cover"
         />
         {apartment.promoted ? (
-          <span className="absolute bottom-0 left-0 inline-flex items-center gap-1 rounded-tr-[10px] bg-orange-500 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.02em] text-white">
-            <FaFireAlt className="h-3.5 w-3.5" />
+          <span className="absolute bottom-0 left-0 inline-flex items-center gap-1 rounded-tr-[10px] bg-orange-600 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.02em] text-white">
+            <Flame
+              aria-hidden="true"
+              data-testid="listing-card-promoted"
+              className="h-3.5 w-3.5"
+              fill="currentColor"
+            />
             Promoted
           </span>
         ) : null}
@@ -71,25 +62,55 @@ export default function ApartmentCard({
               Per month
             </span>
           </div>
-          <AiOutlineHeart
-            className={cn(
-              "h-5 w-5",
-              apartment.favorite ? "fill-red-500 text-red-500" : "text-red-500",
-            )}
-          />
+          {onToggleFavorite ? (
+            <button
+              type="button"
+              onClick={() => onToggleFavorite(apartment.id)}
+              aria-pressed={isFavorite}
+              aria-label={
+                isFavorite
+                  ? `Remove ${apartment.name} from favorites`
+                  : `Save ${apartment.name} to favorites`
+              }
+              className="relative z-10 shrink-0 rounded-full p-1 text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+            >
+              <Heart
+                aria-hidden="true"
+                data-testid="listing-card-favorite"
+                className={cn(
+                  "h-5 w-5",
+                  isFavorite ? "fill-red-500 text-red-500" : "text-red-500",
+                )}
+              />
+            </button>
+          ) : (
+            <Heart
+              aria-hidden="true"
+              data-testid="listing-card-favorite"
+              className={cn(
+                "h-5 w-5",
+                isFavorite ? "fill-red-500 text-red-500" : "text-red-500",
+              )}
+            />
+          )}
         </div>
 
         <div className="space-y-1">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-              {apartment.name}
+              <Link
+                href={`/rent/${apartment.id}`}
+                className="after:absolute after:inset-0 focus-visible:outline-none"
+              >
+                {apartment.name}
+              </Link>
             </h3>
-            {apartment.distance !== undefined && (
+            {distanceKm !== undefined && (
               <span
                 data-testid="distance-label"
-                className="shrink-0 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
+                className="relative z-10 shrink-0 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
               >
-                {apartment.distance.toFixed(1)} km
+                {distanceKm.toFixed(1)} km
               </span>
             )}
           </div>
@@ -113,30 +134,23 @@ export default function ApartmentCard({
           />
         </div>
 
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          className="mt-auto w-full rounded-lg bg-orange-600 py-2 px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-orange-700"
+        <Button
+          asChild
+          className="relative z-10 mt-auto w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold"
         >
-          Book
-        </button>
+          <Link href={`/rent/${apartment.id}/escrow/create`}>Book</Link>
+        </Button>
         {conversationId && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/dashboard/messages/${conversationId}`);
-            }}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg
-                       border border-orange-600 py-2 px-4 text-sm font-semibold
-                       text-orange-600 transition-colors duration-200
-                       hover:bg-orange-50 dark:hover:bg-orange-900/10"
+          <Button
+            asChild
+            variant="outline"
+            className="relative z-10 mt-2 w-full border-orange-600 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 font-semibold"
           >
-            <MessageCircle className="h-4 w-4" aria-hidden="true" />
-            Message host
-          </button>
+            <Link href={`/dashboard/messages/${conversationId}`}>
+              <MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />
+              Message host
+            </Link>
+          </Button>
         )}
       </div>
     </article>
