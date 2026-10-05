@@ -70,18 +70,23 @@ describe("applyRentFilters", () => {
 
   it("filters by category", () => {
     expect(
-      filter({ categories: ["Travelers"] }).map((item) => item.category),
-    ).toEqual(["Travelers", "Travelers"]);
+      filter({ categories: ["Travelers"] }).map((item) => item.id),
+    ).toEqual(["3", "6", "9", "11"]);
   });
 
   it("filters by location", () => {
     expect(
-      filter({ location: "Heredia" }).map((item) => item.location),
-    ).toEqual(["Heredia"]);
+      filter({ location: "Heredia" }).map((item) => item.id),
+    ).toEqual(["4", "5"]);
   });
 
   it("filters by bedroom count", () => {
-    expect(filter({ bedrooms: "1" }).map((item) => item.bedrooms)).toEqual([1]);
+    expect(filter({ bedrooms: "1" }).map((item) => item.id)).toEqual([
+      "2",
+      "3",
+      "9",
+      "12",
+    ]);
   });
 
   it("includes apartments with three or more bedrooms in the 3-bedroom filter", () => {
@@ -100,8 +105,8 @@ describe("applyRentFilters", () => {
 
   it("filters by price range", () => {
     expect(
-      filter({ minPrice: 4000, maxPrice: 4050 }).map((item) => item.price),
-    ).toEqual([4000]);
+      filter({ minPrice: 59, maxPrice: 64 }).map((item) => item.price),
+    ).toEqual([59, 64]);
   });
 
   it("sorts by price in both directions and relevance by promotion", () => {
