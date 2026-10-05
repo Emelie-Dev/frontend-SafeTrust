@@ -92,6 +92,33 @@ Enable **Email/Password** and **Google** under **Authentication → Sign-in meth
 3. **Redirect Flow & Safari / Strict Cookie Isolation:** When popups are blocked or for browsers blocking third-party storage (Safari ITP, Firefox Strict), set `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` to your application domain and configure the Next.js rewrite in `next.config.ts` (`/__/auth/:path*` -> `https://<FIREBASE_PROJECT_ID>.firebaseapp.com/__/auth/:path*`).
 4. **Google Cloud Console Authorized Redirect URI:** If using a custom auth domain (rewriting `/__/auth/*`), add `https://<application-domain>/__/auth/handler` under **Authorized redirect URIs** for your Web client OAuth ID in the Google Cloud Console (**APIs & Services → Credentials**) to prevent `redirect_uri_mismatch` errors.
 
+> These are public, browser-safe values. The `NEXT_PUBLIC_` prefix is what makes Next.js expose them to the bundle. **Never put `HASURA_ADMIN_SECRET` here** — the frontend authenticates via Firebase JWT, not the admin secret.
+
+### Freighter SEP-10 wallet sign-in
+
+Freighter login uses server-side SEP-10 challenge signing and Firebase custom
+tokens. Set these variables in the deployment environment (for GitHub Actions,
+use repository or environment secrets). They must not use the `NEXT_PUBLIC_`
+prefix:
+
+```dotenv
+FIREBASE_ADMIN_PROJECT_ID=
+FIREBASE_ADMIN_CLIENT_EMAIL=
+FIREBASE_ADMIN_PRIVATE_KEY=
+STELLAR_AUTH_SECRET=
+STELLAR_AUTH_HOME_DOMAIN=
+STELLAR_AUTH_WEB_AUTH_DOMAIN=
+STELLAR_NETWORK=testnet
+STELLAR_HORIZON_URL=
+WALLET_AUTH_ALLOWED_ORIGINS=
+```
+
+The Firebase service account needs Firebase Authentication permissions to mint
+custom tokens and access to Firestore. Enable Firestore and configure a TTL
+policy for `stellarWalletChallenges.expiresAt`; challenges are also checked for
+expiry and deleted atomically after use. Fund the Stellar auth-server account on
+the selected network before using it. `WALLET_AUTH_ALLOWED_ORIGINS` is an
+optional comma-separated list; the request's own origin is allowed by default.
 **Setup:** [console.firebase.google.com](https://console.firebase.google.com)
 
 ---
@@ -130,8 +157,13 @@ Required for escrow deploy, fund, and release flows.
 ```dotenv
 NEXT_PUBLIC_TRUSTLESS_API_URL=https://dev.api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_API_KEY=
+NEXT_PUBLIC_API_KEY=
 NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 ```
+
+The escrow API base URL is not an env var: `EscrowProviders` derives it from
+the Stellar network the wallet kit signs on (`STELLAR_NETWORK` in
+`src/features/escrow/config.ts`; testnet → `https://dev.api.trustlesswork.com`).
 
 **Get your API key:**
 

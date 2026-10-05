@@ -1,17 +1,9 @@
-export type WalletType =
-  | "freighter"
-  | "albedo"
-  | "lobstr"
-  | "metamask"
-  | "walletconnect";
+export type WalletType = "freighter" | "albedo" | "lobstr";
 
 export type ConnectionStatus =
-  | "disconnected"
-  | "connecting"
-  | "connected"
-  | "error";
+  "disconnected" | "connecting" | "connected" | "error";
 
-export type ChainType = "stellar" | "ethereum" | "bsc";
+export type ChainType = "stellar";
 
 export interface WalletInfo {
   address: string;
@@ -50,12 +42,6 @@ export interface StellarWalletInfo extends WalletInfo {
   publicKey: string;
 }
 
-export interface EthereumWalletInfo extends WalletInfo {
-  chain: "ethereum" | "bsc";
-  balance?: string;
-  chainId?: number;
-}
-
 export interface FreighterWallet {
   id: "freighter";
   name: string;
@@ -78,24 +64,6 @@ export interface LobstrWallet {
   isAvailable: boolean;
   publicKey?: string;
   isConnected: boolean;
-}
-
-export interface MetaMaskWallet {
-  id: "metamask";
-  name: string;
-  isAvailable: boolean;
-  address?: string;
-  isConnected: boolean;
-  chainId?: number;
-}
-
-export interface WalletConnectProvider {
-  id: "walletconnect";
-  name: string;
-  isAvailable: boolean;
-  address?: string;
-  isConnected: boolean;
-  chainId?: number;
 }
 
 export interface WalletState {
@@ -139,4 +107,12 @@ export interface MultiWalletState {
   disconnectWallet: (walletType: WalletType) => Promise<void>;
   selectWallet: (wallet: WalletInfo) => void;
   reset: () => void;
+}
+
+export interface WalletDetectionResult {
+  freighter: boolean;
+  albedo: boolean;
+  lobstr: boolean;
+  /** Stellar public key retrieved from Freighter after the user grants permission. Null if Freighter is not installed or permission has not been granted yet. */
+  freighterAddress: string | null;
 }

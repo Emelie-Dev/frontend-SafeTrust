@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Wallet } from "lucide-react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -11,18 +11,19 @@ import { Separator } from "@/components/ui/separator";
 import Illustration from "@/components/auth/ui/Illustration";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
-import { auth } from "@/lib/firebase";
 import { applyRememberMe } from "@/lib/auth/persistence";
 import { setSessionCookie } from "@/lib/auth/session";
-import { useMultiWallet } from "./wallet/hooks/multi-wallet.hook";
-import { MainWalletSelectionModal } from "./wallet/components/MainWalletSelectionModal";
-import { WalletSelectionModal } from "./wallet/components/WalletSelectionModal";
-import { MetaMaskWalletModal } from "./wallet/components/MetaMaskWalletModal";
 import { toast } from "sonner";
+import { WalletProviderScoped } from "@/providers/WalletProviderScoped";
+
+// Lazy-load FreighterSignInButton — pulls in stellar-wallets-kit.
+// Only needed when the user interacts with wallet sign-in.
+const FreighterSignInButton = dynamic(() => import("./FreighterSignInButton"), {
+  ssr: false,
+});
 
 const ERROR_MESSAGES: Record<string, string> = {
   "auth/invalid-credential": "Invalid email or password",
@@ -32,20 +33,14 @@ const ERROR_MESSAGES: Record<string, string> = {
   "auth/invalid-email": "Invalid email address",
 };
 
-export default function LoginPage() {
+/**
+ * Inner login form — rendered inside WalletProviderScoped so that the
+ * wallet context (and stellar-wallets-kit) is only added to this subtree,
+ * not to the whole app.
+ */
+function LoginForm() {
   const { address, token } = useGlobalAuthenticationStore();
-  const {
-    handleConnect,
-    isMainModalOpen,
-    isStellarModalOpen,
-    isMetaMaskModalOpen,
-    closeMainModal,
-    closeStellarModal,
-    closeMetaMaskModal,
-    handleWalletTypeSelected,
-    handleStellarWalletSelected,
-    handleMetaMaskSelected,
-  } = useMultiWallet();
+  const walletLoginRedirect = useRef(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -76,6 +71,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     if ((address || token) && pathname === "/login") {
+      if (walletLoginRedirect.current) {
+        walletLoginRedirect.current = false;
+        return;
+      }
       router.push(getSafeRedirect());
     }
   }, [address, token, router, pathname, getSafeRedirect]);
@@ -87,8 +86,18 @@ export default function LoginPage() {
 
     try {
       await applyRememberMe(remember);
+      // Use the lazy accessor from firebase-app so firebase/auth is NOT part
+      // of the /login first-load chunk — it is only fetched when the user
+      // submits the form.  firebase-app.ts has no static firebase/auth import.
+      const [{ signInWithEmailAndPassword }, { getAuthInstance }] =
+        await Promise.all([
+          import("firebase/auth"),
+          import("@/lib/firebase-app"),
+        ]);
+      const authInstance = await getAuthInstance();
+
       const credential = await signInWithEmailAndPassword(
-        auth,
+        authInstance,
         email,
         password,
       );
@@ -118,19 +127,6 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const onStellarWalletSelected = async (wallet: {
-    id: string;
-    name: string;
-  }) => {
-    await applyRememberMe(remember);
-    await handleStellarWalletSelected(wallet);
-  };
-
-  const onMetaMaskSelected = async () => {
-    await applyRememberMe(remember);
-    await handleMetaMaskSelected();
   };
 
   return (
@@ -233,16 +229,7 @@ export default function LoginPage() {
               onBeforeSignIn={() => applyRememberMe(remember)}
             />
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full bg-black text-white"
-              onClick={handleConnect}
-              disabled={isAnyAuthLoading}
-            >
-              <Wallet className="mr-2 h-4 w-4" />
-              Login with wallet
-            </Button>
+            <FreighterSignInButton redirectTo={getSafeRedirect()} />
           </div>
 
           <div className="text-center text-sm">
@@ -255,22 +242,18 @@ export default function LoginPage() {
       </div>
 
       <Illustration />
-
-      <MainWalletSelectionModal
-        isOpen={isMainModalOpen}
-        onClose={closeMainModal}
-        onWalletTypeSelected={handleWalletTypeSelected}
-      />
-      <WalletSelectionModal
-        isOpen={isStellarModalOpen}
-        onClose={closeStellarModal}
-        onWalletSelected={onStellarWalletSelected}
-      />
-      <MetaMaskWalletModal
-        isOpen={isMetaMaskModalOpen}
-        onClose={closeMetaMaskModal}
-        onWalletConnected={onMetaMaskSelected}
-      />
     </div>
+  );
+}
+
+/**
+ * Login wraps the form with a scoped WalletProvider so that
+ * stellar-wallets-kit is contained to this subtree only.
+ */
+export default function Login() {
+  return (
+    <WalletProviderScoped>
+      <LoginForm />
+    </WalletProviderScoped>
   );
 }

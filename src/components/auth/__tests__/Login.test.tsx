@@ -5,7 +5,7 @@ import { applyRememberMe } from "@/lib/auth/persistence";
 import { setSessionCookie } from "@/lib/auth/session";
 
 jest.mock("next/navigation", () => ({
-  useRouter: () => ({ push: jest.fn() }),
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
   usePathname: () => "/login",
   useSearchParams: () => ({ get: jest.fn().mockReturnValue(null) }),
 }));
@@ -28,6 +28,10 @@ jest.mock("firebase/auth", () => ({
     setCustomParameters: jest.fn(),
   })),
   signInWithPopup: jest.fn(),
+}));
+
+jest.mock("@/lib/firebase-app", () => ({
+  getAuthInstance: jest.fn().mockResolvedValue({ currentUser: null }),
 }));
 
 jest.mock("@/components/auth/GoogleSignInButton", () => ({
@@ -63,28 +67,9 @@ jest.mock("../ui/Illustration", () => {
   MockIllustration.displayName = "MockIllustration";
   return MockIllustration;
 });
-jest.mock("../wallet/components/MainWalletSelectionModal", () => ({
-  MainWalletSelectionModal: () => null,
-}));
-jest.mock("../wallet/components/WalletSelectionModal", () => ({
-  WalletSelectionModal: () => null,
-}));
-jest.mock("../wallet/components/MetaMaskWalletModal", () => ({
-  MetaMaskWalletModal: () => null,
-}));
-jest.mock("../wallet/hooks/multi-wallet.hook", () => ({
-  useMultiWallet: () => ({
-    handleConnect: jest.fn(),
-    isMainModalOpen: false,
-    isStellarModalOpen: false,
-    isMetaMaskModalOpen: false,
-    closeMainModal: jest.fn(),
-    closeStellarModal: jest.fn(),
-    closeMetaMaskModal: jest.fn(),
-    handleWalletTypeSelected: jest.fn(),
-    handleStellarWalletSelected: jest.fn(),
-    handleMetaMaskSelected: jest.fn(),
-  }),
+jest.mock("../FreighterSignInButton", () => ({
+  __esModule: true,
+  default: () => <button>Continue with Freighter</button>,
 }));
 
 describe("LoginPage Component", () => {

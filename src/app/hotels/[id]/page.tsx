@@ -1,18 +1,24 @@
 "use client";
 
-import { use } from "react";
+import { use, useRef, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Header from "@/components/layouts/Header";
 import { SideBar } from "@/components/layouts/SideBar";
 import Gallery from "@/components/hotels/details/Gallery";
 import Information from "@/components/hotels/details/Information";
 import Details from "@/components/hotels/details/Details";
+import { getApartmentById } from "@/lib/mockData/apartmentListings";
 
+/**
+ * Leaflet / react-leaflet is only loaded when the map section enters the
+ * viewport (IntersectionObserver).  This keeps it out of the initial bundle
+ * for /hotels/[id] and avoids the SSR window-is-not-defined error.
+ */
 const HotelMap = dynamic(() => import("@/components/hotels/payment/Map"), {
   ssr: false,
   loading: () => (
     <div
-      className="flex h-full min-h-[250px] items-center justify-center rounded-lg bg-gray-200 text-sm text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+      className="flex h-full min-h-[250px] w-full items-center justify-center rounded-lg bg-gray-200 text-sm text-gray-600 dark:bg-gray-800 dark:text-gray-300 animate-pulse"
       role="status"
     >
       Loading map...
@@ -26,6 +32,7 @@ export default function HotelPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const hotelName = getApartmentById(id).name;
   const images = [
     "/img/room1.png",
     "/img/room2.png",
@@ -34,6 +41,28 @@ export default function HotelPage({
   ];
 
   const coordinates: [number, number] = [9.9333, -84.0833];
+
+  // Only render the map once the section scrolls into view.
+  const mapSectionRef = useRef<HTMLDivElement>(null);
+  const [mapVisible, setMapVisible] = useState(false);
+
+  useEffect(() => {
+    const el = mapSectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setMapVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
@@ -51,12 +80,12 @@ export default function HotelPage({
           <div className="w-full md:w-2/3 flex flex-wrap">
             <div className="w-full md:w-3/4 lg:w-3/4">
               <Information
-                name="Shikara Hotel"
+                name={hotelName}
                 location="329 Calle Santos, Paseo Colón, San José, Costa Rica"
                 price="$40.18"
               />
             </div>
-            <div className="hidden md:block md:w-1/4 lg:w-1/4"></div>
+            <div className="hidden md:block md:w-1/4 lg:w-1/4" />
           </div>
 
           <div className="w-full md:w-2/3 flex flex-wrap gap-4">
@@ -65,14 +94,20 @@ export default function HotelPage({
                 <Details
                   beds={2}
                   baths={1}
-                  description="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+                  description="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
                 />
               </div>
-              <div className="w-full md:w-1/2 min-h-[250px]">
-                <HotelMap coordinates={coordinates} hotelName="Shikara Hotel" />
+              {/* Map section — deferred until visible */}
+              <div
+                ref={mapSectionRef}
+                className="w-full md:w-1/2 min-h-[250px]"
+              >
+                {mapVisible && (
+                  <HotelMap coordinates={coordinates} hotelName={hotelName} />
+                )}
               </div>
             </div>
-            <div className="hidden md:block md:w-1/4 lg:w-1/4"></div>
+            <div className="hidden md:block md:w-1/4 lg:w-1/4" />
           </div>
         </div>
       </div>
