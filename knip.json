@@ -7,6 +7,7 @@
   ],
   "project": ["src/**/*.{js,jsx,ts,tsx}"],
   "ignore": [
+    ".husky/**",
     "src/components/ui/**",
     "src/components/auth/wallet/**",
     "src/components/tw-blocks/**",
@@ -16,6 +17,11 @@
     "src/hooks/index.ts"
   ],
   "ignoreDependencies": [
+    "lint-staged",
+    "@radix-ui/react-tabs",
+    "@reown/walletkit",
+    "@stellar/freighter-api",
+    "@trustless-work/blocks",
     "@walletconnect/core",
     "@walletconnect/utils",
     "eslint-config-next",
