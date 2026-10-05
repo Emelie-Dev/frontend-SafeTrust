@@ -9,6 +9,7 @@ export type Role = "guest" | "host" | "admin";
 export type CurrentUser = {
   uid: string;
   email: string | null;
+  displayName: string | null;
   roles: Role[];
   activeRole: Role;
 } | null;
@@ -48,6 +49,7 @@ export function useCurrentUser(): { user: CurrentUser; loading: boolean } {
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
           roles,
           activeRole,
         });
@@ -55,19 +57,6 @@ export function useCurrentUser(): { user: CurrentUser; loading: boolean } {
       }),
     [],
   );
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-
-export function useCurrentUser() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    return onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-  }, []);
 
   return { user, loading };
 }

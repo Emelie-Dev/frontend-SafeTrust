@@ -14,14 +14,6 @@ describe("MessageComposer", () => {
     toastInfo.mockClear();
   });
 
-  it("sends on enter without shift and shows the skeleton toast", async () => {
-    render(
-      <MessageComposer
-        conversationId="conv-1"
-        senderId="test-user-1"
-        apartmentId="mock-apartment-1"
-      />,
-    );
   it("sends on enter without shift and labels the demo message", () => {
     const onSend = jest.fn();
     render(<MessageComposer conversationId="conv-1" onSend={onSend} isDemo />);
@@ -30,22 +22,6 @@ describe("MessageComposer", () => {
     fireEvent.change(input, { target: { value: "Hello John" } });
     fireEvent.keyDown(input, { key: "Enter", shiftKey: false });
 
-m    await waitFor(() => {
-      expect(toastSuccess).toHaveBeenCalledWith(
-        "Message sent! (skeleton mode)",
-      );
-    });
-    expect(input).toHaveValue("");
-  });
-
-  it("does not send an empty message", async () => {
-    render(
-      <MessageComposer
-        conversationId="conv-1"
-        senderId="test-user-1"
-        apartmentId="mock-apartment-1"
-      />,
-    );
     expect(onSend).toHaveBeenCalledWith("Hello John");
     expect(toastInfo).toHaveBeenCalledWith(
       "Sent in demo mode. Not delivered to anyone.",

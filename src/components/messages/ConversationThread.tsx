@@ -2,11 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
-import { MOCK_MESSAGES } from "@/lib/mockData/messages";
-import { MessageBubble } from "./MessageBubble";
-import { AutomatedEventMessage } from "./AutomatedEventMessage";
-import { MessageComposer } from "./MessageComposer";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { MessageBubble } from "./MessageBubble";
 import { AutomatedEventMessage } from "./AutomatedEventMessage";
 import { MessageComposer } from "./MessageComposer";
@@ -58,8 +53,6 @@ export function ConversationThread({
   onSend,
 }: ConversationThreadProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
-  const { user } = useCurrentUser();
-  const messages = MOCK_MESSAGES[conversationId] ?? [];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -75,7 +68,6 @@ export function ConversationThread({
             <MessageBubble
               key={message.id}
               message={message}
-              isOwn={user ? message.sender.id === user.uid : false}
               isOwn={message.sender.id === currentUserId}
             />
           ),
@@ -83,11 +75,6 @@ export function ConversationThread({
         <div ref={bottomRef} />
       </div>
 
-      <MessageComposer
-        conversationId={conversationId}
-        senderId={user?.uid ?? ""}
-        apartmentId={apartmentId}
-      />
       <div className="border-t bg-background">
         <div className="px-4 pt-3 text-xs text-muted-foreground flex items-center gap-2">
           <DemoBadge />

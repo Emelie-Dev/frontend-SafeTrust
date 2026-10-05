@@ -3,7 +3,6 @@
 import { use } from "react";
 import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
-import { MOCK_CONVERSATIONS } from "@/lib/mockData/messages";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConversation } from "@/hooks/useConversation";
 import { DemoBadge } from "@/components/ui/demo-badge";

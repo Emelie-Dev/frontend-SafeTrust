@@ -35,9 +35,6 @@ const RoleEscrowDashboard = dynamic(
 
 export function RoleEscrowDashboardPage() {
   const { user, loading: authLoading } = useCurrentUser();
-  const [userRole, setUserRole] = useState<"guest" | "hotel" | "admin">(
-    "guest",
-  );
   const [escrows, setEscrows] = useState<EscrowData[]>([]);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
