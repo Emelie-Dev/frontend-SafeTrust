@@ -50,10 +50,8 @@ function RentPageContent() {
     );
     return nearestListingKm > 300;
   }, [geo.position]);
-  const effectiveSort = resolveSortOption(
-    filters.sort,
-    Boolean(geo.position && !isOutsideCostaRica),
-  );
+  const canSortByDistance = Boolean(geo.position && !isOutsideCostaRica);
+  const effectiveSort = resolveSortOption(filters.sort, canSortByDistance);
 
   useEffect(() => {
     if (!geo.position) {
@@ -88,7 +86,7 @@ function RentPageContent() {
       ...filters,
       sort: effectiveSort,
     });
-    if (effectiveSort === "nearest" && geo.position && !isOutsideCostaRica) {
+    if (effectiveSort === "nearest" && geo.position) {
       return sortByDistance(
         filtered,
         geo.position,
@@ -96,7 +94,7 @@ function RentPageContent() {
       );
     }
     return filtered;
-  }, [effectiveSort, filters, geo.position, isOutsideCostaRica]);
+  }, [effectiveSort, filters, geo.position]);
 
   const handleApartmentClick = (apartment: ApartmentListing) => {
     router.push(`/rent/${apartment.id}`);
@@ -192,7 +190,7 @@ function RentPageContent() {
                         { label: "Relevance", value: "relevance" },
                         { label: "Price: Low to High", value: "price-low" },
                         { label: "Price: High to Low", value: "price-high" },
-                        ...(geo.position && !isOutsideCostaRica
+                        ...(canSortByDistance
                           ? [{ label: "Nearest", value: "nearest" as const }]
                           : []),
                       ] as const
@@ -220,7 +218,7 @@ function RentPageContent() {
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-6">
             <BedroomTabs
               selected={filters.bedrooms}
               onSelect={(bedrooms) => setFilters({ bedrooms })}

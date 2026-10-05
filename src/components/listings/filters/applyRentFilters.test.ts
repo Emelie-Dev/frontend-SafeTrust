@@ -44,12 +44,18 @@ describe("parseFilters", () => {
     );
   });
 
-  it("preserves a valid price bound when the other bound is out of range", () => {
+  it("clamps an out-of-range price bound without discarding the valid bound", () => {
     expect(
       parseFilters(new URLSearchParams("min=1000&max=300000")),
     ).toMatchObject({
       minPrice: 1000,
       maxPrice: 250_000,
+    });
+    expect(
+      parseFilters(new URLSearchParams("min=-1000&max=5000")),
+    ).toMatchObject({
+      minPrice: 0,
+      maxPrice: 5000,
     });
   });
 });
@@ -78,16 +84,17 @@ describe("applyRentFilters", () => {
     expect(filter({ bedrooms: "1" }).map((item) => item.bedrooms)).toEqual([1]);
   });
 
-  it("includes three or more bedrooms in the 3-bedroom filter", () => {
-    const listings = [
+  it("includes apartments with three or more bedrooms in the 3-bedroom filter", () => {
+    const threeBedroomAndLarger = [
       APARTMENT_LISTINGS[3],
       { ...APARTMENT_LISTINGS[3], id: "larger", bedrooms: 4 },
     ];
 
     expect(
-      applyRentFilters(listings, { ...DEFAULT_FILTERS, bedrooms: "3" }).map(
-        (item) => item.bedrooms,
-      ),
+      applyRentFilters(threeBedroomAndLarger, {
+        ...DEFAULT_FILTERS,
+        bedrooms: "3",
+      }).map((item) => item.bedrooms),
     ).toEqual([3, 4]);
   });
 
