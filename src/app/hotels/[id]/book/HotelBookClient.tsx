@@ -1,14 +1,35 @@
 "use client";
 
-import React, { Suspense } from "react";
+import { addDays, format } from "date-fns";
+import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ApartmentListing } from "@/types/hotel";
 import HotelDetails from "@/components/hotels/payment/HotelDetails";
 import ReservationSummary from "@/components/hotels/payment/ReservationSummary";
+import { EscrowProviders } from "@/providers/EscrowProviders";
+import type { BookingDetails } from "@/features/escrow/booking-escrow.machine";
+import { computeBookingPrice } from "@/features/escrow/pricing";
+
+const MOCK_NIGHTS = 2;
 
 function BookContent({ hotel }: { hotel: ApartmentListing }) {
   const searchParams = useSearchParams();
   const bookingId = searchParams.get("bookingId") ?? "";
+  const booking = useMemo<BookingDetails>(() => {
+    const checkIn = addDays(new Date(), 7);
+    return {
+      listingId: hotel.id,
+      listingName: hotel.name,
+      hostAddress: hotel.owner.walletAddress?.trim() ?? "",
+      checkIn: format(checkIn, "yyyy-MM-dd"),
+      checkOut: format(addDays(checkIn, MOCK_NIGHTS), "yyyy-MM-dd"),
+      price: computeBookingPrice({
+        nightlyRate: hotel.price,
+        nights: MOCK_NIGHTS,
+        guests: 1,
+      }),
+    };
+  }, [hotel]);
   const hotelData = {
     hotelName: hotel.name,
     description: hotel.description,
@@ -22,10 +43,6 @@ function BookContent({ hotel }: { hotel: ApartmentListing }) {
     rating: hotel.rating,
     beds: hotel.bedrooms,
     baths: hotel.bathrooms,
-    price: hotel.price,
-    tax: 10.5,
-    checkIn: new Date("2025-07-14"),
-    checkOut: new Date("2025-08-02"),
     imageUrl: hotel.images[0],
   };
 
@@ -54,14 +71,9 @@ function BookContent({ hotel }: { hotel: ApartmentListing }) {
             </div>
           </div>
           <div className="w-full md:w-[400px] shrink-0">
-            <ReservationSummary
-              hotelName={hotelData.hotelName}
-              description={hotelData.description}
-              price={hotelData.price}
-              tax={hotelData.tax}
-              checkIn={hotelData.checkIn}
-              checkOut={hotelData.checkOut}
-            />
+            <EscrowProviders>
+              <ReservationSummary bookingId={bookingId} booking={booking} />
+            </EscrowProviders>
           </div>
         </div>
       </div>
