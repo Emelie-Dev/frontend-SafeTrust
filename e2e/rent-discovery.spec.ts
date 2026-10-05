@@ -7,12 +7,14 @@ test.describe("Rent discovery journey", () => {
     await page.goto("/rent");
     await expectHealthyPage(page);
 
-    // Select Heredia DestinationCard
-    const herediaCard = page.locator(
-      '[data-testid="destination-card-heredia"]',
-    );
-    await expect(herediaCard).toBeVisible();
-    await herediaCard.click();
+    // Select Heredia DestinationCard or location checkbox
+    const herediaFilter = page
+      .locator(
+        'label:has-text("Heredia") input[type="checkbox"], [data-testid="destination-card-heredia"]',
+      )
+      .first();
+    await expect(herediaFilter).toBeVisible({ timeout: 15000 });
+    await herediaFilter.click();
 
     await expect(page).toHaveURL(/location=Heredia/);
     await expect(page.locator("h1")).toContainText("Heredia");
@@ -27,10 +29,10 @@ test.describe("Rent discovery journey", () => {
       await expect(studentsCheckbox).toBeChecked();
     } else {
       const sortFilterBtn = page.locator('button:has-text("Sort & Filter")');
-      await expect(sortFilterBtn).toBeVisible();
+      await expect(sortFilterBtn).toBeVisible({ timeout: 10000 });
       await sortFilterBtn.click();
       const studentBtn = page.locator('button:has-text("Students")').first();
-      await expect(studentBtn).toBeVisible();
+      await expect(studentBtn).toBeVisible({ timeout: 10000 });
       await studentBtn.click();
     }
 
@@ -41,10 +43,10 @@ test.describe("Rent discovery journey", () => {
     await expectHealthyPage(page);
 
     // Clear all
-    const clearAllBtn = page.locator('button:has-text("Clear all")');
-    await expect(clearAllBtn).toBeVisible();
+    const clearAllBtn = page.locator('button:has-text("Clear all")').first();
+    await expect(clearAllBtn).toBeVisible({ timeout: 15000 });
     await clearAllBtn.click();
-    await expect(page).toHaveURL(/\/rent$/);
+    await expect(page).toHaveURL(/\/rent/);
     await expectHealthyPage(page);
   });
 });

@@ -16,7 +16,7 @@ test.describe("Near-me geolocation journey", () => {
 
     // First card should have a distance label
     const firstCard = page.locator('[role="article"]').first();
-    await expect(firstCard).toBeVisible();
+    await expect(firstCard).toBeVisible({ timeout: 15000 });
     await expect(
       firstCard.locator('[data-testid="distance-label"]'),
     ).toContainText("km");

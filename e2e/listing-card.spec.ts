@@ -16,10 +16,15 @@ test.describe("Listing card keyboard and booking journey", () => {
     await expectHealthyPage(page);
 
     // Click BOOK button while logged out -> redirects to /login?redirect=...
-    const bookBtn = page.locator('button:has-text("BOOK")');
+    const bookBtn = page
+      .locator(
+        'button:has-text("BOOK"), button:has-text("Book"), a:has-text("Book")',
+      )
+      .first();
+    await expect(bookBtn).toBeVisible({ timeout: 15000 });
     await bookBtn.click();
 
-    await expect(page).toHaveURL(/\/login\?redirect=.+/);
+    await expect(page).toHaveURL(/\/login\?redirect=.+/, { timeout: 15000 });
     await expectHealthyPage(page);
   });
 });

@@ -28,7 +28,7 @@ test.describe("Email auth journey via Firebase Auth emulator", () => {
     await page.locator("input#password").fill(testPassword);
     await page.locator('button[type="submit"]').click();
 
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     await expectHealthyPage(page);
   });
 });

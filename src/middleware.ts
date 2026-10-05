@@ -13,6 +13,7 @@ const PUBLIC_PATHS = new Set([
   "/reset-password",
   "/verify-email",
   "/rent",
+  "/guest/suggestions",
 ]);
 
 /**
