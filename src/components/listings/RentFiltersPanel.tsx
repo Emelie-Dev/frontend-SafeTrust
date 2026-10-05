@@ -1,18 +1,12 @@
 "use client";
 
 import FilterSidebar from "./FilterSidebar";
+import type { RentFilters } from "./filters/useRentFilters";
 
 interface RentFiltersPanelProps {
-  selectedCategories: string[];
-  selectedLocations: string[];
-  selectedBedrooms: string;
-  minPrice: number;
-  maxPrice: number;
-  onCategoryToggle: (category: string) => void;
-  onLocationToggle: (location: string) => void;
-  onBedroomChange: (bedroom: string) => void;
-  onMinPriceChange: (value: number) => void;
-  onMaxPriceChange: (value: number) => void;
+  filters: RentFilters;
+  setFilters: (patch: Partial<RentFilters>) => void;
+  reset: () => void;
 }
 
 const BEDROOM_OPTIONS = [
@@ -20,20 +14,13 @@ const BEDROOM_OPTIONS = [
   { label: "1 bedroom", value: "1" },
   { label: "2 bedrooms", value: "2" },
   { label: "3+ bedrooms", value: "3" },
-];
+] as const;
 
 /** Combine bedrooms with the shared category, location, and price controls. */
 export default function RentFiltersPanel({
-  selectedCategories,
-  selectedLocations,
-  selectedBedrooms,
-  minPrice,
-  maxPrice,
-  onCategoryToggle,
-  onLocationToggle,
-  onBedroomChange,
-  onMinPriceChange,
-  onMaxPriceChange,
+  filters,
+  setFilters,
+  reset,
 }: RentFiltersPanelProps) {
   return (
     <div>
@@ -44,10 +31,10 @@ export default function RentFiltersPanel({
             <button
               key={value}
               type="button"
-              aria-pressed={selectedBedrooms === value}
-              onClick={() => onBedroomChange(value)}
+              aria-pressed={filters.bedrooms === value}
+              onClick={() => setFilters({ bedrooms: value })}
               className={`min-h-10 rounded-md border px-3 text-sm transition-colors ${
-                selectedBedrooms === value
+                filters.bedrooms === value
                   ? "border-orange-500 bg-orange-500 text-white"
                   : "border-border text-foreground hover:bg-muted"
               }`}
@@ -58,14 +45,9 @@ export default function RentFiltersPanel({
         </div>
       </section>
       <FilterSidebar
-        selectedCategories={selectedCategories}
-        selectedLocations={selectedLocations}
-        minPrice={minPrice}
-        maxPrice={maxPrice}
-        onCategoryToggle={onCategoryToggle}
-        onLocationToggle={onLocationToggle}
-        onMinPriceChange={onMinPriceChange}
-        onMaxPriceChange={onMaxPriceChange}
+        filters={filters}
+        setFilters={setFilters}
+        reset={reset}
         className="w-full p-0"
       />
     </div>

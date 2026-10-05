@@ -15,20 +15,8 @@ interface FilterSidebarProps {
   filters: RentFilters;
   setFilters: (patch: Partial<RentFilters>) => void;
   reset: () => void;
+  className?: string;
 }
-
-const PRICE_BARS = [
-  { id: "bar-1", height: 10 },
-  { id: "bar-2", height: 18 },
-  { id: "bar-3", height: 24 },
-  { id: "bar-4", height: 20 },
-  { id: "bar-5", height: 28 },
-  { id: "bar-6", height: 16 },
-  { id: "bar-7", height: 22 },
-  { id: "bar-8", height: 14 },
-  { id: "bar-9", height: 10 },
-  { id: "bar-10", height: 26 },
-];
 
 function CheckboxRow({
   checked,
@@ -57,14 +45,9 @@ export default function FilterSidebar({
   filters,
   setFilters,
   reset,
+  className,
 }: FilterSidebarProps) {
   const { categories, location, minPrice, maxPrice } = filters;
-  const leftPercent =
-    ((minPrice - PRICE_BOUNDS.min) / (PRICE_BOUNDS.max - PRICE_BOUNDS.min)) *
-    100;
-  const rightPercent =
-    ((maxPrice - PRICE_BOUNDS.min) / (PRICE_BOUNDS.max - PRICE_BOUNDS.min)) *
-    100;
 
   const toggleCategory = (category: Category) => {
     const nextCategories =
