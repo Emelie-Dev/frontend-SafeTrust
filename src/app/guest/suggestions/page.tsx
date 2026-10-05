@@ -52,19 +52,19 @@ export default function GuestSuggestionsPage() {
               </p>
               <Link
                 href="/rent"
-                className="text-sm text-orange-600 hover:text-orange-700
+                className="text-sm text-orange-700 hover:text-orange-800
                            font-medium underline hover:no-underline"
               >
                 Browse all →
               </Link>
             </div>
 
-            <div className="space-y-3">
+            <ul className="space-y-3 list-none p-0 m-0">
               {APARTMENT_LISTINGS.map((apt) => (
                 <li
                   key={apt.id}
                   className={cn(
-                    "relative flex items-start gap-3 rounded-xl border p-3 list-none transition-colors",
+                    "relative flex items-start gap-3 rounded-xl border p-3 transition-colors",
                     selectedId === apt.id
                       ? "border-orange-400 bg-orange-50 dark:bg-orange-900/10"
                       : "border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800",
@@ -74,7 +74,8 @@ export default function GuestSuggestionsPage() {
                     type="button"
                     onClick={() => setSelectedId(apt.id)}
                     aria-pressed={selectedId === apt.id}
-                    className="flex flex-1 items-start gap-3 text-left after:absolute after:inset-0 focus-visible:outline-none"
+                    aria-label={`Select ${apt.name}`}
+                    className="flex flex-1 items-start gap-3 text-left focus-visible:outline-none"
                   >
                     {/* Thumbnail */}
                     <div
@@ -153,7 +154,7 @@ export default function GuestSuggestionsPage() {
                   </button>
                 </li>
               ))}
-            </div>
+            </ul>
           </aside>
 
           {/* ── Center: Main image + details ── */}
@@ -179,7 +180,7 @@ export default function GuestSuggestionsPage() {
                 <span
                   className="absolute bottom-4 left-4 inline-flex
                                  items-center gap-1 rounded-lg
-                                 bg-orange-600 px-3 py-1.5 text-xs font-semibold
+                                 bg-orange-700 px-3 py-1.5 text-xs font-semibold
                                  text-white shadow-md"
                 >
                   Promoted
@@ -221,17 +222,17 @@ export default function GuestSuggestionsPage() {
                             text-sm text-gray-600 dark:text-gray-300"
             >
               <span className="flex items-center gap-1.5">
-                <Bed className="h-4 w-4 text-orange-600" />
+                <Bed className="h-4 w-4 text-orange-700" />
                 {selected.bedrooms} Bedrooms
               </span>
               <span>·</span>
               <span className="flex items-center gap-1.5">
-                <Bath className="h-4 w-4 text-orange-600" />
+                <Bath className="h-4 w-4 text-orange-700" />
                 {selected.bathrooms} Bathrooms
               </span>
               <span>·</span>
               <span className="flex items-center gap-1.5">
-                <PawPrint className="h-4 w-4 text-orange-600" />
+                <PawPrint className="h-4 w-4 text-orange-700" />
                 {selected.petFriendly ? "Pet friendly" : "No pets"}
               </span>
             </div>
@@ -291,9 +292,9 @@ export default function GuestSuggestionsPage() {
                 onClick={() =>
                   router.push(`/rent/${selected.id}/escrow/create`)
                 }
-                className="w-full rounded-xl bg-orange-600 py-3 text-center
+                className="w-full rounded-xl bg-orange-700 py-3 text-center
                            text-sm font-semibold text-white shadow-lg
-                           shadow-orange-500/20 hover:bg-orange-700
+                           shadow-orange-500/20 hover:bg-orange-800
                            transition-colors"
               >
                 Book with Escrow
@@ -318,8 +319,8 @@ export default function GuestSuggestionsPage() {
                     router.push(`/dashboard/messages/${selectedConversationId}`)
                   }
                   className="flex w-full items-center justify-center gap-2
-                             rounded-xl border border-orange-600 py-2.5 text-sm
-                             font-semibold text-orange-600 hover:bg-orange-50
+                             rounded-xl border border-orange-700 py-2.5 text-sm
+                             font-semibold text-orange-700 hover:bg-orange-50
                              dark:hover:bg-orange-950/20 transition-colors"
                 >
                   <MessageCircle className="h-4 w-4" />

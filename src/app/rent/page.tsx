@@ -145,7 +145,7 @@ function RentPageContent() {
 
               <button
                 onClick={() => router.push("/dashboard")}
-                className="flex items-center gap-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
+                className="flex items-center gap-1.5 text-sm font-medium text-orange-700 hover:text-orange-800 transition-colors"
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Switch to Host view
@@ -153,7 +153,7 @@ function RentPageContent() {
 
               <Link
                 href="/guest/suggestions"
-                className="flex items-center gap-1.5 text-sm font-medium text-orange-600 transition-colors hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                className="flex items-center gap-1.5 text-sm font-medium text-orange-700 transition-colors hover:text-orange-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
               >
                 <Lightbulb aria-hidden="true" className="h-4 w-4" />
                 Suggestions view

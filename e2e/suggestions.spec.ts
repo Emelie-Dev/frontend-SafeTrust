@@ -7,11 +7,9 @@ test.describe("Suggestions journey", () => {
 
     // Select row 3
     const row3 = page.locator("aside li").nth(2);
-    await row3.locator("button").first().click();
+    await row3.locator('button[aria-label^="Select"]').click();
 
-    await expect(page.locator("main h1")).toContainText(
-      "Estudio Moderno San Pedro",
-    );
+    await expect(page.locator("main h1")).toContainText("Paseo Colón Loft");
     await expectHealthyPage(page);
 
     // Toggle favorite and check aria-pressed

@@ -44,7 +44,7 @@ export default function DestinationCard({
         {name}
       </span>
       {count !== undefined && (
-        <span className="text-xs text-gray-500 dark:text-gray-400">
+        <span className="text-xs text-gray-700 dark:text-gray-400">
           {count} units
         </span>
       )}

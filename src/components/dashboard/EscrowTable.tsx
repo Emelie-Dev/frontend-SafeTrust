@@ -87,7 +87,7 @@ export function EscrowTable({ escrows }: EscrowTableProps) {
         <TableHeader>
           <TableRow className="bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-700">
             <TableHead className="w-[50px] text-gray-600 dark:text-gray-300 font-semibold">
-              <Checkbox />
+              <Checkbox aria-label="Select all escrows" />
             </TableHead>
             <TableHead className="text-gray-600 dark:text-gray-300 font-semibold">
               Booking ID
@@ -129,7 +129,9 @@ export function EscrowTable({ escrows }: EscrowTableProps) {
                 className="border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700/50"
               >
                 <TableCell>
-                  <Checkbox />
+                  <Checkbox
+                    aria-label={`Select escrow ${escrow.metadata?.bookingId || escrow.id}`}
+                  />
                 </TableCell>
                 <TableCell className="font-mono text-sm text-gray-500 dark:text-gray-400">
                   {escrow.metadata?.bookingId || "N/A"}
@@ -164,7 +166,11 @@ export function EscrowTable({ escrows }: EscrowTableProps) {
                     {getActionButton(escrow)}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          aria-label="Open menu"
+                        >
                           <span className="sr-only">Open menu</span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>

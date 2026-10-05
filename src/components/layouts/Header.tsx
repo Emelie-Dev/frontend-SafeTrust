@@ -46,12 +46,16 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 size="icon"
                 className="md:hidden"
                 onClick={onMenuClick}
+                aria-label="Toggle navigation menu"
               >
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
 
-              <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2">
+              <Link
+                href="/"
+                className="flex min-w-0 shrink-0 items-center gap-2"
+              >
                 <Image
                   src="/img/logo.png"
                   alt="SafeTrust Logo"
@@ -93,7 +97,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   {displayName ?? "Account"}
                 </span>
                 <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
+                  <span className="text-xs font-semibold text-orange-700 dark:text-orange-300">
                     {initials}
                   </span>
                 </div>
@@ -109,4 +113,3 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
 };
 
 export default Header;
-
