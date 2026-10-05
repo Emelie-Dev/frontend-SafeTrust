@@ -1,23 +1,53 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { SideBar } from "@/components/layouts/SideBar";
 import { Header } from "@/components/layouts/Header";
 import type { ReactNode } from "react";
 
-// Route protection lives in `middleware.ts`, which gates `/dashboard/*` and
-// `/guest/*` on the `firebase-token` cookie. The client "auth check" that used
-// to live here computed `isPublic` and `hasWalletInStorage` and then discarded
-// both — its only visible effect was a full-screen spinner on first render.
 const Layout = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
   const pathname = usePathname();
+  const address = useGlobalAuthenticationStore((state) => state.address);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthError, setIsAuthError] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Authentication error:", error);
+        setIsAuthError(true);
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [address, pathname, router]);
 
   // Close sidebar on route change on mobile
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [pathname]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        {/* biome-ignore lint/style/useSelfClosingElements: <explanation> */}
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (isAuthError) {
+    return null;
+  }
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-950">
@@ -32,23 +62,17 @@ const Layout = ({ children }: { children: ReactNode }) => {
       )}
 
       {/* Mobile Drawer */}
-      {pathname !== "/dashboard/profile" && (
-        <SideBar
-          variant="drawer"
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-        />
-      )}
+      <SideBar
+        variant="drawer"
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
       {/* Desktop Permanent Sidebar */}
-      {pathname !== "/dashboard/profile" && (
-        <SideBar variant="permanent" notificationCount={1} />
-      )}
+      <SideBar variant="permanent" notificationCount={1} />
 
-      <main className={`flex-1 transition-all duration-300 ${pathname !== "/dashboard/profile" ? "md:ml-16 lg:ml-48" : ""}`}>
-        <div className={`w-full h-full ${pathname !== "/dashboard/profile" ? "p-4 md:p-8 lg:p-10" : "p-4 md:p-6"}`}>
-          {children}
-        </div>
+      <main className="flex-1 transition-all duration-300 md:ml-16 lg:ml-48">
+        <div className="w-full h-full p-4 md:p-8 lg:p-10">{children}</div>
       </main>
     </div>
   );

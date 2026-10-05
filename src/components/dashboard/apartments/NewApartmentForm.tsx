@@ -32,12 +32,15 @@ interface NewApartmentFormProps {
   submitLabel?: string;
 }
 
-export function NewApartmentForm({ initialData, onSubmit, title = "New apartment", 
-  submitLabel = "Regist" }: NewApartmentFormProps = {}) {
+export function NewApartmentForm({
+  initialData,
+  onSubmit,
+  title = "New apartment",
+  submitLabel = "Regist",
+}: NewApartmentFormProps = {}) {
   const router = useRouter();
   const { address, token } = useGlobalAuthenticationStore();
 
-  // Decode uid from Firebase JWT token
   const ownerAddress = useMemo(() => {
     if (address) return address;
     if (!token) return null;
@@ -64,12 +67,14 @@ export function NewApartmentForm({ initialData, onSubmit, title = "New apartment
   const [street, setStreet] = useState(initialData?.location || "");
   const [neighborhood, setNeighborhood] = useState("");
   const [city, setCity] = useState("San José");
-  const [country, setCountry] = useState("Costa Rica");
+  const [country] = useState("Costa Rica");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [bedrooms, setBedrooms] = useState(initialData?.rooms || "2");
   const [bathrooms, setBathrooms] = useState(initialData?.baths || "1");
-  const [petFriendly, setPetFriendly] = useState(initialData?.petFriendly || false);
+  const [petFriendly, setPetFriendly] = useState(
+    initialData?.petFriendly || false,
+  );
   const [isAvailable, setIsAvailable] = useState(true);
   const [availableFrom, setAvailableFrom] = useState(getLocalYMD());
   const [availableUntil, setAvailableUntil] = useState("");
@@ -151,7 +156,9 @@ export function NewApartmentForm({ initialData, onSubmit, title = "New apartment
       coordinates: !isNaN(lat) && !isNaN(lng) ? `(${lat},${lng})` : null,
       is_available: isAvailable,
       available_from: new Date(availableFrom).toISOString(),
-      available_until: availableUntil ? new Date(availableUntil).toISOString() : null,
+      available_until: availableUntil
+        ? new Date(availableUntil).toISOString()
+        : null,
       image_urls: filteredImageUrls.length > 0 ? filteredImageUrls : null,
       bedrooms: parseInt(bedrooms, 10),
       bathrooms: parseInt(bathrooms, 10),
@@ -159,6 +166,7 @@ export function NewApartmentForm({ initialData, onSubmit, title = "New apartment
     };
 
     // TODO: wire to Hasura mutation → INSERT INTO public.apartments using payload
+    void payload;
 
     try {
       if (onSubmit) {
@@ -166,7 +174,7 @@ export function NewApartmentForm({ initialData, onSubmit, title = "New apartment
         await onSubmit(e);
         return;
       }
-      
+
       setLoading(true);
       await new Promise((r) => setTimeout(r, 800)); // stub delay
       toast.success("Apartment created successfully!");
@@ -313,7 +321,11 @@ export function NewApartmentForm({ initialData, onSubmit, title = "New apartment
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Bedrooms</Label>
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Bedrooms">
+                <div
+                  className="flex flex-wrap gap-2"
+                  role="group"
+                  aria-label="Bedrooms"
+                >
                   {BEDROOM_OPTIONS.map((opt) => (
                     <button
                       key={opt}
@@ -333,7 +345,11 @@ export function NewApartmentForm({ initialData, onSubmit, title = "New apartment
               </div>
               <div className="space-y-2">
                 <Label>Bathrooms</Label>
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Bathrooms">
+                <div
+                  className="flex flex-wrap gap-2"
+                  role="group"
+                  aria-label="Bathrooms"
+                >
                   {BATHROOM_OPTIONS.map((opt) => (
                     <button
                       key={opt}
@@ -455,7 +471,9 @@ export function NewApartmentForm({ initialData, onSubmit, title = "New apartment
               {imageUrls.some((url) => url.trim() !== "") && (
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   {imageUrls
-                    .filter((url) => url.trim() !== "" && !failedImages.has(url))
+                    .filter(
+                      (url) => url.trim() !== "" && !failedImages.has(url),
+                    )
                     .map((url, index) => (
                       <div
                         key={url}

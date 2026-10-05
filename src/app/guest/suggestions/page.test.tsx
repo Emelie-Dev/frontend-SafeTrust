@@ -12,7 +12,7 @@ jest.mock("next/image", () => ({
   default: () => <div data-testid="mock-image" />,
 }));
 
-jest.mock("@/components/hotel/HotelHeader", () => ({
+jest.mock("@/components/listings/HotelHeader", () => ({
   __esModule: true,
   default: () => <header data-testid="hotel-header" />,
 }));
@@ -39,17 +39,18 @@ describe("GuestSuggestionsPage – Message host", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Message host/i }));
 
-    expect(mockPush).toHaveBeenCalledWith("/dashboard/messages/conv-10");
+    expect(mockPush).toHaveBeenCalledWith("/dashboard/messages/conv-4");
   });
 
   it("updates the target conversation when another apartment is selected", () => {
     render(<GuestSuggestionsPage />);
 
-    fireEvent.click(
-      screen.getByRole("button", { name: /Suite Ejecutiva Sabana Norte/i }),
-    );
+    const losYosesButtons = screen.getAllByRole("button", {
+      name: /Los yoses/i,
+    });
+    fireEvent.click(losYosesButtons[0]);
     fireEvent.click(screen.getByRole("button", { name: /Message host/i }));
 
-    expect(mockPush).toHaveBeenCalledWith("/dashboard/messages/conv-11");
+    expect(mockPush).toHaveBeenCalledWith("/dashboard/messages/conv-5");
   });
 });

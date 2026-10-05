@@ -1,34 +1,52 @@
+import { onIdTokenChanged, type Auth, type User } from "firebase/auth";
 import Cookies from "js-cookie";
+import { useGlobalAuthenticationStore } from "@/core/store/data";
+import { auth } from "@/lib/firebase";
+import { getRememberMe } from "./persistence";
+
+export const SESSION_COOKIE_NAME = "firebase-token";
+export const SESSION_COOKIE = SESSION_COOKIE_NAME;
 
 /**
- * Single owner of the session cookie.
- *
- * `middleware.ts` lets a request into `/dashboard/*` and `/guest/*` only when
- * this cookie is present. Writing it from one module — driven by Firebase's own
- * token stream — is what keeps login, token refresh and logout in sync; before
- * this, `Register.tsx` was the only writer, `Login.tsx` never wrote it, and
- * nothing ever removed it.
+ * Sets the firebase-token session cookie and updates the global auth store.
+ * Honours the Remember Me choice:
+ * - When Remember Me is active: cookie expires in 1 hour (1/24 days), kept fresh by onIdTokenChanged.
+ * - When Remember Me is unchecked: expires is omitted, creating a browser session cookie.
  */
-export const SESSION_COOKIE = "firebase-token";
-
-/**
- * A Firebase ID token lives for 60 minutes, so the cookie must not outlive it.
- * The old 7-day cookie kept letting an expired session open every protected
- * route until the browser dropped it.
- */
-const ONE_HOUR_IN_DAYS = 1 / 24;
-
 export function setSessionCookie(idToken: string): void {
-  Cookies.set(SESSION_COOKIE, idToken, {
-    expires: ONE_HOUR_IN_DAYS,
+  const remember = getRememberMe();
+  Cookies.set(SESSION_COOKIE_NAME, idToken, {
+    ...(remember ? { expires: 1 / 24 } : {}), // omit expires -> browser-session cookie
     secure: process.env.NODE_ENV === "production",
-    // "strict" drops the cookie on the first navigation from an external link,
-    // which is exactly how users arrive from an email or a shared URL.
     sameSite: "lax",
     path: "/",
   });
+  useGlobalAuthenticationStore.getState().setToken(idToken);
 }
 
+/**
+ * Clears the firebase-token session cookie and resets the auth store.
+ */
 export function clearSessionCookie(): void {
-  Cookies.remove(SESSION_COOKIE, { path: "/" });
+  Cookies.remove(SESSION_COOKIE_NAME, { path: "/" });
+  useGlobalAuthenticationStore.getState().clearAuth();
+}
+
+export function getSessionCookie(): string | undefined {
+  return Cookies.get(SESSION_COOKIE_NAME);
+}
+
+export function initSessionListener(authInstance: Auth = auth): () => void {
+  return onIdTokenChanged(authInstance, async (user: User | null) => {
+    if (!user) {
+      clearSessionCookie();
+      return;
+    }
+
+    try {
+      setSessionCookie(await user.getIdToken());
+    } catch {
+      clearSessionCookie();
+    }
+  });
 }

@@ -2,29 +2,31 @@
 
 ## Two-repo strategy
 
-| | frontend-SafeTrust | dApp-SafeTrust |
-|---|---|---|
-| **Purpose** | UI skeleton | Full E2E integration |
-| **Data** | Mock data | Real Hasura GraphQL |
-| **Docker** | Not needed | Requires Docker + Hasura |
-| **Dev port** | `localhost:3000` | `localhost:3001` |
-| **Points** | 4× points (Drips Stellar Waves) | 2× points (Drips Stellar Waves) |
+|              | frontend-SafeTrust              | dApp-SafeTrust                  |
+| ------------ | ------------------------------- | ------------------------------- |
+| **Purpose**  | UI skeleton                     | Full E2E integration            |
+| **Data**     | Mock data                       | Real Hasura GraphQL             |
+| **Docker**   | Not needed                      | Requires Docker + Hasura        |
+| **Dev port** | `localhost:3000`                | `localhost:3001`                |
+| **Points**   | 4× points (Drips Stellar Waves) | 2× points (Drips Stellar Waves) |
+
+**Webhooks:** frontend-SafeTrust exposes no webhook endpoints. Trustless Work webhooks are configured to hit `backend-SafeTrust` (`trustless_work_webhook_events`), which is the single write authority for escrow state. The UI observes changes through `useEscrowSubscription` (mock here, Hasura subscription in dApp-SafeTrust).
 
 ## Data layer
 
 ```text
-src/lib/mockData/          ← source of truth for stub data
-src/hooks/useApartments.ts ← mock hook (Apollo shape)
+src/lib/mockData/                  ← source of truth for stub data
+src/hooks/useApartments.ts         ← mock hook (Apollo { data, loading, error } shape)
+src/hooks/useEscrowSubscription.ts ← mock hook ({ escrow, loading, error } shape)
 ```
 
-Every hook returns `{ data, loading, error }` matching Apollo's `useQuery` return shape. This means when a component is "promoted" to dApp-SafeTrust, the only change needed is the hook import — the JSX is identical.
+Query hooks return `{ data, loading, error }` matching Apollo's `useQuery` return shape, while subscription hooks return resource-specific contracts like `{ escrow, loading, error }`. This means when a component is "promoted" to dApp-SafeTrust, the only change needed is the hook import — the JSX is identical.
 
 ## Provider tree
 
 ```text
 src/providers/
 ├── AppProviders.tsx           ← root client providers
-├── ApolloProviderWrapper.tsx  ← single Apollo client
 ├── QueryProvider.tsx          ← single QueryClient (+ Devtools in dev)
 └── EscrowProviders.tsx        ← Trustless Work + EscrowProvider scope
 ```
@@ -33,37 +35,17 @@ src/providers/
 components that use Trustless Work escrow features, such as
 `BookingEscrowWrapper` and `HotelMilestoneActions`.
 
-## Auth store and the session cookie
+## Auth store (skeleton mode)
 
-The auth store holds `address`, `name` and `token`; it is deliberately not the
-source of truth for *route protection*.
-
-```text
-src/lib/auth/session.ts            ← the only module that writes the session cookie
-src/components/auth/FirebaseSessionSync.tsx  ← mirrors Firebase's token stream into the cookie + store
-src/lib/auth/redirect.ts           ← validates the ?redirect= parameter
+```typescript
+// src/core/store/data/index.ts
+// Pre-seeded with mock values:
+address: "mock-owner-1";
+token: "mock-jwt-token";
+isConnected: true;
 ```
 
-Flow:
-
-1. `FirebaseSessionSync` is mounted once in `AppProviders`. It subscribes to
-   Firebase's `onIdTokenChanged`, so sign-in, sign-out and the ~55-minute token
-   refresh all run through one code path.
-2. On a user it writes the ID token to the `firebase-token` cookie (60-minute
-   lifetime, `sameSite=lax`, `path=/`) and stores it in the auth store. On
-   `null` it removes the cookie and clears the store.
-3. `middleware.ts` gates `/dashboard/*` and `/guest/*` on the cookie's presence
-   only — Firebase Admin cannot run in Edge middleware, so signature
-   verification stays in the server-side auth API. `Login` and `LogoutButton`
-   also write/clear the cookie directly, so the first navigation after login
-   and the logout path never depend on the sync component's render timing.
-4. `Login` honours the `?redirect=` parameter middleware sets. Only
-   same-origin absolute paths are accepted (`src/lib/auth/redirect.ts`), so the
-   parameter cannot be used as an open redirect.
-
-`NEXT_PUBLIC_SKIP_AUTH_MIDDLEWARE=true` remains the dev-only escape hatch: the
-middleware short-circuits and every route is reachable without a session.
-Never set it in a deployed environment.
+`disconnectWalletStore()` resets to these same values — so the user is never truly logged out in skeleton mode.
 
 ## Mutation stubs
 
@@ -96,14 +78,14 @@ This is the **"slice" pattern** — frontend-SafeTrust is the design/UX source o
 
 ## Dependency rules
 
-| Package | Allowed | Notes |
-|---|---|---|
-| `lucide-react` | ✅ | Icons — use this, not `react-icons` |
-| `sonner` | ✅ | Toast notifications |
-| `zustand` | ✅ | Auth store |
-| `date-fns` | ✅ | Date formatting in messages |
-| `firebase` | ✅ | Client SDK only (login/register forms) |
-| `@apollo/client` | ❌ | dApp only |
-| `react-icons` | ❌ | Use `lucide-react` |
-| `@trustless-work/escrow` | ❌ | dApp only |
-| `@stellar/freighter-api` | ❌ | dApp only |
+| Package                  | Allowed | Notes                                  |
+| ------------------------ | ------- | -------------------------------------- |
+| `lucide-react`           | ✅      | Icons — use this, not `react-icons`    |
+| `sonner`                 | ✅      | Toast notifications                    |
+| `zustand`                | ✅      | Auth store                             |
+| `date-fns`               | ✅      | Date formatting in messages            |
+| `firebase`               | ✅      | Client SDK only (login/register forms) |
+| `@apollo/client`         | ❌      | dApp only                              |
+| `react-icons`            | ❌      | Use `lucide-react`                     |
+| `@trustless-work/escrow` | ❌      | dApp only                              |
+| `@stellar/freighter-api` | ❌      | dApp only                              |
