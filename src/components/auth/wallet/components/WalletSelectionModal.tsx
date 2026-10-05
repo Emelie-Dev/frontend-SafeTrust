@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { ISupportedWallet } from '@creit.tech/stellar-wallets-kit';
-import { kit } from '../constants/wallet-kit.constant';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { 
-  X, 
-  CheckCircle, 
-  Download, 
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { ISupportedWallet } from "@creit.tech/stellar-wallets-kit";
+import { kit } from "../constants/wallet-kit.constant";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  X,
+  CheckCircle,
+  Download,
   ExternalLink,
   RefreshCw,
-  QrCode
-} from 'lucide-react';
+  QrCode,
+} from "lucide-react";
 
 interface WalletSelectionModalProps {
   isOpen: boolean;
@@ -29,7 +29,7 @@ interface WalletInfo extends ISupportedWallet {
 export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
   isOpen,
   onClose,
-  onWalletSelected
+  onWalletSelected,
 }) => {
   const [wallets, setWallets] = useState<WalletInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,15 +39,15 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
   const loadWallets = async () => {
     try {
       setLoading(true);
-      const supportedWallets = await kit.getSupportedWallets();      
-      const enhancedWallets = supportedWallets.map(wallet => ({
+      const supportedWallets = await kit.getSupportedWallets();
+      const enhancedWallets = supportedWallets.map((wallet) => ({
         ...wallet,
-        isInstalled: wallet.isAvailable
+        isInstalled: wallet.isAvailable,
       }));
-      
+
       setWallets(enhancedWallets);
     } catch (error) {
-      console.error('Error loading wallets:', error);
+      console.error("Error loading wallets:", error);
     } finally {
       setLoading(false);
     }
@@ -69,10 +69,15 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
 
   const getBrowserInfo = () => {
     const userAgent = navigator.userAgent;
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-    const isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        userAgent,
+      );
+    const isChrome =
+      /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
     const isFirefox = /Firefox/.test(userAgent);
-    const isSafari = /Safari/.test(userAgent) && /Apple Computer/.test(navigator.vendor);
+    const isSafari =
+      /Safari/.test(userAgent) && /Apple Computer/.test(navigator.vendor);
     const isEdge = /Edg/.test(userAgent);
 
     return { isMobile, isChrome, isFirefox, isSafari, isEdge };
@@ -80,99 +85,126 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
 
   const getInstallationSteps = (wallet: WalletInfo) => {
     const { isMobile, isChrome, isFirefox, isSafari } = getBrowserInfo();
-    
+
     const steps = {
-      freighter: isMobile ? [
-        'Freighter is a browser extension',
-        'Please use a desktop browser',
-        'Or try Albedo (web wallet)',
-        'No installation required for Albedo'
-      ] : [
-        isChrome ? 'Go to Chrome Web Store' : 
-        isFirefox ? 'Go to Firefox Add-ons' :
-        isSafari ? 'Go to Mac App Store' :
-        'Go to Freighter website',
-        'Click "Install Extension"',
-        'Add to your browser',
-        'Create or import a wallet',
-        'Return here and try again'
-      ],
+      freighter: isMobile
+        ? [
+            "Freighter is a browser extension",
+            "Please use a desktop browser",
+            "Or try Albedo (web wallet)",
+            "No installation required for Albedo",
+          ]
+        : [
+            isChrome
+              ? "Go to Chrome Web Store"
+              : isFirefox
+                ? "Go to Firefox Add-ons"
+                : isSafari
+                  ? "Go to Mac App Store"
+                  : "Go to Freighter website",
+            'Click "Install Extension"',
+            "Add to your browser",
+            "Create or import a wallet",
+            "Return here and try again",
+          ],
       albedo: [
-        'Albedo is a web wallet',
-        'No installation required',
-        'Works on all browsers and devices',
-        'Just click connect to continue'
+        "Albedo is a web wallet",
+        "No installation required",
+        "Works on all browsers and devices",
+        "Just click connect to continue",
       ],
-      lobstr: isMobile ? [
-        'LOBSTR is a mobile app',
-        'Download from App Store or Google Play',
-        'Create or import a wallet',
-        'Use WalletConnect to connect'
-      ] : [
-        isChrome ? 'Go to Chrome Web Store' : 
-        isFirefox ? 'Go to Firefox Add-ons' :
-        'Go to LOBSTR website',
-        'Download the browser extension',
-        'Install in your browser',
-        'Create or import a wallet',
-        'Return here and try again'
-      ],
-      rabet: isMobile ? [
-        'Rabet is a browser extension',
-        'Please use a desktop browser',
-        'Or try Albedo (web wallet)',
-        'No installation required for Albedo'
-      ] : [
-        isChrome ? 'Go to Chrome Web Store' : 
-        isFirefox ? 'Go to Firefox Add-ons' :
-        'Go to Rabet website',
-        'Click "Install Extension"',
-        'Add to your browser',
-        'Create or import a wallet',
-        'Return here and try again'
-      ],
+      lobstr: isMobile
+        ? [
+            "LOBSTR is a mobile app",
+            "Download from App Store or Google Play",
+            "Create or import a wallet",
+            "Use WalletConnect to connect",
+          ]
+        : [
+            isChrome
+              ? "Go to Chrome Web Store"
+              : isFirefox
+                ? "Go to Firefox Add-ons"
+                : "Go to LOBSTR website",
+            "Download the browser extension",
+            "Install in your browser",
+            "Create or import a wallet",
+            "Return here and try again",
+          ],
+      rabet: isMobile
+        ? [
+            "Rabet is a browser extension",
+            "Please use a desktop browser",
+            "Or try Albedo (web wallet)",
+            "No installation required for Albedo",
+          ]
+        : [
+            isChrome
+              ? "Go to Chrome Web Store"
+              : isFirefox
+                ? "Go to Firefox Add-ons"
+                : "Go to Rabet website",
+            'Click "Install Extension"',
+            "Add to your browser",
+            "Create or import a wallet",
+            "Return here and try again",
+          ],
       xbull: [
-        'xBull is a mobile wallet',
-        'Download from App Store or Google Play',
-        'Create or import a wallet',
-        'Use WalletConnect to connect'
+        "xBull is a mobile wallet",
+        "Download from App Store or Google Play",
+        "Create or import a wallet",
+        "Use WalletConnect to connect",
       ],
       hana: [
-        'Hana is a mobile wallet',
-        'Download from App Store or Google Play',
-        'Create or import a wallet',
-        'Use WalletConnect to connect'
-      ]
+        "Hana is a mobile wallet",
+        "Download from App Store or Google Play",
+        "Create or import a wallet",
+        "Use WalletConnect to connect",
+      ],
     };
 
-    return steps[wallet.id as keyof typeof steps] || [
-      'Visit the wallet website',
-      'Follow installation instructions',
-      'Create or import a wallet',
-      'Return here and try again'
-    ];
+    return (
+      steps[wallet.id as keyof typeof steps] || [
+        "Visit the wallet website",
+        "Follow installation instructions",
+        "Create or import a wallet",
+        "Return here and try again",
+      ]
+    );
   };
 
   const getWalletUrl = (wallet: WalletInfo) => {
     const { isMobile, isChrome, isFirefox, isSafari } = getBrowserInfo();
-    
+
     const urls = {
-      freighter: isMobile ? 'https://albedo.link/' : // Redirect to Albedo for mobile
-        isChrome ? 'https://chromewebstore.google.com/detail/freighter/bcacfldlkkdogcmkkibnjlakofdplcbk' :
-        isFirefox ? 'https://addons.mozilla.org/en-US/firefox/addon/freighter/' :
-        isSafari ? 'https://apps.apple.com/app/freighter/id1576157386' :
-        'https://freighter.app/',
-      albedo: 'https://albedo.link/',
-      lobstr: isMobile ? 'https://lobstr.co/app' : // Mobile app page
-        isChrome ? 'https://chromewebstore.google.com/detail/lobstr/ldiagbjmlmjiieclmdkagofdjcgodjle' :
-        isFirefox ? 'https://addons.mozilla.org/en-US/firefox/addon/lobstr-vault/' :
-        'https://lobstr.co',
-      rabet: isMobile ? 'https://albedo.link/' : // Redirect to Albedo for mobile
-        isChrome ? 'https://chromewebstore.google.com/detail/rabet/hgmoaheomcjnaheggkfafnjilfcefbmo' :
-        isFirefox ? 'https://addons.mozilla.org/en-US/firefox/addon/rabet/' :
-        'https://rabet.io/',
-      xbull: isMobile ? 'https://xbull.app' : 'https://xbull.app',
-      hana: isMobile ? 'https://www.hanawallet.io/' : 'https://www.hanawallet.io/'
+      freighter: isMobile
+        ? "https://albedo.link/" // Redirect to Albedo for mobile
+        : isChrome
+          ? "https://chromewebstore.google.com/detail/freighter/bcacfldlkkdogcmkkibnjlakofdplcbk"
+          : isFirefox
+            ? "https://addons.mozilla.org/en-US/firefox/addon/freighter/"
+            : isSafari
+              ? "https://apps.apple.com/app/freighter/id1576157386"
+              : "https://freighter.app/",
+      albedo: "https://albedo.link/",
+      lobstr: isMobile
+        ? "https://lobstr.co/app" // Mobile app page
+        : isChrome
+          ? "https://chromewebstore.google.com/detail/lobstr/ldiagbjmlmjiieclmdkagofdjcgodjle"
+          : isFirefox
+            ? "https://addons.mozilla.org/en-US/firefox/addon/lobstr-vault/"
+            : "https://lobstr.co",
+      rabet: isMobile
+        ? "https://albedo.link/" // Redirect to Albedo for mobile
+        : isChrome
+          ? "https://chromewebstore.google.com/detail/rabet/hgmoaheomcjnaheggkfafnjilfcefbmo"
+          : isFirefox
+            ? "https://addons.mozilla.org/en-US/firefox/addon/rabet/"
+            : "https://rabet.io/",
+      xbull: isMobile ? "https://xbull.app" : "https://xbull.app",
+      hana: isMobile
+        ? "https://www.hanawallet.io/"
+        : "https://www.hanawallet.io/",
     };
 
     return urls[wallet.id as keyof typeof urls] || wallet.url;
@@ -186,7 +218,7 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
 
   // Check if wallet is mobile-only
   const isMobileWallet = (wallet: WalletInfo) => {
-    return ['xbull', 'hana'].includes(wallet.id);
+    return ["xbull", "hana"].includes(wallet.id);
   };
 
   if (!isOpen) return null;
@@ -212,8 +244,11 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
               {selectedWallet && !selectedWallet.isInstalled ? (
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <Image 
-                      src={selectedWallet.icon || 'https://stellar.creit.tech/wallet-icons/default.png'} 
+                    <Image
+                      src={
+                        selectedWallet.icon ||
+                        "https://stellar.creit.tech/wallet-icons/default.png"
+                      }
                       alt={selectedWallet.name}
                       width={48}
                       height={48}
@@ -221,25 +256,36 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
                       unoptimized
                     />
                     <div>
-                      <h3 className="text-lg font-semibold">{selectedWallet.name}</h3>
-                      <p className="text-sm text-gray-600">Installation Guide</p>
+                      <h3 className="text-lg font-semibold">
+                        {selectedWallet.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Installation Guide
+                      </p>
                     </div>
                   </div>
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">Installation Steps</CardTitle>
+                      <CardTitle className="text-base">
+                        Installation Steps
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ol className="space-y-2 text-sm">
-                        {getInstallationSteps(selectedWallet).map((step, index) => (
-                          <li key={index} className="flex items-start space-x-2">
-                            <span className="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">
-                              {index + 1}
-                            </span>
-                            <span>{step}</span>
-                          </li>
-                        ))}
+                        {getInstallationSteps(selectedWallet).map(
+                          (step, index) => (
+                            <li
+                              key={index}
+                              className="flex items-start space-x-2"
+                            >
+                              <span className="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">
+                                {index + 1}
+                              </span>
+                              <span>{step}</span>
+                            </li>
+                          ),
+                        )}
                       </ol>
                     </CardContent>
                   </Card>
@@ -254,8 +300,8 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="text-center">
-                        <Image 
-                          src={getQRCodeUrl(selectedWallet)} 
+                        <Image
+                          src={getQRCodeUrl(selectedWallet)}
                           alt={`QR code for ${selectedWallet.name}`}
                           width={150}
                           height={150}
@@ -263,23 +309,29 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
                           unoptimized
                         />
                         <p className="text-sm text-gray-600">
-                          Scan with your mobile device to download {selectedWallet.name}
+                          Scan with your mobile device to download{" "}
+                          {selectedWallet.name}
                         </p>
                       </CardContent>
                     </Card>
                   )}
 
                   <div className="flex space-x-3">
-                    <Button 
-                      onClick={() => window.open(getWalletUrl(selectedWallet), '_blank')}
+                    <Button
+                      onClick={() =>
+                        window.open(getWalletUrl(selectedWallet), "_blank")
+                      }
                       className="flex-1"
                     >
                       <ExternalLink className="h-4 w-4 mr-2" />
-                      {isMobileWallet(selectedWallet) ? 'Download App' : 
-                       getBrowserInfo().isMobile ? 'Visit Website' : 'Download Extension'}
+                      {isMobileWallet(selectedWallet)
+                        ? "Download App"
+                        : getBrowserInfo().isMobile
+                          ? "Visit Website"
+                          : "Download Extension"}
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => setSelectedWallet(null)}
                     >
                       Back
@@ -292,22 +344,25 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
                   <p className="text-sm text-gray-600">
                     Choose a wallet to connect to SafeTrust
                   </p>
-                  
+
                   {wallets.map((wallet) => (
-                    <Card 
+                    <Card
                       key={wallet.id}
                       className={`cursor-pointer bg-transparent transition-all duration-200 hover:shadow-md ${
-                        wallet.isInstalled 
-                          ? 'hover:ring-2 hover:ring-green-200' 
-                          : 'hover:ring-2 hover:ring-blue-200'
+                        wallet.isInstalled
+                          ? "hover:ring-2 hover:ring-green-200"
+                          : "hover:ring-2 hover:ring-blue-200"
                       }`}
                       onClick={() => handleWalletClick(wallet)}
                     >
                       <CardContent className="!p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
-                            <Image 
-                              src={wallet.icon || 'https://stellar.creit.tech/wallet-icons/default.png'} 
+                            <Image
+                              src={
+                                wallet.icon ||
+                                "https://stellar.creit.tech/wallet-icons/default.png"
+                              }
                               alt={wallet.name}
                               width={32}
                               height={32}
@@ -320,11 +375,14 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge 
-                              variant={wallet.isInstalled ? "default" : "secondary"}
-                              className={wallet.isInstalled 
-                                ? "bg-green-100 text-green-800 hover:bg-green-100" 
-                                : "bg-gray-100 text-gray-800"
+                            <Badge
+                              variant={
+                                wallet.isInstalled ? "default" : "secondary"
+                              }
+                              className={
+                                wallet.isInstalled
+                                  ? "bg-green-100 text-green-800 hover:bg-green-100"
+                                  : "bg-gray-100 text-gray-800"
                               }
                             >
                               {wallet.isInstalled ? (

@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { ChevronDown, Grid2X2, Heart, Lightbulb } from 'lucide-react';
 import {
-  FaBell,
-  FaRegUserCircle,
-  FaSearch,
-} from 'react-icons/fa';
+  Bell,
+  ChevronDown,
+  CircleUserRound,
+  Grid2X2,
+  Heart,
+  Lightbulb,
+  Search,
+} from "lucide-react";
 
 interface HotelHeaderProps {
   showHostSwitch?: boolean;
@@ -18,21 +21,21 @@ interface HotelHeaderProps {
 const RENT_ITEMS = [
   {
     icon: Grid2X2,
-    label: 'Browse all units',
-    description: 'Filter by price, location, rooms',
-    href: '/rent',
+    label: "Browse all units",
+    description: "Filter by price, location, rooms",
+    href: "/rent",
   },
   {
     icon: Lightbulb,
-    label: 'Suggestions',
-    description: 'Curated picks with detail view',
-    href: '/guest/suggestions',
+    label: "Suggestions",
+    description: "Curated picks with detail view",
+    href: "/guest/suggestions",
   },
   {
     icon: Heart,
-    label: 'My Wishlist',
-    description: 'Your saved apartments',
-    href: '/dashboard/favorites',
+    label: "My Wishlist",
+    description: "Your saved apartments",
+    href: "/dashboard/favorites",
   },
 ] as const;
 
@@ -46,17 +49,17 @@ export function RentDropdown() {
       if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && open) {
+      if (event.key === "Escape" && open) {
         setOpen(false);
         triggerRef.current?.focus();
       }
     };
 
-    document.addEventListener('mousedown', closeOnOutsideClick);
-    document.addEventListener('keydown', closeOnEscape);
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.removeEventListener('mousedown', closeOnOutsideClick);
-      document.removeEventListener('keydown', closeOnEscape);
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
     };
   }, [open]);
 
@@ -74,7 +77,7 @@ export function RentDropdown() {
         Rent
         <ChevronDown
           aria-hidden="true"
-          className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -97,8 +100,12 @@ export function RentDropdown() {
                 <Icon aria-hidden="true" className="h-4 w-4 text-orange-500" />
               </span>
               <span>
-                <span className="block text-sm font-medium text-gray-900 dark:text-white">{label}</span>
-                <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{description}</span>
+                <span className="block text-sm font-medium text-gray-900 dark:text-white">
+                  {label}
+                </span>
+                <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
+                  {description}
+                </span>
               </span>
             </Link>
           ))}
@@ -108,9 +115,11 @@ export function RentDropdown() {
   );
 }
 
-export default function HotelHeader({ showHostSwitch = false }: HotelHeaderProps) {
+export default function HotelHeader({
+  showHostSwitch = false,
+}: HotelHeaderProps) {
   return (
-    <header className="border-b border-[#e8e1da] bg-white dark:border-slate-700 dark:bg-slate-900">
+    <header className="border-b border-border bg-background">
       <div className="mx-auto flex max-w-[1180px] items-center gap-4 px-5 py-5 lg:px-7">
         <Link href="/" className="flex items-center gap-3">
           <Image src="/img/logo.png" alt="SafeTrust" width={36} height={36} />
@@ -125,7 +134,11 @@ export default function HotelHeader({ showHostSwitch = false }: HotelHeaderProps
           <span className="text-sm text-gray-500 dark:text-gray-300">
             City, province or neighborhood
           </span>
-          <FaSearch className="ml-auto h-4 w-4 text-gray-600 dark:text-gray-300" />
+          <Search
+            aria-hidden="true"
+            data-testid="header-search-icon"
+            className="ml-auto h-4 w-4 text-gray-600 dark:text-gray-300"
+          />
         </div>
 
         <div className="ml-auto flex items-center gap-5">
@@ -141,14 +154,22 @@ export default function HotelHeader({ showHostSwitch = false }: HotelHeaderProps
             <ThemeToggle />
           </div>
           <div className="relative">
-            <FaBell className="h-4 w-4 text-gray-900 dark:text-white" />
+            <Bell
+              aria-hidden="true"
+              data-testid="header-notification-icon"
+              className="h-4 w-4 text-gray-900 dark:text-white"
+            />
             <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-orange-500" />
           </div>
           <span className="hidden text-sm font-semibold text-gray-900 lg:block dark:text-white">
             Randall Valenciano
           </span>
           <div className="grid h-10 w-10 place-items-center rounded-full border border-gray-200 bg-gray-100 dark:border-slate-700 dark:bg-slate-800">
-            <FaRegUserCircle className="h-5 w-5 text-gray-900 dark:text-white" />
+            <CircleUserRound
+              aria-hidden="true"
+              data-testid="header-user-icon"
+              className="h-5 w-5 text-gray-900 dark:text-white"
+            />
           </div>
         </div>
       </div>
