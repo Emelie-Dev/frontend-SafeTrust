@@ -26,7 +26,8 @@ describe("APARTMENT_LISTINGS", () => {
     ).toEqual(new Set(APARTMENT_CATEGORIES));
 
     for (const apartment of APARTMENT_LISTINGS) {
-      expect(new Set(apartment.images).size).toBe(4);
+      expect(apartment.images).toHaveLength(4);
+      expect(new Set(apartment.images).size).toBe(apartment.images.length);
       expect(
         apartment.description
           .trim()
