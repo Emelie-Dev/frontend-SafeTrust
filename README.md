@@ -161,9 +161,7 @@ NEXT_PUBLIC_API_KEY=
 NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 ```
 
-The escrow API base URL is not an env var: `EscrowProviders` derives it from
-the Stellar network the wallet kit signs on (`STELLAR_NETWORK` in
-`src/features/escrow/config.ts`; testnet → `https://dev.api.trustlesswork.com`).
+`NEXT_PUBLIC_TRUSTLESS_API_URL` is defined in `src/config/env.ts` as an optional configuration (e.g. for custom proxies or local mock servers). For standard development and booking flows, `EscrowProviders` automatically derives the active escrow API base URL directly from the Stellar network the wallet kit signs on (`STELLAR_NETWORK` in `src/features/escrow/config.ts`; testnet → `https://dev.api.trustlesswork.com`), ensuring transactions match the wallet network.
 
 **Get your API key:**
 
