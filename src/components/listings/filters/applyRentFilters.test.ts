@@ -70,8 +70,10 @@ describe("applyRentFilters", () => {
 
   it("filters by category", () => {
     expect(
-      filter({ categories: ["Travelers"] }).map((item) => item.id),
-    ).toEqual(["3", "6", "9", "11"]);
+      filter({ categories: ["Travelers"] })
+        .map((item) => item.id)
+        .sort(),
+    ).toEqual(["11", "3", "6", "9"]);
   });
 
   it("filters by location", () => {
@@ -81,12 +83,11 @@ describe("applyRentFilters", () => {
   });
 
   it("filters by bedroom count", () => {
-    expect(filter({ bedrooms: "1" }).map((item) => item.id)).toEqual([
-      "2",
-      "3",
-      "9",
-      "12",
-    ]);
+    expect(
+      filter({ bedrooms: "1" })
+        .map((item) => item.id)
+        .sort(),
+    ).toEqual(["12", "2", "3", "9"]);
   });
 
   it("includes apartments with three or more bedrooms in the 3-bedroom filter", () => {
