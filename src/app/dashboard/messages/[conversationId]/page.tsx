@@ -44,9 +44,7 @@ export default function ConversationPage({
   params: Promise<{ conversationId: string }>;
 }) {
   const { conversationId } = use(params);
-  const { user, loading } = useCurrentUser();
-
-  const conversation = MOCK_CONVERSATIONS.find((c) => c.id === conversationId);
+  const { user } = useCurrentUser();
   const {
     conversation,
     messages,
