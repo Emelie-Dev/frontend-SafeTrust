@@ -18,6 +18,7 @@ export const APARTMENT_LISTINGS: ApartmentListing[] = [
     ],
     category: "Family",
     location: "San José",
+    coordinates: { lat: 9.9352, lng: -84.0611 },
     owner: {
       name: "Alberto Casas",
       avatar: "/img/person.jpg",
