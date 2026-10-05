@@ -6,8 +6,8 @@ test.describe("Suggestions journey", () => {
     await expectHealthyPage(page);
 
     // Select row 3
-    const row3 = page.locator('aside [role="button"]').nth(2);
-    await row3.click();
+    const row3 = page.locator("aside li").nth(2);
+    await row3.locator("button").first().click();
 
     await expect(page.locator("main h1")).toContainText(
       "Estudio Moderno San Pedro",

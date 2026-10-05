@@ -21,7 +21,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/rent"
-        className="mt-6 inline-flex items-center justify-center rounded-lg bg-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+        className="mt-6 inline-flex items-center justify-center rounded-lg bg-orange-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
       >
         Back to Listings
       </Link>

@@ -191,20 +191,21 @@ export default function LoginPage() {
                 <Checkbox
                   id="remember"
                   name="remember"
+                  aria-label="Keep me signed in on this device"
                   checked={remember}
                   disabled={isAnyAuthLoading}
                   onCheckedChange={(v) => setRemember(v === true)}
                 />
                 <Label
                   htmlFor="remember"
-                  className="font-normal text-sm cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="font-normal text-sm cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700 dark:text-gray-300"
                 >
                   Keep me signed in on this device
                 </Label>
               </div>
               <Link
                 href="/forgot-password"
-                className="text-sm text-primary underline hover:no-underline"
+                className="text-sm text-orange-700 dark:text-orange-400 underline hover:no-underline"
               >
                 Forgot your password?
               </Link>
@@ -264,7 +265,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{" "}
             <Link
               href="/register"
-              className="text-primary underline hover:no-underline"
+              className="text-orange-700 dark:text-orange-400 underline hover:no-underline"
             >
               Register here
             </Link>

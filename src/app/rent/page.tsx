@@ -1,10 +1,10 @@
 "use client";
 
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import type { ApartmentListing } from "@/types/hotel";
 import {
   ApartmentGrid,
   BedroomTabs,
-  DestinationCard,
   FilterSidebar,
   HotelHeader,
 } from "@/components/listings";
@@ -13,88 +13,57 @@ import { NearMeButton } from "@/components/listings/NearMeButton";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { distanceKm, sortByDistance } from "@/lib/geo";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LayoutDashboard, Lightbulb, SlidersHorizontal, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import {
+  Check,
+  LayoutDashboard,
+  Lightbulb,
+  SlidersHorizontal,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { applyRentFilters } from "@/components/listings/filters/applyRentFilters";
+import {
+  resolveSortOption,
+  useRentFilters,
+} from "@/components/listings/filters/useRentFilters";
 
-type SortOption = "relevance" | "price-low" | "price-high" | "nearest";
-
-const DESTINATIONS = [
-  { name: "San José", image: "/img/hotel/hotel1.jpg" },
-  { name: "Heredia", image: "/img/hotel/hotel2.jpg" },
-  { name: "Alajuela", image: "/img/hotel/hotel3.jpg" },
-  { name: "Cartago", image: "/img/hotel/hotel4.jpg" },
-];
-
-function RentListingContent() {
+function RentPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const geo = useGeolocation();
+  const { filters, setFilters, reset, activeCount } = useRentFilters();
+  const previousAutoSortPosition = useRef(geo.position);
 
-  const urlLocation = searchParams.get("location");
-  const urlCategory = searchParams.get("category");
-
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
-    if (urlCategory) return [urlCategory];
-    return [];
-  });
-
-  const [selectedLocations, setSelectedLocations] = useState<string[]>(() => {
-    if (urlLocation) return [urlLocation];
-    return [];
-  });
-
-  const [selectedBedrooms, setSelectedBedrooms] = useState<string>("all");
-  const [sortOption, setSortOption] = useState<SortOption>("relevance");
-  const [minPrice, setMinPrice] = useState<number>(3200);
-  const [maxPrice, setMaxPrice] = useState<number>(206000);
-  const [favorites, setFavorites] = useState<string[]>(
-    APARTMENT_LISTINGS.filter((h) => h.favorite).map((h) => h.id),
-  );
-
-  const toggleFavorite = (id: string) => {
-    setFavorites((curr) =>
-      curr.includes(id) ? curr.filter((f) => f !== id) : [...curr, id],
+  const isOutsideCostaRica = useMemo(() => {
+    if (!geo.position) return false;
+    const origin = geo.position;
+    const nearestListingKm = Math.min(
+      ...APARTMENT_LISTINGS.map((apartment) =>
+        distanceKm(origin, apartment.coordinates),
+      ),
     );
-  };
+    return nearestListingKm > 300;
+  }, [geo.position]);
+  const canSortByDistance = Boolean(geo.position && !isOutsideCostaRica);
+  const effectiveSort = resolveSortOption(filters.sort, canSortByDistance);
 
   useEffect(() => {
-    setSelectedLocations((prev) =>
-      urlLocation ? [urlLocation] : prev.length === 1 ? [] : prev,
-    );
-  }, [urlLocation]);
-
-  useEffect(() => {
-    setSelectedCategories((prev) =>
-      urlCategory ? [urlCategory] : prev.length === 1 ? [] : prev,
-    );
-  }, [urlCategory]);
-
-  useEffect(() => {
-    if (geo.status === "granted" && geo.position) {
-      setSortOption("nearest");
-    } else if (geo.status === "idle") {
-      setSortOption("relevance");
+    if (!geo.position) {
+      previousAutoSortPosition.current = null;
+      return;
     }
-  }, [geo.status, geo.position]);
+    if (previousAutoSortPosition.current === geo.position) return;
 
-  const updateUrlParams = (locations: string[], categories: string[]) => {
-    const params = new URLSearchParams();
-    if (locations.length === 1) {
-      params.set("location", locations[0]);
-    }
-    if (categories.length === 1) {
-      params.set("category", categories[0]);
-    }
-    const query = params.toString();
-    router.replace(query ? `/rent?${query}` : "/rent", { scroll: false });
-  };
+    previousAutoSortPosition.current = geo.position;
+    const sort = isOutsideCostaRica ? "relevance" : "nearest";
+    if (filters.sort !== sort) setFilters({ sort });
+  }, [filters.sort, geo.position, isOutsideCostaRica, setFilters]);
 
   const distances = useMemo(
     () =>
@@ -109,98 +78,29 @@ function RentListingContent() {
     [geo.position],
   );
 
-  const filteredApartments = useMemo(() => {
-    const apartments = APARTMENT_LISTINGS.filter((apartment) => {
-      const matchesCategory =
-        selectedCategories.length === 0 ||
-        selectedCategories.includes(apartment.category);
-      const matchesLocation =
-        selectedLocations.length === 0 ||
-        selectedLocations.includes(apartment.location);
-      const matchesBedroom =
-        selectedBedrooms === "all" ||
-        apartment.bedrooms === Number(selectedBedrooms);
-      const matchesPrice =
-        apartment.price >= minPrice && apartment.price <= maxPrice;
-
-      return (
-        matchesCategory && matchesLocation && matchesBedroom && matchesPrice
-      );
+  const results = useMemo(() => {
+    const filtered = applyRentFilters(APARTMENT_LISTINGS, {
+      ...filters,
+      sort: effectiveSort,
     });
-
-    if (sortOption === "nearest" && geo.position) {
+    if (effectiveSort === "nearest" && geo.position) {
       return sortByDistance(
-        apartments,
+        filtered,
         geo.position,
-        (apartment) => apartment.coordinates ?? { lat: 9.9333, lng: -84.0833 },
+        (apartment) => apartment.coordinates,
       );
     }
-
-    if (sortOption === "price-low") {
-      return [...apartments].sort((left, right) => left.price - right.price);
-    }
-
-    if (sortOption === "price-high") {
-      return [...apartments].sort((left, right) => right.price - left.price);
-    }
-
-    return [...apartments].sort(
-      (left, right) => Number(right.promoted) - Number(left.promoted),
-    );
-  }, [
-    geo.position,
-    maxPrice,
-    minPrice,
-    selectedBedrooms,
-    selectedCategories,
-    selectedLocations,
-    sortOption,
-  ]);
-
-  const toggleValue = (values: string[], value: string) =>
-    values.includes(value)
-      ? values.filter((item) => item !== value)
-      : [...values, value];
-
-  const handleLocationToggle = (location: string) => {
-    const next = toggleValue(selectedLocations, location);
-    setSelectedLocations(next);
-    updateUrlParams(next, selectedCategories);
-  };
-
-  const handleCategoryToggle = (category: string) => {
-    const next = toggleValue(selectedCategories, category);
-    setSelectedCategories(next);
-    updateUrlParams(selectedLocations, next);
-  };
-
-  const handleDestinationSelect = (location: string) => {
-    const next = [location];
-    setSelectedLocations(next);
-    updateUrlParams(next, selectedCategories);
-  };
-
-  const handleClearAll = () => {
-    setSelectedCategories([]);
-    setSelectedLocations([]);
-    setSelectedBedrooms("all");
-    setSortOption("relevance");
-    setMinPrice(3200);
-    setMaxPrice(206000);
-    if (geo.status === "granted") {
-      geo.clear();
-    }
-    router.replace("/rent", { scroll: false });
-  };
+    return filtered;
+  }, [effectiveSort, filters, geo.position]);
 
   const handleApartmentClick = (apartment: ApartmentListing) => {
     router.push(`/rent/${apartment.id}`);
   };
 
-  const headingLocation =
-    selectedLocations.length === 1
-      ? `Costa Rica, ${selectedLocations[0]}`
-      : "Costa Rica, San José";
+  const clearLocation = () => {
+    geo.clear();
+    if (filters.sort === "nearest") setFilters({ sort: "relevance" });
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 text-gray-900 dark:text-white">
@@ -208,60 +108,42 @@ function RentListingContent() {
 
       <div className="mx-auto flex max-w-[1180px] flex-col lg:flex-row">
         <FilterSidebar
-          selectedCategories={selectedCategories}
-          selectedLocations={selectedLocations}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          onCategoryToggle={handleCategoryToggle}
-          onLocationToggle={handleLocationToggle}
-          onMinPriceChange={setMinPrice}
-          onMaxPriceChange={setMaxPrice}
+          filters={filters}
+          setFilters={setFilters}
+          reset={reset}
         />
 
         <main className="flex-1 px-6 py-8 lg:px-12">
-          {/* Destination Quick Selector */}
-          <div className="mb-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-3">
-              Popular Destinations
-            </h2>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {DESTINATIONS.map((dest) => (
-                <DestinationCard
-                  key={dest.name}
-                  name={dest.name}
-                  image={dest.image}
-                  selected={
-                    selectedLocations.length === 1 &&
-                    selectedLocations[0] === dest.name
-                  }
-                  onClick={() => handleDestinationSelect(dest.name)}
-                />
-              ))}
-            </div>
-          </div>
-
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h1 className="text-[24px] leading-tight text-gray-900 dark:text-white sm:text-[30px]">
-                {geo.position && sortOption === "nearest" ? (
-                  "Destinations near you"
-                ) : (
-                  <>
-                    Available for rent in{" "}
-                    <span className="font-semibold">{headingLocation}</span>
-                  </>
-                )}
+                Available for rent in{" "}
+                <span className="font-semibold">
+                  {filters.location ?? "Costa Rica"}
+                </span>
               </h1>
-              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                {filteredApartments.length} units available
+              <p
+                className="mt-3 text-sm text-gray-600 dark:text-gray-400"
+                aria-live="polite"
+              >
+                {results.length} {results.length === 1 ? "unit" : "units"}{" "}
+                available
               </p>
+              {isOutsideCostaRica ? (
+                <p
+                  className="mt-2 text-sm text-gray-600 dark:text-gray-300"
+                  role="status"
+                >
+                  You seem to be outside Costa Rica, so we&apos;re showing
+                  popular destinations.
+                </p>
+              ) : null}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <NearMeButton geo={geo} />
+            <div className="flex flex-wrap items-center gap-4">
+              <NearMeButton geo={geo} onClear={clearLocation} />
 
               <button
-                type="button"
                 onClick={() => router.push("/dashboard")}
                 className="flex items-center gap-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
               >
@@ -277,95 +159,87 @@ function RentListingContent() {
                 Suggestions view
               </Link>
 
-              <button
-                type="button"
-                onClick={handleClearAll}
-                className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="h-3.5 w-3.5" />
-                Clear all
-              </button>
-
               <Popover>
                 <PopoverTrigger asChild>
                   <button
-                    className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded-md px-2 py-1"
-                    aria-label="Sort options"
+                    aria-label={`Sort${activeCount ? `, ${activeCount} active filters` : ""}`}
+                    className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-slate-800"
                   >
                     <SlidersHorizontal className="h-4 w-4" />
-                    Sort by:{" "}
-                    <span className="font-semibold capitalize">
-                      {sortOption}
-                    </span>
+                    <span>Sort</span>
+                    {activeCount > 0 ? (
+                      <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700 dark:bg-orange-900/40 dark:text-orange-300">
+                        {activeCount}
+                      </span>
+                    ) : null}
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-48 p-2">
-                  <div className="flex flex-col gap-1">
-                    <button
-                      onClick={() => setSortOption("relevance")}
-                      className={cn(
-                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
-                        sortOption === "relevance"
-                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
-                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
-                      )}
-                    >
-                      Relevance
-                    </button>
-                    <button
-                      onClick={() => setSortOption("nearest")}
-                      className={cn(
-                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
-                        sortOption === "nearest"
-                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
-                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
-                      )}
-                    >
-                      Nearest
-                    </button>
-                    <button
-                      onClick={() => setSortOption("price-low")}
-                      className={cn(
-                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
-                        sortOption === "price-low"
-                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
-                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
-                      )}
-                    >
-                      Price: Low to High
-                    </button>
-                    <button
-                      onClick={() => setSortOption("price-high")}
-                      className={cn(
-                        "text-left px-3 py-2 text-sm rounded-md transition-colors",
-                        sortOption === "price-high"
-                          ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 font-semibold"
-                          : "hover:bg-gray-100 dark:hover:bg-slate-800",
-                      )}
-                    >
-                      Price: High to Low
-                    </button>
+                <PopoverContent
+                  align="end"
+                  className="w-64 space-y-2 border border-gray-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800"
+                >
+                  <div className="space-y-1">
+                    <p className="px-3 pb-1 text-xs font-semibold uppercase text-gray-600 dark:text-gray-400">
+                      Sort
+                    </p>
+                    {(
+                      [
+                        { label: "Relevance", value: "relevance" },
+                        { label: "Price: Low to High", value: "price-low" },
+                        { label: "Price: High to Low", value: "price-high" },
+                        ...(canSortByDistance
+                          ? [{ label: "Nearest", value: "nearest" as const }]
+                          : []),
+                      ] as const
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFilters({ sort: option.value })}
+                        className={cn(
+                          "flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors",
+                          effectiveSort === option.value
+                            ? "bg-orange-50 font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
+                            : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700",
+                        )}
+                      >
+                        {option.label}
+                        {effectiveSort === option.value ? (
+                          <Check className="h-4 w-4" aria-hidden="true" />
+                        ) : null}
+                      </button>
+                    ))}
                   </div>
                 </PopoverContent>
               </Popover>
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-6">
             <BedroomTabs
-              selected={selectedBedrooms}
-              onSelect={setSelectedBedrooms}
+              selected={filters.bedrooms}
+              onSelect={(bedrooms) => setFilters({ bedrooms })}
             />
           </div>
 
           <div className="mt-8">
-            <ApartmentGrid
-              apartments={filteredApartments}
-              distances={distances}
-              favorites={favorites}
-              onToggleFavorite={toggleFavorite}
-              onApartmentClick={handleApartmentClick}
-            />
+            {results.length === 0 ? (
+              <EmptyState
+                title="No places match these filters"
+                description="Try another destination or widen the price range."
+                action={
+                  <Button variant="outline" onClick={reset}>
+                    Clear all filters
+                  </Button>
+                }
+              />
+            ) : (
+              <ApartmentGrid
+                apartments={results}
+                distances={distances}
+                onApartmentClick={handleApartmentClick}
+              />
+            )}
           </div>
         </main>
       </div>
@@ -376,9 +250,11 @@ function RentListingContent() {
 export default function HotelListingPage() {
   return (
     <Suspense
-      fallback={<div className="min-h-screen bg-white dark:bg-slate-900" />}
+      fallback={
+        <main className="min-h-screen bg-white px-6 py-12 dark:bg-slate-900" />
+      }
     >
-      <RentListingContent />
+      <RentPageContent />
     </Suspense>
   );
 }

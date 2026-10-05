@@ -40,7 +40,7 @@ export default function ApartmentCard({
           className="h-[170px] w-full object-cover"
         />
         {apartment.promoted ? (
-          <span className="absolute bottom-0 left-0 inline-flex items-center gap-1 rounded-tr-[10px] bg-orange-600 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.02em] text-white">
+          <span className="absolute bottom-0 left-0 inline-flex items-center gap-1 rounded-tr-[10px] bg-orange-700 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.02em] text-white">
             <Flame
               aria-hidden="true"
               data-testid="listing-card-promoted"
@@ -136,7 +136,7 @@ export default function ApartmentCard({
 
         <Button
           asChild
-          className="relative z-10 mt-auto w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold"
+          className="relative z-10 mt-auto w-full bg-orange-700 hover:bg-orange-800 text-white font-semibold"
         >
           <Link href={`/rent/${apartment.id}/escrow/create`}>Book</Link>
         </Button>
@@ -144,7 +144,7 @@ export default function ApartmentCard({
           <Button
             asChild
             variant="outline"
-            className="relative z-10 mt-2 w-full border-orange-600 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 font-semibold"
+            className="relative z-10 mt-2 w-full border-orange-700 text-orange-700 hover:bg-orange-50 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/10 font-semibold"
           >
             <Link href={`/dashboard/messages/${conversationId}`}>
               <MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />

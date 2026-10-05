@@ -138,11 +138,7 @@ export default function GuestSuggestionsPage() {
                     type="button"
                     onClick={() => toggleFavorite(apt.id)}
                     aria-pressed={favorites.includes(apt.id)}
-                    aria-label={
-                      favorites.includes(apt.id)
-                        ? `Remove ${apt.name} from favorites`
-                        : `Save ${apt.name} to favorites`
-                    }
+                    aria-label="Toggle favorite"
                     className="relative z-10 shrink-0 rounded-full p-1 focus-visible:ring-2 focus-visible:ring-orange-500 mt-0.5"
                   >
                     <Heart
