@@ -7,7 +7,7 @@ export default function RentLoading() {
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-96 max-w-full" />
       </div>
-      <div className="grid grid-cols-1 gap-6 sm :grid-cols2-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="space-y-3">
             <Skeleton className="aspect-[4/3] w-full rounded-xl" />

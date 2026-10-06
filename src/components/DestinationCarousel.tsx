@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { STUB_HOTELS } from "@/lib/mockData/hotels";
+import { useApartmentListings } from "@/hooks/useApartmentListings";
+import type { ApartmentListing } from "@/types/hotel";
 
 /** One place there is something to book, and how much. */
 interface Destination {
@@ -16,9 +19,11 @@ interface Destination {
  * disagree about where there is something to book, and so a destination
  * disappears on its own when its last listing goes.
  */
-function destinationsFromListings(): Destination[] {
+function destinationsFromListings(
+  listings: ApartmentListing[],
+): Destination[] {
   const counts = new Map<string, number>();
-  for (const listing of STUB_HOTELS) {
+  for (const listing of listings) {
     counts.set(listing.location, (counts.get(listing.location) ?? 0) + 1);
   }
 
@@ -36,7 +41,8 @@ function destinationsFromListings(): Destination[] {
  * listings, each linking into the public browsing page.
  */
 export default function DestinationCarousel() {
-  const destinations = destinationsFromListings();
+  const listings = useApartmentListings();
+  const destinations = destinationsFromListings(listings);
 
   if (destinations.length === 0) return null;
 

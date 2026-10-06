@@ -6,7 +6,7 @@ export default function Loading() {
       <Skeleton className="aspect-[16/9] w-full rounded-xl" />
       <div className="mt-6 flex flex-col gap-3">
         <Skeleton className="h-8 w-2/3" />
-        <Skeleton className="h-4 t-1/2" />
+        <Skeleton className="h-4 w-1/2" />
         <Skeleton className="h-4 w-1/3" />
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Skeleton className="h-24 w-full rounded-xl" />
