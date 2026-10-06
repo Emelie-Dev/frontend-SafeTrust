@@ -7,7 +7,6 @@
   ],
   "project": ["src/**/*.{js,jsx,ts,tsx}"],
   "ignore": [
-    ".husky/**",
     "src/components/ui/**",
     "src/components/auth/wallet/**",
     "src/components/tw-blocks/**",
@@ -29,7 +28,8 @@
     "jest-junit",
     "postcss-load-config",
     "react-i18next",
-    "react-redux"
+    "react-redux",
+    "react-toastify"
   ],
   "rules": {
     "files": "error",
