@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 
 import "./globals.css";
 
+import { DemoBanner } from "@/components/layouts/DemoBanner";
 import { AppProviders } from "@/providers/AppProviders";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,7 +21,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <DemoBanner />
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

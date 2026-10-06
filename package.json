@@ -69,8 +69,8 @@
     "react-i18next": "^15.4.0",
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.3.0",
-    "react-toastify": "^10.0.6",
     "recharts": "^3.10.1",
+    "server-only": "^0.0.1",
     "sonner": "^2.0.8",
     "stellar-sdk": "^13.3.0",
     "tailwind-merge": "^2.6.0",
@@ -80,6 +80,7 @@
     "@radix-ui/react-dialog": "^1.1.23"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "15.5.14",
     "@commitlint/cli": "^19.8.0",
     "@commitlint/config-conventional": "^19.8.0",
     "@eslint/eslintrc": "^3",
