@@ -61,6 +61,9 @@ function RentPageContent() {
   useEffect(() => {
     if (!geo.position) {
       previousAutoSortPosition.current = null;
+      if (geo.status !== "prompting" && filters.sort === "nearest") {
+        setFilters({ sort: "relevance" });
+      }
       return;
     }
     if (previousAutoSortPosition.current === geo.position) return;
@@ -68,7 +71,7 @@ function RentPageContent() {
     previousAutoSortPosition.current = geo.position;
     const sort = isOutsideCostaRica ? "relevance" : "nearest";
     if (filters.sort !== sort) setFilters({ sort });
-  }, [filters.sort, geo.position, isOutsideCostaRica, setFilters]);
+  }, [filters.sort, geo.position, geo.status, isOutsideCostaRica, setFilters]);
 
   const distances = useMemo(
     () =>

@@ -64,6 +64,14 @@ Runs on **port 3000** by default. Use `npm run dev -- --port 3001` only if `land
 
 ## Environment Variables
 
+The project uses a typed, validated environment variable contract (`src/config/env.ts` for client-safe variables and `src/config/env.server.ts` for server-only variables).
+
+Refer to [.env.example](.env.example) as the single reference for all environment configuration. Copy `.env.example` to `.env.local` to configure your local development environment:
+
+```bash
+cp .env.example .env.local
+```
+
 ### 🔥 Firebase
 
 From **Firebase Console → Project Settings → Your apps → Web app → Config**:
@@ -86,7 +94,49 @@ Enable **Email/Password** and **Google** under **Authentication → Sign-in meth
 
 > These are public, browser-safe values. The `NEXT_PUBLIC_` prefix is what makes Next.js expose them to the bundle. **Never put `HASURA_ADMIN_SECRET` here** — the frontend authenticates via Firebase JWT, not the admin secret.
 
+### Freighter SEP-10 wallet sign-in
+
+Freighter login uses server-side SEP-10 challenge signing and Firebase custom
+tokens. Set these variables in the deployment environment (for GitHub Actions,
+use repository or environment secrets). They must not use the `NEXT_PUBLIC_`
+prefix:
+
+```dotenv
+FIREBASE_ADMIN_PROJECT_ID=
+FIREBASE_ADMIN_CLIENT_EMAIL=
+FIREBASE_ADMIN_PRIVATE_KEY=
+STELLAR_AUTH_SECRET=
+STELLAR_AUTH_HOME_DOMAIN=
+STELLAR_AUTH_WEB_AUTH_DOMAIN=
+STELLAR_NETWORK=testnet
+STELLAR_HORIZON_URL=
+WALLET_AUTH_ALLOWED_ORIGINS=
+```
+
+The Firebase service account needs Firebase Authentication permissions to mint
+custom tokens and access to Firestore. Enable Firestore and configure a TTL
+policy for `stellarWalletChallenges.expiresAt`; challenges are also checked for
+expiry and deleted atomically after use. Fund the Stellar auth-server account on
+the selected network before using it. `WALLET_AUTH_ALLOWED_ORIGINS` is an
+optional comma-separated list; the request's own origin is allowed by default.
 **Setup:** [console.firebase.google.com](https://console.firebase.google.com)
+
+---
+
+### Variable Migration (Old → New)
+
+If you have an existing `.env.local` file, you must update the following renamed variables:
+
+| Old Variable                        | New Variable                          | Description / Action                                                             |
+| ----------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_PLATFORM_WALLET`       | `NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS` | Unified platform wallet address variable                                         |
+| `NEXT_PUBLIC_API_KEY`               | `NEXT_PUBLIC_TRUSTLESS_API_KEY`       | Renamed with explicit Trustless Work prefix                                      |
+| `NEXT_PUBLIC_TRUSTLESS_API_URL_DEV` | `NEXT_PUBLIC_TRUSTLESS_API_URL`       | Folded into single variable; each environment specifies its own URL              |
+| `NEXT_PUBLIC_SKIP_AUTH_MIDDLEWARE`  | `SKIP_AUTH_MIDDLEWARE`                | Server-only switch; never public and strictly ignored when `NODE_ENV=production` |
+| `NEXT_PUBLIC_WEBHOOK_URL`           | _(removed)_                           | Unused server route `src/app/api/auth/forgot-password` deleted                   |
+
+> [!NOTE]
+> Client variables must begin with `NEXT_PUBLIC_` and are inlined statically at build time. Server-only secrets (like `BACKEND_URL` and `SKIP_AUTH_MIDDLEWARE`) must **never** be prefixed with `NEXT_PUBLIC_`.
 
 ---
 
@@ -105,12 +155,13 @@ Point this at the shared SafeTrust Hasura instance — or `http://localhost:8080
 Required for escrow deploy, fund, and release flows.
 
 ```dotenv
+NEXT_PUBLIC_TRUSTLESS_API_URL=https://dev.api.trustlesswork.com
+NEXT_PUBLIC_TRUSTLESS_API_KEY=
 NEXT_PUBLIC_API_KEY=
+NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 ```
 
-The escrow API base URL is not an env var: `EscrowProviders` derives it from
-the Stellar network the wallet kit signs on (`STELLAR_NETWORK` in
-`src/features/escrow/config.ts`; testnet → `https://dev.api.trustlesswork.com`).
+`NEXT_PUBLIC_TRUSTLESS_API_URL` is defined in `src/config/env.ts` as an optional configuration (e.g. for custom proxies or local mock servers). For standard development and booking flows, `EscrowProviders` automatically derives the active escrow API base URL directly from the Stellar network the wallet kit signs on (`STELLAR_NETWORK` in `src/features/escrow/config.ts`; testnet → `https://dev.api.trustlesswork.com`), ensuring transactions match the wallet network.
 
 **Get your API key:**
 

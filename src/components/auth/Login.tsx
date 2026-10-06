@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Wallet } from "lucide-react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -13,16 +13,18 @@ import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
-import { auth } from "@/lib/firebase";
 import { applyRememberMe } from "@/lib/auth/persistence";
 import { setSessionCookie } from "@/lib/auth/session";
-import { WalletSelectionModal } from "./wallet/components/WalletSelectionModal";
-import type { ISupportedWallet } from "@creit.tech/stellar-wallets-kit";
-import { kit } from "./wallet/constants/wallet-kit.constant";
-import { isValidStellarAddress } from "./wallet/utils/walletValidation";
+import { resolveRedirectPath } from "@/lib/auth/redirect";
 import { toast } from "sonner";
+import { WalletProviderScoped } from "@/providers/WalletProviderScoped";
+
+// Lazy-load FreighterSignInButton — pulls in stellar-wallets-kit.
+// Only needed when the user interacts with wallet sign-in.
+const FreighterSignInButton = dynamic(() => import("./FreighterSignInButton"), {
+  ssr: false,
+});
 
 const ERROR_MESSAGES: Record<string, string> = {
   "auth/invalid-credential": "Invalid email or password",
@@ -32,51 +34,23 @@ const ERROR_MESSAGES: Record<string, string> = {
   "auth/invalid-email": "Invalid email address",
 };
 
-export default function LoginPage() {
+/**
+ * Inner login form — rendered inside WalletProviderScoped so that the
+ * wallet context (and stellar-wallets-kit) is only added to this subtree,
+ * not to the whole app.
+ */
+function LoginForm() {
   const { address, token } = useGlobalAuthenticationStore();
-  const connectWalletStore = useGlobalAuthenticationStore(
-    (s) => s.connectWalletStore,
-  );
-  const [isWalletModalOpen, setWalletModalOpen] = useState(false);
-  const [walletError, setWalletError] = useState<string | null>(null);
   const walletLoginRedirect = useRef(false);
 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const handleStellarWalletSelected = async (wallet: ISupportedWallet) => {
-    setWalletError(null);
-    try {
-      kit.setWallet(wallet.id);
-      const { address } = await kit.getAddress();
-      if (!isValidStellarAddress(address)) {
-        throw new Error("Wallet returned an invalid Stellar address");
-      }
-      walletLoginRedirect.current = true;
-      connectWalletStore(address, wallet.name);
-      setWalletModalOpen(false);
-      router.push("/dashboard");
-    } catch (err) {
-      setWalletError(
-        err instanceof Error ? err.message : "Could not connect wallet",
-      );
-    }
-  };
-
-  const getSafeRedirect = useCallback(() => {
-    const redirect = searchParams.get("redirect");
-    if (
-      redirect &&
-      redirect.startsWith("/") &&
-      !redirect.startsWith("//") &&
-      !redirect.startsWith("/\\") &&
-      !redirect.includes("://")
-    ) {
-      return redirect;
-    }
-    return "/dashboard/escrow-dashboard";
-  }, [searchParams]);
+  const getSafeRedirect = useCallback(
+    () => resolveRedirectPath(searchParams.get("redirect")),
+    [searchParams],
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -104,8 +78,18 @@ export default function LoginPage() {
 
     try {
       await applyRememberMe(remember);
+      // Use the lazy accessor from firebase-app so firebase/auth is NOT part
+      // of the /login first-load chunk — it is only fetched when the user
+      // submits the form.  firebase-app.ts has no static firebase/auth import.
+      const [{ signInWithEmailAndPassword }, { getAuthInstance }] =
+        await Promise.all([
+          import("firebase/auth"),
+          import("@/lib/firebase-app"),
+        ]);
+      const authInstance = await getAuthInstance();
+
       const credential = await signInWithEmailAndPassword(
-        auth,
+        authInstance,
         email,
         password,
       );
@@ -237,21 +221,7 @@ export default function LoginPage() {
               onBeforeSignIn={() => applyRememberMe(remember)}
             />
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full bg-black text-white hover:bg-black/90 hover:text-white"
-              onClick={() => setWalletModalOpen(true)}
-              disabled={isAnyAuthLoading}
-            >
-              <Wallet className="mr-2 h-4 w-4" />
-              Connect Stellar wallet
-            </Button>
-            {walletError && (
-              <p role="alert" className="text-center text-sm text-destructive">
-                {walletError}
-              </p>
-            )}
+            <FreighterSignInButton redirectTo={getSafeRedirect()} />
           </div>
 
           <div className="text-center text-sm">
@@ -264,12 +234,18 @@ export default function LoginPage() {
       </div>
 
       <Illustration />
-
-      <WalletSelectionModal
-        isOpen={isWalletModalOpen}
-        onClose={() => setWalletModalOpen(false)}
-        onWalletSelected={handleStellarWalletSelected}
-      />
     </div>
+  );
+}
+
+/**
+ * Login wraps the form with a scoped WalletProvider so that
+ * stellar-wallets-kit is contained to this subtree only.
+ */
+export default function Login() {
+  return (
+    <WalletProviderScoped>
+      <LoginForm />
+    </WalletProviderScoped>
   );
 }

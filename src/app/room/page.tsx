@@ -23,11 +23,8 @@ import { getApartmentById } from "@/lib/mockData/apartmentListings";
 import { EscrowProviders } from "@/providers/EscrowProviders";
 import type { BookingDetails } from "@/features/escrow/booking-escrow.machine";
 
-const additionalImages = [
-  "/img/room1.png",
-  "/img/room2.png",
-  "/img/hotel/hotel1.jpg",
-];
+const roomListing = getApartmentById("1");
+const additionalImages = roomListing.images.slice(1);
 
 // Static demo room: no dynamic hotel id is available on /room yet.
 // Keep the id explicit here so the booking link does not silently drift.
@@ -130,7 +127,7 @@ export default function RoomPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
         {/* Main Room Photos */}
         <div className="lg:col-span-8 space-y-6 px-2 md:px-6">
-          <RoomPhotos />
+          <RoomPhotos images={roomListing.images} />
         </div>
 
         {/* Additional Hotel Images */}
@@ -156,9 +153,18 @@ export default function RoomPage() {
           {/* Amenities */}
           <AmenitiesCard isLoading={isLoading} />
           {/* Location */}
-          <LocationCard isLoading={isLoading} />
+          <LocationCard
+            address={roomListing.address}
+            city={roomListing.location}
+            coordinates={roomListing.coordinates}
+            isLoading={isLoading}
+          />
           {/* Host Information */}
-          <HostCard isLoading={isLoading} />
+          <HostCard
+            hostName={roomListing.owner.name}
+            hostAvatar={roomListing.owner.avatar}
+            isLoading={isLoading}
+          />
           {/* Policies and Rules */}
           <PolicyCard isLoading={isLoading} />
         </div>

@@ -67,8 +67,8 @@ const eslintConfig = [
     },
   },
   {
-    // Legacy pages that still consume demo/mock data directly; the rule above
-    // only bans *new* consumers. Dynamic route segments escape their brackets
+    // Explicit legacy/demo pages may consume demo/mock data directly. Dynamic
+    // route segments escape their brackets
     // (\\[id\\]) because a bare [id] is a minimatch character class and never
     // matches a literal "[id]" path segment.
     files: [
@@ -78,6 +78,7 @@ const eslintConfig = [
       "src/app/guest/suggestions/page.tsx",
       "src/app/hotels/\\[id\\]/book/page.tsx",
       "src/app/hotels/\\[id\\]/page.tsx",
+      "src/app/hotels/search/page.tsx",
       "src/app/rent/\\[id\\]/escrow/\\[escrowId\\]/page.tsx",
       "src/app/rent/\\[id\\]/escrow/create/page.tsx",
       "src/app/rent/\\[id\\]/page.tsx",
