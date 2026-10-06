@@ -320,7 +320,7 @@ export function RoleEscrowDashboard({
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Total Escrows
                 </p>
                 <p className="text-2xl font-bold mt-1 dark:text-white">
@@ -349,7 +349,7 @@ export function RoleEscrowDashboard({
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Active
                 </p>
                 <p className="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">
@@ -385,7 +385,7 @@ export function RoleEscrowDashboard({
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Completed
                 </p>
                 <p className="text-2xl font-bold mt-1 text-purple-600 dark:text-purple-400">
@@ -414,7 +414,7 @@ export function RoleEscrowDashboard({
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Total Value
                 </p>
                 <p className="text-2xl font-bold mt-1 dark:text-white">
@@ -613,7 +613,7 @@ export function RoleEscrowDashboard({
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
                               {notification.message}
                             </p>
-                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
                               {formatNotificationTimestamp(
                                 notification.timestamp,
                               )}
@@ -632,7 +632,7 @@ export function RoleEscrowDashboard({
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       No new notifications
                     </p>
                   </div>

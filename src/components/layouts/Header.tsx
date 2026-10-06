@@ -96,8 +96,8 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 <span className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-200">
                   {displayName ?? "Account"}
                 </span>
-                <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-semibold text-orange-700 dark:text-orange-300">
+                <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-950/60 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-semibold text-orange-800 dark:text-orange-200">
                     {initials}
                   </span>
                 </div>

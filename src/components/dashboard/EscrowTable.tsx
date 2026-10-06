@@ -117,7 +117,7 @@ export function EscrowTable({ escrows }: EscrowTableProps) {
             <TableRow className="border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
               <TableCell
                 colSpan={8}
-                className="h-24 text-center text-gray-500 dark:text-slate-400"
+                className="h-24 text-center text-gray-600 dark:text-slate-400"
               >
                 No escrows found
               </TableCell>
@@ -133,7 +133,7 @@ export function EscrowTable({ escrows }: EscrowTableProps) {
                     aria-label={`Select escrow ${escrow.metadata?.bookingId || escrow.id}`}
                   />
                 </TableCell>
-                <TableCell className="font-mono text-sm text-gray-500 dark:text-gray-400">
+                <TableCell className="font-mono text-sm text-gray-600 dark:text-gray-400">
                   {escrow.metadata?.bookingId || "N/A"}
                 </TableCell>
                 <TableCell className="text-gray-900 dark:text-white">

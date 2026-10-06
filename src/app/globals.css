@@ -16,7 +16,7 @@
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215.4 16.3% 36%;
     --accent: 33.3 100% 96.5%; /* orange-50: hover/active surfaces */
     --accent-foreground: 20.5 90.2% 38%;
     --destructive: 0 84.2% 45%; /* darkened red: meets WCAG AA >= 4.5:1 on white background & with white text */
@@ -46,7 +46,7 @@
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted-foreground: 215 20.2% 70%;
     --accent: 20 50% 14%;
     --accent-foreground: 27 96% 61%;
     --destructive: 0 62.8% 50.6%;

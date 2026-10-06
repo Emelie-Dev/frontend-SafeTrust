@@ -4,6 +4,7 @@ import type { ApartmentListing } from "@/types/hotel";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Flame, Heart, MessageCircle } from "lucide-react";
 import AmenityIcons from "./AmenityIcons";
@@ -25,10 +26,25 @@ export default function ApartmentCard({
   isFavorite = apartment.favorite,
   onToggleFavorite,
 }: ApartmentCardProps) {
+  const router = useRouter();
   const conversationId = getConversationIdForApartment(apartment.name);
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[16px] border dark:border-slate-700 bg-white dark:bg-slate-800 transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] focus-within:ring-2 focus-within:ring-orange-500">
+    <article
+      role="article"
+      tabIndex={0}
+      aria-label={apartment.name}
+      onKeyDown={(e) => {
+        if (
+          (e.key === "Enter" || e.key === " ") &&
+          e.target === e.currentTarget
+        ) {
+          e.preventDefault();
+          router.push(`/rent/${apartment.id}`);
+        }
+      }}
+      className="group relative flex flex-col overflow-hidden rounded-[16px] border dark:border-slate-700 bg-white dark:bg-slate-800 transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] focus-within:ring-2 focus-within:ring-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+    >
       <div className="relative">
         <Image
           src={apartment.images[0]}
