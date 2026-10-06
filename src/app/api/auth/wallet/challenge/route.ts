@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  checkRateLimit,
   hasTrustedWalletAuthOrigin,
   issueWalletChallenge,
   WalletAuthServiceError,
@@ -7,24 +8,57 @@ import {
 
 export const runtime = "nodejs";
 
+function getCorsHeaders(request: Request): HeadersInit {
+  const origin = request.headers.get("origin") || "*";
+  return {
+    "cache-control": "no-store",
+    "access-control-allow-origin": origin,
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-headers": "Content-Type, Authorization",
+  };
+}
+
+export async function OPTIONS(request: Request) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: getCorsHeaders(request),
+  });
+}
+
+async function parseRequestBody(
+  request: Request,
+): Promise<Record<string, any>> {
+  const contentType = request.headers.get("content-type") || "";
+  if (contentType.includes("application/x-www-form-urlencoded")) {
+    const text = await request.text();
+    const params = new URLSearchParams(text);
+    const body: Record<string, string> = {};
+    for (const [key, value] of params.entries()) {
+      body[key] = value;
+    }
+    return body;
+  }
+  try {
+    const text = await request.text();
+    if (!text.trim()) return {};
+    return JSON.parse(text);
+  } catch {
+    throw new WalletAuthServiceError(400, "Invalid request body.");
+  }
+}
+
 export async function POST(request: Request) {
   if (!hasTrustedWalletAuthOrigin(request)) {
     return NextResponse.json(
       { error: "Invalid request origin." },
-      { status: 403 },
+      { status: 403, headers: getCorsHeaders(request) },
     );
   }
 
   try {
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json(
-        { error: "Invalid request body." },
-        { status: 400, headers: { "cache-control": "no-store" } },
-      );
-    }
+    checkRateLimit(request);
+
+    const body = await parseRequestBody(request);
     if (
       typeof body !== "object" ||
       body === null ||
@@ -33,24 +67,24 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { error: "Invalid Stellar account." },
-        { status: 400 },
+        { status: 400, headers: getCorsHeaders(request) },
       );
     }
 
     const result = await issueWalletChallenge(body.account);
     return NextResponse.json(result, {
-      headers: { "cache-control": "no-store" },
+      headers: getCorsHeaders(request),
     });
   } catch (error) {
     if (error instanceof WalletAuthServiceError) {
       return NextResponse.json(
         { error: error.message },
-        { status: error.status, headers: { "cache-control": "no-store" } },
+        { status: error.status, headers: getCorsHeaders(request) },
       );
     }
     return NextResponse.json(
       { error: "Wallet authentication is temporarily unavailable." },
-      { status: 503, headers: { "cache-control": "no-store" } },
+      { status: 503, headers: getCorsHeaders(request) },
     );
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   checkRateLimit,
   hasTrustedWalletAuthOrigin,
+  issueWalletChallenge,
   verifyWalletChallenge,
   WalletAuthServiceError,
 } from "@/lib/auth/wallet-server";
@@ -13,7 +14,7 @@ function getCorsHeaders(request: Request): HeadersInit {
   return {
     "cache-control": "no-store",
     "access-control-allow-origin": origin,
-    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-methods": "GET, POST, OPTIONS",
     "access-control-allow-headers": "Content-Type, Authorization",
   };
 }
@@ -47,7 +48,7 @@ async function parseRequestBody(
   }
 }
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   if (!hasTrustedWalletAuthOrigin(request)) {
     return NextResponse.json(
       { error: "Invalid request origin." },
@@ -57,6 +58,20 @@ export async function POST(request: Request) {
 
   try {
     checkRateLimit(request);
+
+    const url = new URL(request.url);
+    const account = url.searchParams.get("account");
+    if (!account) {
+      return NextResponse.json(
+        { error: "Missing Stellar account." },
+        { status: 400, headers: getCorsHeaders(request) },
+      );
+    }
+
+    const result = await issueWalletChallenge(account);
+    return NextResponse.json(result, {
+      headers: getCorsHeaders(request),
+    });
   } catch (error) {
     if (error instanceof WalletAuthServiceError) {
       return NextResponse.json(
@@ -69,25 +84,46 @@ export async function POST(request: Request) {
       { status: 503, headers: getCorsHeaders(request) },
     );
   }
+}
+
+export async function POST(request: Request) {
+  if (!hasTrustedWalletAuthOrigin(request)) {
+    return NextResponse.json(
+      { error: "Invalid request origin." },
+      { status: 403, headers: getCorsHeaders(request) },
+    );
+  }
 
   try {
+    checkRateLimit(request);
+
     const body = await parseRequestBody(request);
-    if (
-      typeof body !== "object" ||
-      body === null ||
-      !("transaction" in body) ||
-      typeof body.transaction !== "string"
-    ) {
+
+    if (typeof body !== "object" || body === null) {
       return NextResponse.json(
-        { error: "Invalid wallet challenge." },
+        { error: "Invalid request body." },
         { status: 400, headers: getCorsHeaders(request) },
       );
     }
 
-    const result = await verifyWalletChallenge(body.transaction);
-    return NextResponse.json(result, {
-      headers: getCorsHeaders(request),
-    });
+    if ("account" in body && typeof body.account === "string") {
+      const result = await issueWalletChallenge(body.account);
+      return NextResponse.json(result, {
+        headers: getCorsHeaders(request),
+      });
+    }
+
+    if ("transaction" in body && typeof body.transaction === "string") {
+      const result = await verifyWalletChallenge(body.transaction);
+      return NextResponse.json(result, {
+        headers: getCorsHeaders(request),
+      });
+    }
+
+    return NextResponse.json(
+      { error: "Invalid request parameters." },
+      { status: 400, headers: getCorsHeaders(request) },
+    );
   } catch (error) {
     if (error instanceof WalletAuthServiceError) {
       return NextResponse.json(
