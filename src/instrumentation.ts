@@ -2,27 +2,14 @@ import * as Sentry from "@sentry/nextjs";
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    await import("../sentry.server.config");
+    await import("../../../sentry.server.config");
   }
 
   if (process.env.NEXT_RUNTIME === "edge") {
-    await import("../sentry.edge.config");
+    await import("../../../sentry.edge.config");
   }
 }
 
-export async function onRequestError(
-  error: Error,
-  request: Request,
-  context: Record<string, unknown>,
-) {
-  if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-    Sentry.captureException(error, {
-      tags: {
-        route:
-          (request as unknown as { path?: string })?.path ||
-          (context as unknown as { routerKind?: string })?.routerKind ||
-          "unknown",
-      },
-    });
-  }
-}
+// Reports errors thrown in Server Components, route handlers, server actions
+// and middleware, tagged with the route path. No-op while Sentry is disabled.
+export const onRequestError = Sentry.captureRequestError;
