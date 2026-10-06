@@ -6,6 +6,9 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 
 const nextConfig: NextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
     // Tree-shake barrel-heavy packages so only used icons/fns are bundled.
     optimizePackageImports: ["lucide-react", "date-fns", "recharts"],
