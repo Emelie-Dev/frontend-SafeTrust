@@ -69,7 +69,6 @@
     "react-i18next": "^15.4.0",
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.3.0",
-    "react-toastify": "^10.0.6",
     "recharts": "^3.10.1",
     "server-only": "^0.0.1",
     "sonner": "^2.0.8",

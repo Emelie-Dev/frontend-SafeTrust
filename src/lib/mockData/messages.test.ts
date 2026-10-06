@@ -23,6 +23,27 @@ describe("getConversationIdForApartment", () => {
     expect(getConversationIdForApartment("  LA SABANA SUR  ")).toBe("conv-4");
   });
 
+  it("maps enriched listing names to their existing conversations", () => {
+    expect(
+      getConversationIdForApartment("Casa Níspero, Barrio Escalante"),
+    ).toBe("conv-4");
+    expect(getConversationIdForApartment("Luz de Los Yoses Studio")).toBe(
+      "conv-5",
+    );
+    expect(getConversationIdForApartment("Paseo Colón City Loft")).toBe(
+      "conv-6",
+    );
+    expect(getConversationIdForApartment("Jardín de Heredia House")).toBe(
+      "conv-7",
+    );
+    expect(getConversationIdForApartment("Airport Garden Apartment")).toBe(
+      "conv-8",
+    );
+    expect(getConversationIdForApartment("El Guarco Study Apartment")).toBe(
+      "conv-9",
+    );
+  });
+
   it("returns undefined for an unknown apartment", () => {
     expect(getConversationIdForApartment("Nonexistent Villa")).toBeUndefined();
   });
