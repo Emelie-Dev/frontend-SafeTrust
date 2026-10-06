@@ -21,9 +21,6 @@
   "ignoreDependencies": [
     "lint-staged",
     "@radix-ui/react-tabs",
-    "@reown/walletkit",
-    "@stellar/freighter-api",
-    "@trustless-work/blocks",
     "@walletconnect/core",
     "@walletconnect/utils",
     "eslint-config-next",
@@ -32,8 +29,7 @@
     "jest-junit",
     "postcss-load-config",
     "react-i18next",
-    "react-redux",
-    "zxcvbn"
+    "react-redux"
   ],
   "rules": {
     "files": "error",
