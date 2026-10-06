@@ -16,6 +16,7 @@ import { auth } from "@/lib/firebase";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { applyRememberMe } from "@/lib/auth/persistence";
 import { setSessionCookie } from "@/lib/auth/session";
+import { resolveRedirectPath } from "@/lib/auth/redirect";
 import { toast } from "sonner";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 import FreighterSignInButton from "./FreighterSignInButton";
@@ -33,19 +34,10 @@ export default function LoginPage() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const getSafeRedirect = useCallback(() => {
-    const redirect = searchParams.get("redirect");
-    if (
-      redirect &&
-      redirect.startsWith("/") &&
-      !redirect.startsWith("//") &&
-      !redirect.startsWith("/\\") &&
-      !redirect.includes("://")
-    ) {
-      return redirect;
-    }
-    return "/dashboard/escrow-dashboard";
-  }, [searchParams]);
+  const getSafeRedirect = useCallback(
+    () => resolveRedirectPath(searchParams.get("redirect")),
+    [searchParams],
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
