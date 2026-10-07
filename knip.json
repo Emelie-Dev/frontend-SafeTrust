@@ -19,7 +19,6 @@
   ],
   "ignoreDependencies": [
     "lint-staged",
-    "@radix-ui/react-tabs",
     "@walletconnect/core",
     "@walletconnect/utils",
     "eslint-config-next",
@@ -28,8 +27,7 @@
     "jest-junit",
     "postcss-load-config",
     "react-i18next",
-    "react-redux",
-    "react-toastify"
+    "react-redux"
   ],
   "rules": {
     "files": "error",
