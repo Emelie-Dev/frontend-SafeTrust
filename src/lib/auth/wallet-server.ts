@@ -35,6 +35,17 @@ export function checkRateLimit(request: Request) {
   const windowMs = 60 * 1000;
   const maxRequests = 20;
 
+  if (rateLimitMap.size > 10000) {
+    for (const [key, timestamps] of rateLimitMap.entries()) {
+      const active = timestamps.filter((t) => now - t < windowMs);
+      if (active.length === 0) {
+        rateLimitMap.delete(key);
+      } else {
+        rateLimitMap.set(key, active);
+      }
+    }
+  }
+
   let timestamps = rateLimitMap.get(ip) ?? [];
   timestamps = timestamps.filter((t) => now - t < windowMs);
 
@@ -48,12 +59,12 @@ export function checkRateLimit(request: Request) {
 
 function getWalletAuthConfig(): WalletAuthConfig {
   const secret =
-    process.env.STELLAR_AUTH_SECRET ?? process.env.SEP10_SIGNING_SECRET;
+    process.env.STELLAR_AUTH_SECRET || process.env.SEP10_SIGNING_SECRET;
   const homeDomain =
-    process.env.STELLAR_AUTH_HOME_DOMAIN ?? process.env.SEP10_HOME_DOMAIN;
+    process.env.STELLAR_AUTH_HOME_DOMAIN || process.env.SEP10_HOME_DOMAIN;
   const webAuthDomain =
-    process.env.STELLAR_AUTH_WEB_AUTH_DOMAIN ??
-    process.env.SEP10_WEB_AUTH_DOMAIN ??
+    process.env.STELLAR_AUTH_WEB_AUTH_DOMAIN ||
+    process.env.SEP10_WEB_AUTH_DOMAIN ||
     homeDomain;
   const network = process.env.STELLAR_NETWORK ?? "testnet";
 
