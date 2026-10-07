@@ -20,7 +20,7 @@ const csp = [
     "https://horizon-testnet.stellar.org https://horizon.stellar.org https://soroban-testnet.stellar.org",
     process.env.NEXT_PUBLIC_SENTRY_DSN ? "https://*.ingest.sentry.io" : "",
   ].join(" "),
-  `frame-src https://${process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "*.firebaseapp.com"} https://accounts.google.com`,
+  `frame-src https://${process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com`} https://accounts.google.com`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
