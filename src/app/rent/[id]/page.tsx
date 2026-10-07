@@ -1,6 +1,6 @@
 import RentalDetail from "./RentalDetail";
 import {
-  APARTMENT_LISTINGS,
+ // APARTMENT_LISTINGS,
   getSuggestedApartments,
 } from "@/lib/mockData/apartmentListings";
 

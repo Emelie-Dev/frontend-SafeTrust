@@ -32,11 +32,16 @@ export async function verifyIdToken(
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   if (!projectId) return null;
 
-  if (
-    process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR === "true" ||
-    process.env.FIREBASE_AUTH_EMULATOR_HOST ||
-    projectId.startsWith("demo-")
-  ) {
+  // Emulator tokens are unsigned, so this branch skips signature checks.
+  // Firebase reserves the "demo-" prefix for emulator-only projects, so
+  // requiring it (AND an emulator flag) keeps this unreachable for a real
+  // project even if an emulator env var leaks into production.
+  const isEmulator =
+    projectId.startsWith("demo-") &&
+    (process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR === "true" ||
+      Boolean(process.env.FIREBASE_AUTH_EMULATOR_HOST));
+
+  if (isEmulator) {
     try {
       const payload = decodeJwt<SafeTrustClaims>(token);
       const isExpectedAud =
