@@ -1,55 +1,17 @@
-"use client";
-
-import {
-  ApartmentDetail,
-  HotelHeader,
-  SuggestionsList,
-} from "@/components/listings";
+import RentalDetail from "./RentalDetail";
 import {
   APARTMENT_LISTINGS,
   getSuggestedApartments,
 } from "@/lib/mockData/apartmentListings";
-import { useGlobalAuthenticationStore } from "@/core/store/data";
-import { notFound, useRouter } from "next/navigation";
-import { use } from "react";
 
-export default function HotelDetailPage({
+export default async function HotelDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const router = useRouter();
-  const { token, address } = useGlobalAuthenticationStore();
-  const resolvedParams = use(params);
-  const apartment = APARTMENT_LISTINGS.find(
-    (apt) => apt.id === resolvedParams.id,
-  );
-
-  if (!apartment) {
-    notFound();
-  }
-
+  const { id } = await params;
+  const apartment = getApartmentById(id);
   const suggestions = getSuggestedApartments(apartment.id);
 
-  const handleBook = () => {
-    if (!token && !address) {
-      router.push(`/login?redirect=/rent/${apartment.id}/escrow/create`);
-    } else {
-      router.push(`/rent/${apartment.id}/escrow/create`);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-white dark:bg-slate-900">
-      <HotelHeader />
-
-      <div className="mx-auto flex max-w-[1180px] flex-col lg:flex-row">
-        <SuggestionsList
-          apartments={suggestions}
-          onSelect={(id) => router.push(`/rent/${id}`)}
-        />
-        <ApartmentDetail apartment={apartment} onBook={handleBook} />
-      </div>
-    </div>
-  );
+  return <RentalDetail apartment={apartment} suggestions={suggestions} />;
 }

@@ -8,7 +8,7 @@ import WalletOption from "./WalletOption";
 import ConnectionStatus from "./ConnectionStatus";
 import { STELLAR_WALLETS } from "./utils/walletConfig";
 import type { WalletInfo, WalletType } from "@/types/wallet";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface SimpleWalletModalProps {
   isOpen: boolean;
