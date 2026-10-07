@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  checkRateLimit,
   hasTrustedWalletAuthOrigin,
   verifyWalletChallenge,
   WalletAuthServiceError,
@@ -12,6 +13,21 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Invalid request origin." },
       { status: 403 },
+    );
+  }
+
+  try {
+    checkRateLimit(request);
+  } catch (error) {
+    if (error instanceof WalletAuthServiceError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status, headers: { "cache-control": "no-store" } },
+      );
+    }
+    return NextResponse.json(
+      { error: "Wallet authentication is temporarily unavailable." },
+      { status: 503, headers: { "cache-control": "no-store" } },
     );
   }
 

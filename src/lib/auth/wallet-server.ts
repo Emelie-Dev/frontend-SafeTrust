@@ -18,7 +18,7 @@ type WalletAuthConfig = {
 
 export class WalletAuthServiceError extends Error {
   constructor(
-    public status: 400 | 401 | 503,
+    public status: 400 | 401 | 429 | 503,
     message: string,
   ) {
     super(message);
@@ -26,10 +26,35 @@ export class WalletAuthServiceError extends Error {
   }
 }
 
+const rateLimitMap = new Map<string, number[]>();
+
+export function checkRateLimit(request: Request) {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
+  const now = Date.now();
+  const windowMs = 60 * 1000;
+  const maxRequests = 20;
+
+  let timestamps = rateLimitMap.get(ip) ?? [];
+  timestamps = timestamps.filter((t) => now - t < windowMs);
+
+  if (timestamps.length >= maxRequests) {
+    throw new WalletAuthServiceError(429, "Rate limit exceeded.");
+  }
+
+  timestamps.push(now);
+  rateLimitMap.set(ip, timestamps);
+}
+
 function getWalletAuthConfig(): WalletAuthConfig {
-  const secret = process.env.STELLAR_AUTH_SECRET;
-  const homeDomain = process.env.STELLAR_AUTH_HOME_DOMAIN;
-  const webAuthDomain = process.env.STELLAR_AUTH_WEB_AUTH_DOMAIN ?? homeDomain;
+  const secret =
+    process.env.STELLAR_AUTH_SECRET ?? process.env.SEP10_SIGNING_SECRET;
+  const homeDomain =
+    process.env.STELLAR_AUTH_HOME_DOMAIN ?? process.env.SEP10_HOME_DOMAIN;
+  const webAuthDomain =
+    process.env.STELLAR_AUTH_WEB_AUTH_DOMAIN ??
+    process.env.SEP10_WEB_AUTH_DOMAIN ??
+    homeDomain;
   const network = process.env.STELLAR_NETWORK ?? "testnet";
 
   if (!secret || !homeDomain || !webAuthDomain) {

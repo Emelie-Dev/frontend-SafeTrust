@@ -190,4 +190,53 @@ describe("SEP-10 wallet authentication service", () => {
 
     expect(hasTrustedWalletAuthOrigin(request)).toBe(true);
   });
+
+  it("rejects an invalid Stellar account when issuing a challenge", async () => {
+    await expect(issueWalletChallenge("invalid-account")).rejects.toMatchObject({
+      status: 400,
+    });
+  });
+
+  it("rejects a challenge signed by a different key (wrong signer)", async () => {
+    const challenge = await issueWalletChallenge(clientKeypair.publicKey());
+    const wrongKeypair = Keypair.random();
+    const signedTransaction = TransactionBuilder.fromXDR(
+      challenge.transaction,
+      Networks.TESTNET,
+    );
+    signedTransaction.sign(wrongKeypair);
+    const signedXdr = signedTransaction.toXDR();
+
+    await expect(verifyWalletChallenge(signedXdr)).rejects.toMatchObject({
+      status: 401,
+    });
+  });
+
+  it("rejects an expired challenge", async () => {
+    const challenge = await issueWalletChallenge(clientKeypair.publicKey());
+    const signedTransaction = TransactionBuilder.fromXDR(
+      challenge.transaction,
+      Networks.TESTNET,
+    );
+    signedTransaction.sign(clientKeypair);
+    const signedXdr = signedTransaction.toXDR();
+
+    // Expire the challenge in store
+    for (const [id, record] of challenges.entries()) {
+      challenges.set(id, {
+        account: record.account,
+        expiresAt: new Date(Date.now() - 1000),
+      });
+    }
+
+    await expect(verifyWalletChallenge(signedXdr)).rejects.toMatchObject({
+      status: 401,
+    });
+  });
+
+  it("rejects malformed XDR in verification", async () => {
+    await expect(verifyWalletChallenge("malformed-xdr")).rejects.toMatchObject({
+      status: 401,
+    });
+  });
 });

@@ -1,0 +1,7 @@
+# Stellar TOML Configuration for SafeTrust SEP-10 Web Authentication
+
+SIGNING_KEY=""
+WEB_AUTH_ENDPOINT="https://safetrust.app/api/auth/wallet/challenge"
+NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+HOME_DOMAIN="safetrust.app"
+WEB_AUTH_DOMAIN="safetrust.app"

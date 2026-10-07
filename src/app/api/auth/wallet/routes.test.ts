@@ -8,6 +8,7 @@ jest.mock("@/lib/auth/wallet-server", () => ({
   hasTrustedWalletAuthOrigin: jest.fn(() => true),
   issueWalletChallenge: jest.fn(),
   verifyWalletChallenge: jest.fn(),
+  checkRateLimit: jest.fn(),
   WalletAuthServiceError: class WalletAuthServiceError extends Error {},
 }));
 

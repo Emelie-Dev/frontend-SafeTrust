@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  checkRateLimit,
   hasTrustedWalletAuthOrigin,
   issueWalletChallenge,
   WalletAuthServiceError,
@@ -16,6 +17,8 @@ export async function POST(request: Request) {
   }
 
   try {
+    checkRateLimit(request);
+
     let body: unknown;
     try {
       body = await request.json();
