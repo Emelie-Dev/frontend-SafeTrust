@@ -10,11 +10,18 @@ export async function register() {
   }
 }
 
-export async function onRequestError(error: any, request: any, context: any) {
+export async function onRequestError(
+  error: Error,
+  request: Request,
+  context: Record<string, unknown>,
+) {
   if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     Sentry.captureException(error, {
       tags: {
-        route: request?.path || context?.routerKind || "unknown",
+        route:
+          (request as unknown as { path?: string })?.path ||
+          (context as unknown as { routerKind?: string })?.routerKind ||
+          "unknown",
       },
     });
   }

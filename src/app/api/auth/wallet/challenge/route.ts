@@ -27,7 +27,7 @@ export async function OPTIONS(request: Request) {
 
 async function parseRequestBody(
   request: Request,
-): Promise<Record<string, any>> {
+): Promise<Record<string, string | string[]>> {
   const contentType = request.headers.get("content-type") || "";
   if (contentType.includes("application/x-www-form-urlencoded")) {
     const text = await request.text();
