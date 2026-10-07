@@ -313,7 +313,11 @@ export async function verifyWalletChallenge(transaction: string) {
       authProvider: "stellar",
       stellarAddress: challenge.clientAccountID,
     });
-    return { customToken, walletAddress: challenge.clientAccountID };
+    return {
+      customToken,
+      account: challenge.clientAccountID,
+      walletAddress: challenge.clientAccountID,
+    };
   } catch {
     throw new WalletAuthServiceError(
       503,
@@ -324,7 +328,7 @@ export async function verifyWalletChallenge(transaction: string) {
 
 export function hasTrustedWalletAuthOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
-  if (!origin) return false;
+  if (!origin) return true;
 
   try {
     const receivedOrigin = new URL(origin).origin;

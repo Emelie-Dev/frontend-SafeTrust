@@ -132,6 +132,7 @@ describe("SEP-10 wallet authentication service", () => {
 
     await expect(verifyWalletChallenge(signedXdr)).resolves.toEqual({
       customToken: "firebase-custom-token",
+      account: clientKeypair.publicKey(),
       walletAddress: clientKeypair.publicKey(),
     });
     expect(Horizon.Server).toHaveBeenCalledWith(
