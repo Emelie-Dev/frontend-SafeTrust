@@ -12,6 +12,8 @@ const customJestConfig = {
     "^@/(.*)$": "<rootDir>/src/$1",
     "^server-only$": "<rootDir>/__mocks__/server-only.js",
   },
+  testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/e2e/"],
+  modulePathIgnorePatterns: ["<rootDir>/e2e/"],
 };
 
 // next/jest merges transformIgnorePatterns at resolution time.

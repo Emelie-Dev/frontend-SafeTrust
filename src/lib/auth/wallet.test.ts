@@ -1,11 +1,11 @@
-import { signInWithCustomToken } from "firebase/auth";
+import { signInWithCustomToken } from "@firebase/auth";
 import { FREIGHTER_ID } from "@creit.tech/stellar-wallets-kit";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { setSessionCookie } from "@/lib/auth/session";
 import { getWalletKit } from "@/lib/stellar/wallet-kit";
 import { signInWithFreighter } from "@/lib/auth/wallet";
 
-jest.mock("firebase/auth", () => ({
+jest.mock("@firebase/auth", () => ({
   signInWithCustomToken: jest.fn(),
 }));
 jest.mock("@creit.tech/stellar-wallets-kit", () => ({

@@ -8,6 +8,7 @@ export { default as ImageGallery } from "./ImageGallery";
 export { default as SuggestionCard } from "./SuggestionCard";
 export { default as SuggestionsList } from "./SuggestionsList";
 export { default as AmenityIcons } from "./AmenityIcons";
+export { default as DestinationCard } from "./DestinationCard";
 export type {
   ApartmentAmenitySummary,
   ApartmentListing,

@@ -126,7 +126,7 @@ function RentPageContent() {
                 </span>
               </h1>
               <p
-                className="mt-3 text-sm text-gray-500 dark:text-gray-400"
+                className="mt-3 text-sm text-gray-600 dark:text-gray-400"
                 aria-live="polite"
               >
                 {results.length} {results.length === 1 ? "unit" : "units"}{" "}
@@ -148,7 +148,7 @@ function RentPageContent() {
 
               <button
                 onClick={() => router.push("/dashboard")}
-                className="flex items-center gap-1.5 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors"
+                className="flex items-center gap-1.5 text-sm font-medium text-orange-700 hover:text-orange-800 transition-colors"
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Switch to Host view
@@ -156,7 +156,7 @@ function RentPageContent() {
 
               <Link
                 href="/guest/suggestions"
-                className="flex items-center gap-1.5 text-sm font-medium text-orange-500 transition-colors hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                className="flex items-center gap-1.5 text-sm font-medium text-orange-700 transition-colors hover:text-orange-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
               >
                 <Lightbulb aria-hidden="true" className="h-4 w-4" />
                 Suggestions view
@@ -182,7 +182,7 @@ function RentPageContent() {
                   className="w-64 space-y-2 border border-gray-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800"
                 >
                   <div className="space-y-1">
-                    <p className="px-3 pb-1 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
+                    <p className="px-3 pb-1 text-xs font-semibold uppercase text-gray-600 dark:text-gray-400">
                       Sort
                     </p>
                     {(

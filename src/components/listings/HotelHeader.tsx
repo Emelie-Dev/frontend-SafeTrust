@@ -131,7 +131,7 @@ export default function HotelHeader({
         <div className="mx-auto hidden w-full max-w-[430px] items-center rounded-full border border-gray-200 bg-gray-100 px-2 py-1.5 md:flex dark:border-slate-700 dark:bg-slate-800">
           <RentDropdown />
           <div className="mx-3 h-6 w-px bg-gray-300 dark:bg-slate-600" />
-          <span className="text-sm text-gray-500 dark:text-gray-300">
+          <span className="text-sm text-gray-600 dark:text-gray-300">
             City, province or neighborhood
           </span>
           <Search
@@ -145,7 +145,7 @@ export default function HotelHeader({
           {showHostSwitch && (
             <Link
               href="/dashboard/escrow-dashboard"
-              className="hidden text-sm font-semibold text-orange-500 transition-colors hover:text-orange-600 sm:block whitespace-nowrap"
+              className="hidden text-sm font-semibold text-orange-700 transition-colors hover:text-orange-800 sm:block whitespace-nowrap"
             >
               Switch to Host view
             </Link>

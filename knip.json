@@ -17,6 +17,7 @@
     "src/components/booking/index.ts"
   ],
   "ignoreDependencies": [
+    "@axe-core/playwright",
     "lint-staged",
     "@walletconnect/core",
     "@walletconnect/utils",
