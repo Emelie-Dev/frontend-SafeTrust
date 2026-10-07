@@ -7,6 +7,7 @@
   ],
   "project": ["src/**/*.{js,jsx,ts,tsx}"],
   "ignore": [
+    ".husky/**",
     "src/components/ui/**",
     "src/components/auth/wallet/**",
     "src/components/tw-blocks/**",
@@ -14,10 +15,13 @@
     "src/components/dashboard/apartments/ApartmentTableFilters.tsx",
     "src/core/config/axios/notifications.ts",
     "src/types/escrow.ts",
-    "src/hooks/index.ts"
+    "src/hooks/index.ts",
+    "src/lib/firebase-app.ts",
+    "src/components/booking/index.ts"
   ],
   "ignoreDependencies": [
     "@axe-core/playwright",
+    "lint-staged",
     "@radix-ui/react-tabs",
     "@reown/walletkit",
     "@stellar/freighter-api",
