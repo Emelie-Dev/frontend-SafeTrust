@@ -7,11 +7,16 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 
 const isDev = process.env.NODE_ENV !== "production";
 
+// E2E runs a production build over plain http://localhost against the Firebase
+// Auth emulator. Real deployments never set this flag (and verifyIdToken only
+// honours it for "demo-" projects), so production keeps the strict policy.
+const useAuthEmulator = process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR === "true";
+
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://apis.google.com https://www.gstatic.com`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://stellar.creit.tech https://api.qrserver.com https://lh3.googleusercontent.com",
+  "img-src 'self' data: blob: https://stellar.creit.tech https://storage.herewallet.app https://api.qrserver.com https://lh3.googleusercontent.com",
   "font-src 'self' data:",
   [
     "connect-src 'self'",
@@ -19,14 +24,21 @@ const csp = [
     "https://*.trustlesswork.com",
     "https://horizon-testnet.stellar.org https://horizon.stellar.org https://soroban-testnet.stellar.org",
     process.env.NEXT_PUBLIC_SENTRY_DSN ? "https://*.ingest.sentry.io" : "",
-  ].join(" "),
-  `frame-src https://${process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com`} https://accounts.google.com`,
+    useAuthEmulator ? "http://127.0.0.1:9099 http://localhost:9099" : "",
+  ]
+    .filter(Boolean)
+    .join(" "),
+  `frame-src https://${process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com`} https://accounts.google.com${useAuthEmulator ? " http://127.0.0.1:9099 http://localhost:9099" : ""}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-  "upgrade-insecure-requests",
-].join("; ");
+  // Over plain http this rewrites same-origin redirects (e.g. middleware
+  // -> /login) to https://localhost and breaks them with ERR_SSL_PROTOCOL_ERROR.
+  useAuthEmulator ? "" : "upgrade-insecure-requests",
+]
+  .filter(Boolean)
+  .join("; ");
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
