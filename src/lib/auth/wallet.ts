@@ -1,5 +1,5 @@
 import { FREIGHTER_ID } from "@creit.tech/stellar-wallets-kit";
-import { signInWithCustomToken } from "@firebase/auth";
+import { signInWithCustomToken } from "firebase/auth";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { auth } from "@/lib/firebase";
 import { setSessionCookie } from "@/lib/auth/session";
@@ -134,10 +134,7 @@ export async function signInWithFreighter(walletId = FREIGHTER_ID) {
     );
   }
 
-  const credential = await signInWithCustomToken(
-    auth as unknown as Parameters<typeof signInWithCustomToken>[0],
-    customToken,
-  );
+  const credential = await signInWithCustomToken(auth, customToken);
   const idToken = await credential.user.getIdToken();
   setSessionCookie(idToken);
   useGlobalAuthenticationStore.getState().setToken(idToken);
