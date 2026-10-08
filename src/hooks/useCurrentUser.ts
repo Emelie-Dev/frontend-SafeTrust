@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { onIdTokenChanged } from "firebase/auth";
+import { onIdTokenChanged, type User as FirebaseUser } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export type Role = "guest" | "host" | "admin";
@@ -27,14 +27,21 @@ export function useCurrentUser(): { user: CurrentUser; loading: boolean } {
 
   useEffect(
     () =>
-      onIdTokenChanged(auth, async (firebaseUser) => {
+      onIdTokenChanged(auth, async (firebaseUser: FirebaseUser | null) => {
         if (!firebaseUser) {
           setUser(null);
           setLoading(false);
           return;
         }
 
-        const { claims } = await firebaseUser.getIdTokenResult();
+        const tokenResult = await (
+          firebaseUser as unknown as {
+            getIdTokenResult: () => Promise<{
+              claims: Record<string, unknown>;
+            }>;
+          }
+        ).getIdTokenResult();
+        const claims = tokenResult.claims;
 
         const hasura = claims["https://hasura.io/jwt/claims"] as
           | {
@@ -48,8 +55,8 @@ export function useCurrentUser(): { user: CurrentUser; loading: boolean } {
 
         setUser({
           uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
+          email: firebaseUser.email ?? null,
+          displayName: firebaseUser.displayName ?? null,
           roles,
           activeRole,
         });

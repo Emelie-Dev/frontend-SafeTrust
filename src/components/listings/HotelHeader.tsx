@@ -138,7 +138,7 @@ function HotelHeaderContent({ showHostSwitch }: HotelHeaderProps) {
         <div className="order-3 mx-0 flex w-full items-center rounded-full border border-border bg-muted/60 px-2 py-1.5 sm:order-none sm:mx-auto sm:max-w-md">
           <RentDropdown />
           <div className="mx-3 h-6 w-px bg-gray-300 dark:bg-slate-600" />
-          <span className="text-sm text-gray-500 dark:text-gray-300">
+          <span className="text-sm text-gray-600 dark:text-gray-300">
             City, province or neighborhood
           </span>
           <Search
@@ -152,7 +152,7 @@ function HotelHeaderContent({ showHostSwitch }: HotelHeaderProps) {
           {showHostSwitch && (
             <Link
               href="/dashboard/escrow-dashboard"
-              className="hidden text-sm font-semibold text-orange-500 transition-colors hover:text-orange-600 sm:block whitespace-nowrap"
+              className="hidden text-sm font-semibold text-orange-700 transition-colors hover:text-orange-800 sm:block whitespace-nowrap"
             >
               Switch to Host view
             </Link>

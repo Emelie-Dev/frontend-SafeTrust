@@ -104,6 +104,7 @@ export default function FilterSidebar({
           </label>
           <input
             type="range"
+            aria-label="Minimum price"
             min={PRICE_BOUNDS.min}
             max={PRICE_BOUNDS.max}
             step={100}
@@ -123,6 +124,7 @@ export default function FilterSidebar({
           </label>
           <input
             type="range"
+            aria-label="Maximum price"
             min={PRICE_BOUNDS.min}
             max={PRICE_BOUNDS.max}
             step={100}
@@ -165,7 +167,7 @@ export default function FilterSidebar({
       <button
         type="button"
         onClick={reset}
-        className="mt-8 w-full text-left text-sm font-medium text-orange-600 hover:text-orange-700 dark:text-orange-400"
+        className="mt-8 w-full text-left text-sm font-medium text-orange-700 hover:text-orange-800 dark:text-orange-400"
       >
         Clear all filters
       </button>

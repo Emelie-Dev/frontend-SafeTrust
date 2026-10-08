@@ -48,7 +48,15 @@ export function getFirebaseApp() {
 let _auth: Auth | null = null;
 export async function getAuthInstance(): Promise<Auth> {
   if (_auth) return _auth;
-  const { getAuth } = await import("firebase/auth");
+  const { getAuth, connectAuthEmulator } = await import("firebase/auth");
   _auth = getAuth(getFirebaseApp());
+  if (
+    process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR === "true" &&
+    typeof window !== "undefined"
+  ) {
+    connectAuthEmulator(_auth, "http://127.0.0.1:9099", {
+      disableWarnings: true,
+    });
+  }
   return _auth;
 }

@@ -47,7 +47,7 @@ export function NearMeButton({
         )}
         {isGranted ? "Clear location" : "Use my location"}
       </button>
-      <p className="text-xs text-gray-500 dark:text-gray-400">
+      <p className="text-xs text-gray-600 dark:text-gray-400">
         Used only in your browser to sort results.
       </p>
     </div>

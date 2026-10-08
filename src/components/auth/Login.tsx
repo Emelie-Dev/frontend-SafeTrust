@@ -139,15 +139,18 @@ function LoginForm() {
                 type="email"
                 inputMode="email"
                 autoComplete="username"
-                placeholder="Enter your email"
-                required
+                placeholder="m@example.com"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setError("");
                 }}
+                required
+                disabled={isAnyAuthLoading}
+                className="bg-muted/50 dark:bg-zinc-800"
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -156,12 +159,14 @@ function LoginForm() {
                 type="password"
                 autoComplete="current-password"
                 placeholder="Enter your password"
-                required
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   setError("");
                 }}
+                required
+                disabled={isAnyAuthLoading}
+                className="bg-muted/50 dark:bg-zinc-800"
               />
             </div>
 
@@ -170,19 +175,21 @@ function LoginForm() {
                 <Checkbox
                   id="remember"
                   name="remember"
+                  aria-label="Keep me signed in on this device"
                   checked={remember}
+                  disabled={isAnyAuthLoading}
                   onCheckedChange={(v) => setRemember(v === true)}
                 />
                 <Label
                   htmlFor="remember"
-                  className="font-normal text-sm cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="font-normal text-sm cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700 dark:text-gray-300"
                 >
                   Keep me signed in on this device
                 </Label>
               </div>
               <Link
                 href="/forgot-password"
-                className="text-sm text-primary hover:underline"
+                className="text-sm text-orange-700 dark:text-orange-400 underline hover:no-underline"
               >
                 Forgot your password?
               </Link>
@@ -226,7 +233,10 @@ function LoginForm() {
 
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-primary hover:underline">
+            <Link
+              href="/register"
+              className="text-orange-700 dark:text-orange-400 underline hover:no-underline"
+            >
               Register here
             </Link>
           </div>

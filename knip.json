@@ -1,5 +1,4 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": [
     "src/app/**/{page,layout,loading,error,not-found,global-error,route,template,default}.{js,jsx,ts,tsx}",
     "src/middleware.{js,ts}",
@@ -18,8 +17,8 @@
     "src/components/booking/index.ts"
   ],
   "ignoreDependencies": [
+    "@axe-core/playwright",
     "lint-staged",
-    "@radix-ui/react-tabs",
     "@walletconnect/core",
     "@walletconnect/utils",
     "eslint-config-next",
@@ -28,8 +27,7 @@
     "jest-junit",
     "postcss-load-config",
     "react-i18next",
-    "react-redux",
-    "react-toastify"
+    "react-redux"
   ],
   "rules": {
     "files": "error",

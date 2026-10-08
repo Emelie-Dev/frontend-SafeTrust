@@ -176,3 +176,54 @@ describe("verifyIdToken (module export)", () => {
     expect(await verifyIdToken("not.a.jwt")).toBeNull();
   });
 });
+
+// ─── Emulator bypass must stay scoped to demo- projects ───────────────────────
+
+describe("verifyIdToken (emulator mode)", () => {
+  const b64url = (value: object) =>
+    Buffer.from(JSON.stringify(value)).toString("base64url");
+
+  // Unsigned token, as issued by the Firebase Auth emulator.
+  const unsignedToken = (projectId: string) =>
+    [
+      b64url({ alg: "none", typ: "JWT" }),
+      b64url({
+        sub: "attacker",
+        aud: projectId,
+        iss: `https://securetoken.google.com/${projectId}`,
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      }),
+      "",
+    ].join(".");
+
+  const original = { ...process.env };
+
+  afterEach(() => {
+    process.env = { ...original };
+    jest.resetModules();
+  });
+
+  it("accepts an unsigned emulator token for a demo- project", async () => {
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = "demo-safetrust";
+    process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR = "true";
+    const { verifyIdToken } = await import("@/lib/auth/verify-id-token");
+    const payload = await verifyIdToken(unsignedToken("demo-safetrust"));
+    expect(payload?.sub).toBe("attacker");
+  });
+
+  it("rejects an unsigned token for a real project even with the emulator flag on", async () => {
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = "safetrustcr-596e3";
+    process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR = "true";
+    process.env.FIREBASE_AUTH_EMULATOR_HOST = "127.0.0.1:9099";
+    const { verifyIdToken } = await import("@/lib/auth/verify-id-token");
+    expect(await verifyIdToken(unsignedToken("safetrustcr-596e3"))).toBeNull();
+  });
+
+  it("rejects an unsigned token for a demo- project when no emulator flag is set", async () => {
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = "demo-safetrust";
+    delete process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR;
+    delete process.env.FIREBASE_AUTH_EMULATOR_HOST;
+    const { verifyIdToken } = await import("@/lib/auth/verify-id-token");
+    expect(await verifyIdToken(unsignedToken("demo-safetrust"))).toBeNull();
+  });
+});

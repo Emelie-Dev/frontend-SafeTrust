@@ -327,6 +327,16 @@ export function getApartmentById(id: string) {
   );
 }
 
+export function getHotelById(id: string) {
+  return APARTMENT_LISTINGS.find((hotel) => hotel.id === id);
+}
+
+export const STUB_HOTELS = APARTMENT_LISTINGS;
+export const HOTEL_CATEGORIES = APARTMENT_CATEGORIES;
+export const HOTEL_LOCATIONS = APARTMENT_LOCATIONS;
+export const BEDROOM_FILTERS = APARTMENT_BEDROOM_FILTERS;
+export const getSuggestedHotels = getSuggestedApartments;
+
 export function getSuggestedApartments(activeId: string) {
   return APARTMENT_LISTINGS.filter(
     (apartment) => apartment.id !== activeId,

@@ -228,7 +228,12 @@ export const WalletSelectionModal: React.FC<WalletSelectionModalProps> = ({
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold">Connect Wallet</h2>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            aria-label="Close modal"
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>

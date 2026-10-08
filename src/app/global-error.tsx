@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,6 +15,20 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error(error);
+    const authMethod =
+      typeof window !== "undefined"
+        ? localStorage.getItem("safetrust_auth_method") || "password"
+        : "password";
+    const route = typeof window !== "undefined" ? window.location.pathname : "";
+
+    if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+      Sentry.captureException(error, {
+        tags: {
+          auth_method: authMethod,
+          route,
+        },
+      });
+    }
   }, [error]);
 
   return (
