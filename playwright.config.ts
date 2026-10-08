@@ -1,13 +1,20 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// A dedicated port so a `npm run dev` on :3000 is never mistaken for the
+// E2E build (it would lack the E2E env and serve stale code).
+const PORT = 3100;
+
 export default defineConfig({
   testDir: "e2e",
   fullyParallel: true,
   timeout: 60000,
+  // A cold production server can take a few seconds to answer the first
+  // request to each route.
+  expect: { timeout: 10_000 },
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
@@ -28,9 +35,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run build && npm start",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    command: `npm run build && npx next start -p ${PORT}`,
+    url: `http://localhost:${PORT}`,
+    // Always build fresh; set PW_REUSE_SERVER=1 to iterate against a running
+    // E2E server started with the same env.
+    reuseExistingServer: process.env.PW_REUSE_SERVER === "1",
     timeout: 180 * 1000,
     env: {
       NEXT_PUBLIC_USE_AUTH_EMULATOR: "true",
